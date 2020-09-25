@@ -12,18 +12,18 @@ RStudio Binder:
   - Background on machine learning
       - Classification vs regression
       - Performance metrics
-  - Data preprocessing
+  - Data preprocessing (recipe)
       - Missing data
       - Train/test splits
-  - Algorithm walkthroughs
+  - Algorithm walkthroughs (workflow, parsnip, tune, yardstick)
       - Lasso
       - Decision trees
       - Random forests
       - Gradient boosted machines
-      - SuperLearner ensembling
+      - SuperLearner ensembling (non-tidymodels)
       - Principal component analysis  
-      - Hierarchical agglomerative clustering  
-  - Challenge questions  
+      - Hierarchical agglomerative clustering (non-tidymodels)
+  - Challenge questions (TBD)
   
 ## Getting started
 
