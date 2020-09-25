@@ -22,10 +22,10 @@ RStudio Binder:
       - Decision trees
       - Random forests
       - Gradient boosted machines
-      - SuperLearner ensembling (non-tidymodels)
+      - SuperLearner ensembling 
       - Principal component analysis  
-      - Hierarchical agglomerative clustering (non-tidymodels)
-  - Challenge questions (TBD)
+      - Hierarchical agglomerative clustering
+  - Challenge questions (**TBD**)
   
 ## Getting started
 
