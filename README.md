@@ -1,6 +1,6 @@
 # Machine Learning with Tidymodels 
 
-This is a remix version of the [D-Lab’s Introduction to Machine Learning in R workshop](https://github.com/dlab-berkeley/Machine-Learning-in-R). This version of the workshop introduces focuses on [the tidymodels framework](https://www.tidymodels.org/) and its applications.
+This is a remix version of the [D-Lab’s Introduction to Machine Learning in R workshop](https://github.com/dlab-berkeley/Machine-Learning-in-R). This version of the workshop focuses on [the tidymodels framework](https://www.tidymodels.org/) and its applications.
 
 [View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-in-R/slides.html#1).
 
