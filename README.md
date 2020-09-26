@@ -2,7 +2,7 @@
 
 This is [Jae Yeon Kim](https://jaeyk.github.io/)'s remix version of the [D-Lab’s Introduction to Machine Learning in R workshop](https://github.com/dlab-berkeley/Machine-Learning-in-R) designed by [Chris Kennedy](https://ck37.com/) and [Evan Muzzall](https://dlab.berkeley.edu/people/evan-muzzall). This version of the workshop focuses on [the tidymodels framework](https://www.tidymodels.org/) and its applications.
 
-[View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-in-R/slides.html#1).
+[View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-with-tidymodels/slides.html#1).
 
 RStudio Binder:
 [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-in-R/master?urlpath=rstudio)
