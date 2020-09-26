@@ -50,7 +50,7 @@ theme_set(thm)
 ```
 
 class: title-slide   
-<a href="https://github.com/dlab-berkeley/Machine-Learning-in-R"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+<a href="https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
 <br><br><br><br>
 # .font130[Introduction to Machine Learning in R]
@@ -105,7 +105,7 @@ class: center, middle, inverse
 
 # Download materials
 
-[Click here to download the Introduction to Machine Learning in R workshop materials](https://github.com/dlab-berkeley/Machine-Learning-in-R)
+[Click here to download the Introduction to Machine Learning in R workshop materials](https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels)
   * Click green “Clone or Download” button
   * Click “Download Zip”
   * Extract this zip file to your Dropbox / Box / etc. and double-click the Rproj file.
