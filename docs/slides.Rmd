@@ -13,7 +13,8 @@ output:
       ratio: '16:9'
       highlightStyle: github
       highlightLines: true
-      countIncrementalSlides: false
+      highlightSpans: true
+      countIncrementalSlides: true
       slideNumberFormat: |
         <div class="progress-bar-container">
           <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
@@ -25,6 +26,7 @@ output:
 ```{r setup, include=FALSE, cache=FALSE}
 # Set global R options
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+
 # Set global knitr chunk options
 knitr::opts_chunk$set(
   fig.align = "center", 
@@ -32,9 +34,9 @@ knitr::opts_chunk$set(
   error = FALSE,
   message = FALSE, 
   warning = FALSE, 
-  collapse = TRUE,
-  eval = FALSE
+  collapse = TRUE
 )
+
 library(ggplot2)
 # This is good for getting the ggplot background consistent with
 # the html background color
@@ -141,7 +143,7 @@ This workshop will utilize a variety of packages to install and organize the cod
 Machine learning evolved from scientific pursuits in statistics, computer science, information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
-1) **Generally:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
+1) **Generally:** algorithms, computers, and other machines that can **"learn" without direct input from a human programmer.**  
 2) **Practically:** sets of tools for investigating/modeling/understanding data.  
 3)  **Specifically:** (see below)
 
@@ -173,9 +175,37 @@ The importance of statistics:
 - [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf)  
 - [Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
 - [Breiman's take](https://projecteuclid.org/euclid.ss/1009213726)  
-
+  - "If our goal as a field is to use data to solve problems, then we need to move away from exclusive dependence on data models and adopt a more diverse set of tools."
+  
 Seek "actionable insight":  
 - [Actionable insight](https://www.techopedia.com/definition/31721/actionable-insight)  
+
+---
+
+# The main types of machine learning 
+
+.center[<img src="https://i.vas3k.ru/7vz.jpg"
+  height = "500"/>]
+
+- Based on [vas3k blog](https://vas3k.com/blog/machine_learning/). Many images in these slides come from vas3k blog. (Jae: Thank you!) 
+
+---
+
+# The map of the machine learning universe
+
+.center[<img src="https://i.vas3k.ru/7vx.jpg"
+  height = "500"/>]
+  
+- Based on [vas3k blog](https://vas3k.com/blog/machine_learning/)
+
+---
+
+# Classical machine learning 
+
+.center[<img src="https://i.vas3k.ru/7w1.jpg"
+  height = "500"/>]
+
+- Based on [vas3k blog](https://vas3k.com/blog/machine_learning/)
 
 ---
 
@@ -198,7 +228,7 @@ Supervised machine learning methods learn a target function $f$ that best maps $
 
 # Supervised machine learning
 
-Our function would look like this: $y = f(x) + \epsilon$ where $f$ is some function that relates our $x$ predictor variables to $y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $x$ and averages to zero. Therefore, we can predict $y$ using $\hat{y} = \hat{f}(x)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets#Test_dataset)) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: $y = f(x) + \epsilon$ where $f$ is some function that relates our $x$ predictor variables to $y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $x$ and averages to zero. Therefore, we can predict $y$ using $\hat{y} = \hat{f}(x)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets#Test_dataset)) and evaluate how well the algorithm learned the target function when introduced to new data. (Note $\hat{y}$ means predicted y values.)  
 
 **How to define machine learning, specifically? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
@@ -209,7 +239,39 @@ More specifically, we can think of machine learning as a bunch of methods to est
 
 **Classification** is used when the $y$ outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(y = 1 | x)$. This can be extended to multi-level classification as well.  
 
+
+<img src="https://i.vas3k.ru/7qx.jpg" height = "300"/>
+
+Based on [vas3k blog](https://vas3k.com/blog/machine_learning/) 
+
+---
+
+# Classification or regression?
+
+.pull-left[
 **Regression** is used when the target $y$ outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(y | x)$.  
+
+<img src="https://i.vas3k.ru/7qy.jpg" height = "250"/>
+
+Based on [vas3k blog](https://vas3k.com/blog/machine_learning/) 
+
+]
+
+.pull-right[
+
+```{r}
+
+# Build a linear regression model 
+out <- lm(mpg ~ cyl, data = mtcars)
+
+# Make predictions for the first five rows 
+predict(out)[1:5]
+
+# First five rows
+mtcars[1:5,]
+
+```
+]
 
 ---
 
@@ -276,6 +338,11 @@ class: left
 1) **OLS and lasso regression examples:** How well can a person's age be predicted using the other heart disease-related variables?  
 
 2) **Binary classification examples:** How reliably can different algorithms predict a person's heart disease status using the other variables?  
+
+---
+
+# Tidymodels 
+
 
 ---
 
