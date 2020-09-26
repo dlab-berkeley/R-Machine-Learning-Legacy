@@ -315,6 +315,117 @@ class: left
 
 ---
 
+# Tidymodels 
+
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/ds.png)
+
+---
+
+# Tidymodels 
+
+.pull-left[
+
+## Workflow 
+
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+]
+
+.pull-right[
+
+## Pre-process 
+
+
+```r
+
+# data split 
+set.seed(1234)
+
+df_split  &lt;- rsample::initial_split(df, prop = 0.7)
+train &lt;- rsample::training(df_split) 
+test &lt;- rsample::testing(df_split)
+
+# preprocess 
+df_recipe &lt;- df %&gt;% recipe(resonse ~.) %&gt;%
+  step_center(all_predictors(), -all_outcomes()) %&gt;%
+  step_scale(all_predictors(), -all_outcomes()) %&gt;%
+  prep()
+
+# preprocessed training and testsets 
+processed_train &lt;- df_recipe %&gt;% bake(train)
+processed_test &lt;- df_recipe %&gt;% bake(test)
+  
+```
+
+]
+
+---
+
+# Tidymodels 
+
+.pull-left[
+
+## Workflow 
+
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+]
+
+.pull-right[
+
+## Train
+
+
+```r
+
+# fit model 
+
+df_ranger &lt;- rand_forest(trees = 1000, 
+                         mode = "classification") %&gt;%
+  set_engine("ranger") %&gt;%
+  fit(response ~ ., data = processed_train)
+
+# make predictions 
+
+df_pred &lt;- predict(df_ranger, processed_test)
+
+```
+
+]
+
+---
+
+# Tidymodels 
+
+.pull-left[
+
+## Workflow 
+
+![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+]
+
+.pull-right[
+
+## Validate
+
+
+```r
+
+# validate 
+
+df_pred %&gt;%
+  bind_cols(processed_test) %&gt;%
+  metrics(truth = response, estimate = .pred_class)
+
+## # A tibble: 2 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy multiclass     0.9
+## 2 kap      multiclass     0.8
+
+```
+
+]
+
+---
 # Data preprocessing
 
 A first task will be to split our data into training and test sets. This not only allows us to build a model on training data and evaluate its performance on test/holdout data, but it is also a good way to get familiar with cross-validation. 
