@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 17 Going further - the mclust package | Machine Learning in R</title>
+  <meta name="description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 17 Going further - the mclust package | Machine Learning in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="github-repo" content="dlab-berkeley/Machine-Learning-in-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 17 Going further - the mclust package | Machine Learning in R" />
+  
+  <meta name="twitter:description" content="D-Lab’s Machine Learning in R Workshop" />
+  
+
+
+
+<meta name="date" content="2020-09-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="the-pvclust-package.html"/>
+
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Machine Learning in R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#prereqs"><i class="fa fa-check"></i><b>1.1</b> Prereqs</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#package-installation"><i class="fa fa-check"></i><b>2.1</b> Package installation</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="preprocessing.html"><a href="preprocessing.html"><i class="fa fa-check"></i><b>3</b> Preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>3.1</b> Load packages</a></li>
+<li class="chapter" data-level="3.2" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>3.2</b> Load the data</a></li>
+<li class="chapter" data-level="3.3" data-path="preprocessing.html"><a href="preprocessing.html#read-background-information-and-variable-descriptions"><i class="fa fa-check"></i><b>3.3</b> Read background information and variable descriptions</a></li>
+<li class="chapter" data-level="3.4" data-path="preprocessing.html"><a href="preprocessing.html#quick-overviews-on-machine-learning"><i class="fa fa-check"></i><b>3.4</b> Quick overviews on machine learning</a></li>
+<li class="chapter" data-level="3.5" data-path="preprocessing.html"><a href="preprocessing.html#machine-learning-workflow"><i class="fa fa-check"></i><b>3.5</b> Machine learning workflow</a></li>
+<li class="chapter" data-level="3.6" data-path="preprocessing.html"><a href="preprocessing.html#why-taking-a-tidyverse-approach-to-machine-learning"><i class="fa fa-check"></i><b>3.6</b> Why taking a tidyverse approach to machine learning?</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="preprocessing.html"><a href="preprocessing.html#benefits"><i class="fa fa-check"></i><b>3.6.1</b> Benefits</a></li>
+<li class="chapter" data-level="3.6.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>3.6.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="preprocessing.html"><a href="preprocessing.html#data-preprocessing"><i class="fa fa-check"></i><b>3.7</b> Data preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="preprocessing.html"><a href="preprocessing.html#task-1-what-is-one-hot-encoding"><i class="fa fa-check"></i><b>3.7.1</b> Task 1: What is one-hot encoding?</a></li>
+<li class="chapter" data-level="3.7.2" data-path="preprocessing.html"><a href="preprocessing.html#task-2-handling-missing-data"><i class="fa fa-check"></i><b>3.7.2</b> Task 2: Handling missing data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="preprocessing.html"><a href="preprocessing.html#preprocessing-workflow"><i class="fa fa-check"></i><b>3.8</b> Preprocessing workflow</a></li>
+<li class="chapter" data-level="3.9" data-path="preprocessing.html"><a href="preprocessing.html#regressioin-setup"><i class="fa fa-check"></i><b>3.9</b> Regressioin setup</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable"><i class="fa fa-check"></i><b>3.9.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-random-sampling"><i class="fa fa-check"></i><b>3.9.2</b> Data splitting using random sampling</a></li>
+<li class="chapter" data-level="3.9.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe"><i class="fa fa-check"></i><b>3.9.3</b> recipe</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="preprocessing.html"><a href="preprocessing.html#classification-setup"><i class="fa fa-check"></i><b>3.10</b> Classification setup</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable-1"><i class="fa fa-check"></i><b>3.10.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.10.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-stratified-random-sampling"><i class="fa fa-check"></i><b>3.10.2</b> Data splitting using stratified random sampling</a></li>
+<li class="chapter" data-level="3.10.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe-1"><i class="fa fa-check"></i><b>3.10.3</b> recipe</a></li>
+<li class="chapter" data-level="3.10.4" data-path="preprocessing.html"><a href="preprocessing.html#save-our-preprocessed-data"><i class="fa fa-check"></i><b>3.10.4</b> Save our preprocessed data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html"><i class="fa fa-check"></i><b>4</b> OLS and lasso</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>4.1</b> Load packages</a></li>
+<li class="chapter" data-level="4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>4.2</b> Load data</a></li>
+<li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
+<li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#ols"><i class="fa fa-check"></i><b>4.4.1</b> OLS</a></li>
+<li class="chapter" data-level="4.4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#lasso"><i class="fa fa-check"></i><b>4.4.2</b> Lasso</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.5</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>5.1</b> Load packages</a></li>
+<li class="chapter" data-level="5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>5.2</b> Load data</a></li>
+<li class="chapter" data-level="5.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>5.3</b> Overview</a></li>
+<li class="chapter" data-level="5.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>5.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>5.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="5.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>5.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>5.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>5.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="5.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>5.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="5.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune"><i class="fa fa-check"></i><b>5.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="random-forests.html"><a href="random-forests.html"><i class="fa fa-check"></i><b>6</b> Random Forests</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>6.1</b> Load packages</a></li>
+<li class="chapter" data-level="6.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>6.2</b> Load data</a></li>
+<li class="chapter" data-level="6.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>6.3</b> Overview</a></li>
+<li class="chapter" data-level="6.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>6.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>6.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="6.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>6.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>6.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>6.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="6.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>6.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="6.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune"><i class="fa fa-check"></i><b>6.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="xgboost.html"><a href="xgboost.html"><i class="fa fa-check"></i><b>7</b> XGBoost</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>7.1</b> Load packages</a></li>
+<li class="chapter" data-level="7.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>7.2</b> Load data</a></li>
+<li class="chapter" data-level="7.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>7.3</b> Overview</a></li>
+<li class="chapter" data-level="7.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>7.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="xgboost.html"><a href="xgboost.html#define-cv_control"><i class="fa fa-check"></i><b>7.4.1</b> Define <code>cv_control</code></a></li>
+<li class="chapter" data-level="7.4.2" data-path="xgboost.html"><a href="xgboost.html#define-xgb_grid"><i class="fa fa-check"></i><b>7.4.2</b> Define <code>xgb_grid</code></a></li>
+<li class="chapter" data-level="7.4.3" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>7.4.3</b> Fit model</a></li>
+<li class="chapter" data-level="7.4.4" data-path="xgboost.html"><a href="xgboost.html#investigate-results"><i class="fa fa-check"></i><b>7.4.4</b> Investigate Results</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>7.5</b> Tidymodels</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>7.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="7.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>7.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="7.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune"><i class="fa fa-check"></i><b>7.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="ensembles.html"><a href="ensembles.html"><i class="fa fa-check"></i><b>8</b> Ensembles</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>8.1</b> Load packages</a></li>
+<li class="chapter" data-level="8.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>8.2</b> Load data</a></li>
+<li class="chapter" data-level="8.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>8.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="ensembles.html"><a href="ensembles.html#choose-algorithms"><i class="fa fa-check"></i><b>8.3.1</b> Choose algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>8.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="8.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>8.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="8.4.2" data-path="ensembles.html"><a href="ensembles.html#risk"><i class="fa fa-check"></i><b>8.4.2</b> Risk</a></li>
+<li class="chapter" data-level="8.4.3" data-path="ensembles.html"><a href="ensembles.html#plot-the-risk"><i class="fa fa-check"></i><b>8.4.3</b> Plot the risk</a></li>
+<li class="chapter" data-level="8.4.4" data-path="ensembles.html"><a href="ensembles.html#compute-auc-for-all-estimators"><i class="fa fa-check"></i><b>8.4.4</b> Compute AUC for all estimators</a></li>
+<li class="chapter" data-level="8.4.5" data-path="ensembles.html"><a href="ensembles.html#plot-the-roc-curve-for-the-best-estimator"><i class="fa fa-check"></i><b>8.4.5</b> Plot the ROC curve for the best estimator</a></li>
+<li class="chapter" data-level="8.4.6" data-path="ensembles.html"><a href="ensembles.html#review-weight-distribution-for-the-superlearner"><i class="fa fa-check"></i><b>8.4.6</b> Review weight distribution for the SuperLearner</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="ensembles.html"><a href="ensembles.html#challenge-5"><i class="fa fa-check"></i><b>8.5</b> Challenge 5</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html"><i class="fa fa-check"></i><b>9</b> Principal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#unsupervised-approaches"><i class="fa fa-check"></i><b>9.1</b> Unsupervised approaches</a></li>
+<li class="chapter" data-level="9.2" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#correlation-analysis"><i class="fa fa-check"></i><b>9.2</b> Correlation analysis</a></li>
+<li class="chapter" data-level="9.3" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#screeplot"><i class="fa fa-check"></i><b>9.3</b> Screeplot</a></li>
+<li class="chapter" data-level="9.4" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#view-factor-loadings"><i class="fa fa-check"></i><b>9.4</b> View factor loadings</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html"><i class="fa fa-check"></i><b>10</b> Hierarchical Agglomerative Clustering</a></li>
+<li class="chapter" data-level="11" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>11</b> Load packages</a></li>
+<li class="chapter" data-level="12" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>12</b> Load the data</a></li>
+<li class="chapter" data-level="13" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>13</b> Overview</a></li>
+<li class="chapter" data-level="14" data-path="preprocess-data.html"><a href="preprocess-data.html"><i class="fa fa-check"></i><b>14</b> Preprocess data</a></li>
+<li class="chapter" data-level="15" data-path="the-ape-package.html"><a href="the-ape-package.html"><i class="fa fa-check"></i><b>15</b> The <code>ape</code> package</a></li>
+<li class="chapter" data-level="16" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html"><i class="fa fa-check"></i><b>16</b> The <code>pvclust</code> package</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#compare-different-dissimilarity-measures"><i class="fa fa-check"></i><b>16.1</b> Compare different dissimilarity measures</a>
+<ul>
+<li class="chapter" data-level="16.1.1" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#wards-method-minimum-variance-between-clusters"><i class="fa fa-check"></i><b>16.1.1</b> Ward’s method: minimum variance between clusters</a></li>
+<li class="chapter" data-level="16.1.2" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#complete-linkage-largest-intercluster-difference"><i class="fa fa-check"></i><b>16.1.2</b> Complete linkage: largest intercluster difference</a></li>
+<li class="chapter" data-level="16.1.3" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#single-linkage-smallest-intercluster-difference"><i class="fa fa-check"></i><b>16.1.3</b> Single linkage: smallest intercluster difference</a></li>
+<li class="chapter" data-level="16.1.4" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#average-linkage-mean-intercluster-difference"><i class="fa fa-check"></i><b>16.1.4</b> Average linkage: mean intercluster difference</a></li>
+<li class="chapter" data-level="16.1.5" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#view-summaries"><i class="fa fa-check"></i><b>16.1.5</b> View summaries</a></li>
+<li class="chapter" data-level="16.1.6" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#plot-euclidean-distance-linkages"><i class="fa fa-check"></i><b>16.1.6</b> Plot Euclidean distance linkages</a></li>
+<li class="chapter" data-level="16.1.7" data-path="the-pvclust-package.html"><a href="the-pvclust-package.html#view-standard-error-plots"><i class="fa fa-check"></i><b>16.1.7</b> View standard error plots:</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="17" data-path="going-further-the-mclust-package.html"><a href="going-further-the-mclust-package.html"><i class="fa fa-check"></i><b>17</b> Going further - the <code>mclust</code> package</a>
+<ul>
+<li class="chapter" data-level="17.0.1" data-path="going-further-the-mclust-package.html"><a href="going-further-the-mclust-package.html#return-best-performing-model"><i class="fa fa-check"></i><b>17.0.1</b> Return best performing model</a></li>
+<li class="chapter" data-level="17.0.2" data-path="going-further-the-mclust-package.html"><a href="going-further-the-mclust-package.html#cross-validated-mclust"><i class="fa fa-check"></i><b>17.0.2</b> Cross-validated mclust</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Machine Learning in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="going-further---the-mclust-package" class="section level1" number="17">
+<h1><span class="header-section-number">Chapter 17</span> Going further - the <code>mclust</code> package</h1>
+<p>The <a href="https://cran.r-project.org/web/packages/mclust/index.html"><code>mclust</code></a> package provides “Gaussian finite mixture models fitted via EM algorithm for model-based clustering, classification, and density estimation, including Bayesian regularization, dimension reduction for visualisation, and resampling-based inference.”</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="going-further-the-mclust-package.html#cb49-1"></a><span class="co"># Fit model</span></span>
+<span id="cb49-2"><a href="going-further-the-mclust-package.html#cb49-2"></a>mclust_model &lt;-<span class="st"> </span><span class="kw">Mclust</span>(ml_num)</span>
+<span id="cb49-3"><a href="going-further-the-mclust-package.html#cb49-3"></a></span>
+<span id="cb49-4"><a href="going-further-the-mclust-package.html#cb49-4"></a><span class="co"># View various plots</span></span>
+<span id="cb49-5"><a href="going-further-the-mclust-package.html#cb49-5"></a><span class="kw">plot</span>(mclust_model, <span class="dt">what =</span> <span class="st">&quot;BIC&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="going-further-the-mclust-package.html#cb50-1"></a><span class="kw">plot</span>(mclust_model, <span class="dt">what =</span> <span class="st">&quot;classification&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="going-further-the-mclust-package.html#cb51-1"></a><span class="kw">plot</span>(mclust_model, <span class="dt">what =</span> <span class="st">&quot;uncertainty&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-13-3.png" width="672" /></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="going-further-the-mclust-package.html#cb52-1"></a><span class="kw">plot</span>(mclust_model, <span class="dt">what =</span> <span class="st">&quot;density&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-13-4.png" width="672" /></p>
+<div id="return-best-performing-model" class="section level3" number="17.0.1">
+<h3><span class="header-section-number">17.0.1</span> Return best performing model</h3>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="going-further-the-mclust-package.html#cb53-1"></a><span class="kw">summary</span>(mclust_model)</span></code></pre></div>
+<pre><code>## ---------------------------------------------------- 
+## Gaussian finite mixture model fitted by EM algorithm 
+## ---------------------------------------------------- 
+## 
+## Mclust VII (spherical, varying volume) model with 7 components: 
+## 
+##  log-likelihood   n  df       BIC       ICL
+##       -5096.868 303 104 -10787.97 -10851.91
+## 
+## Clustering table:
+##  1  2  3  4  5  6  7 
+## 31 87 13 20 44 75 33</code></pre>
+</div>
+<div id="cross-validated-mclust" class="section level3" number="17.0.2">
+<h3><span class="header-section-number">17.0.2</span> Cross-validated mclust</h3>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="going-further-the-mclust-package.html#cb55-1"></a><span class="co"># sort age in decreasing order</span></span>
+<span id="cb55-2"><a href="going-further-the-mclust-package.html#cb55-2"></a>ml_num &lt;-<span class="st"> </span>ml_num <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(age))</span>
+<span id="cb55-3"><a href="going-further-the-mclust-package.html#cb55-3"></a>  </span>
+<span id="cb55-4"><a href="going-further-the-mclust-package.html#cb55-4"></a><span class="kw">head</span>(ml_num)</span></code></pre></div>
+<pre><code>##        age        sex          cp   trestbps       chol        fbs    restecg
+## 1 2.492118  0.6798805 -0.93696465 -0.3776775  1.1139328 -0.4169448 -1.0041707
+## 2 2.382011 -1.4659924  1.00092128  0.4776012 -0.9504787 -0.4169448  2.7991259
+## 3 2.161798 -1.4659924  0.03197832 -0.6627704  0.4386580 -0.4169448 -1.0041707
+## 4 1.831477 -1.4659924  0.03197832  1.6179728  1.0753457 -0.4169448  0.8974776
+## 5 1.831477 -1.4659924  1.00092128 -1.2329562  0.3614837  2.3904835 -1.0041707
+## 6 1.831477 -1.4659924 -0.93696465 -1.1189191 -1.8765699 -0.4169448  0.8974776
+##      thalach    exang     oldpeak      slope         ca       thal
+## 1  0.5393167  1.43311 -0.89538052  0.9747397  2.2204312 -0.5120748
+## 2 -1.4689643 -0.69548  0.05201734 -0.6480412 -0.7132490 -0.5120748
+## 3 -1.2506729  1.43311 -0.72312637  0.9747397  0.2646444 -0.5120748
+## 4  0.5393167 -0.69548 -0.55087221  0.9747397  1.2425378 -0.5120748
+## 5 -0.8577484 -0.69548 -0.89538052  0.9747397  0.2646444 -0.5120748
+## 6 -1.0760398 -0.69548  0.48265274 -0.6480412 -0.7132490 -0.5120748</code></pre>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="going-further-the-mclust-package.html#cb57-1"></a><span class="co"># create a binary factor variable from age: &quot;less than 0&quot; and &quot;greater than/equal to 0&quot;</span></span>
+<span id="cb57-2"><a href="going-further-the-mclust-package.html#cb57-2"></a>ml_num<span class="op">$</span>class &lt;-<span class="st"> </span><span class="kw">cut</span>(ml_num<span class="op">$</span>age,</span>
+<span id="cb57-3"><a href="going-further-the-mclust-package.html#cb57-3"></a>  <span class="dt">breaks =</span> <span class="kw">c</span>(</span>
+<span id="cb57-4"><a href="going-further-the-mclust-package.html#cb57-4"></a>    <span class="kw">min</span>(ml_num<span class="op">$</span>age),</span>
+<span id="cb57-5"><a href="going-further-the-mclust-package.html#cb57-5"></a>    <span class="dv">0</span>,</span>
+<span id="cb57-6"><a href="going-further-the-mclust-package.html#cb57-6"></a>    <span class="kw">max</span>(ml_num<span class="op">$</span>age)</span>
+<span id="cb57-7"><a href="going-further-the-mclust-package.html#cb57-7"></a>  ),</span>
+<span id="cb57-8"><a href="going-further-the-mclust-package.html#cb57-8"></a>  <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb57-9"><a href="going-further-the-mclust-package.html#cb57-9"></a>  <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;less than 0&quot;</span>, <span class="st">&quot;greater than/equal to 0&quot;</span>)</span>
+<span id="cb57-10"><a href="going-further-the-mclust-package.html#cb57-10"></a>)</span>
+<span id="cb57-11"><a href="going-further-the-mclust-package.html#cb57-11"></a>ml_num</span></code></pre></div>
+<pre><code>##             age        sex          cp    trestbps         chol        fbs
+## 1    2.49211756  0.6798805 -0.93696465 -0.37767753  1.113932800 -0.4169448
+## 2    2.38201088 -1.4659924  1.00092128  0.47760118 -0.950478731 -0.4169448
+## 3    2.16179752 -1.4659924  0.03197832 -0.66277043  0.438658001 -0.4169448
+## 4    1.83147747 -1.4659924  0.03197832  1.61797278  1.075345669 -0.4169448
+## 5    1.83147747 -1.4659924  1.00092128 -1.23295623  0.361483738  2.3904835
+## 6    1.83147747 -1.4659924 -0.93696465 -1.11891907 -1.876569885 -0.4169448
+## 7    1.72137079  0.6798805  0.03197832  1.38989846 -0.024387576 -0.4169448
+## 8    1.72137079  0.6798805 -0.93696465  0.76269408 -1.394230742 -0.4169448
+## 9    1.72137079  0.6798805 -0.93696465 -0.09258463  1.461216983 -0.4169448
+## 10   1.72137079  0.6798805  1.00092128  1.61797278  0.438658001 -0.4169448
+## 11   1.61126411 -1.4659924  1.96986425  0.47760118 -0.140148971 -0.4169448
+## 12   1.61126411  0.6798805  1.96986425  1.61797278 -0.236616799  2.3904835
+## 13   1.61126411  0.6798805  1.00092128  0.47760118  0.149254515 -0.4169448
+## 14   1.50115743  0.6798805  1.00092128 -0.77680759  0.593006526 -0.4169448
+## 15   1.50115743 -1.4659924  1.00092128 -0.66277043 -0.680368811 -0.4169448
+## 16   1.50115743  0.6798805  1.00092128  2.75834438  0.535125829  2.3904835
+## 17   1.50115743  0.6798805 -0.93696465  0.70567550 -1.027652993  2.3904835
+## 18   1.39105075 -1.4659924  1.00092128 -0.94786333  6.130259885 -0.4169448
+## 19   1.39105075 -1.4659924  1.00092128  1.16182414  0.593006526 -0.4169448
+## 20   1.39105075 -1.4659924 -0.93696465 -1.46103055 -0.448846022 -0.4169448
+## 21   1.39105075  0.6798805 -0.93696465  1.61797278  0.766648618 -0.4169448
+## 22   1.39105075  0.6798805 -0.93696465 -0.66277043 -0.333084628 -0.4169448
+## 23   1.39105075  0.6798805 -0.93696465 -0.37767753  0.149254515  2.3904835
+## 24   1.39105075  0.6798805 -0.93696465 -1.80314203  1.017464972 -0.4169448
+## 25   1.39105075  0.6798805 -0.93696465 -0.66277043 -0.178736102 -0.4169448
+## 26   1.39105075  0.6798805  1.00092128  1.16182414 -0.661075245 -0.4169448
+## 27   1.28094407 -1.4659924  1.96986425  1.04778698 -0.390965325 -0.4169448
+## 28   1.28094407  0.6798805 -0.93696465 -0.66277043  1.075345669 -0.4169448
+## 29   1.28094407  0.6798805 -0.93696465  1.61797278 -0.352378194 -0.4169448
+## 30   1.28094407 -1.4659924  1.00092128  0.81971266  0.612300092 -0.4169448
+## 31   1.28094407  0.6798805  0.03197832  1.61797278 -0.005094011 -0.4169448
+## 32   1.28094407 -1.4659924 -0.93696465  2.64430722 -0.352378194  2.3904835
+## 33   1.28094407  0.6798805 -0.93696465 -1.11891907 -0.661075245 -0.4169448
+## 34   1.17083738 -1.4659924  1.00092128  0.47760118  3.294105726  2.3904835
+## 35   1.17083738  0.6798805 -0.93696465 -0.66277043 -1.336350045 -0.4169448
+## 36   1.17083738 -1.4659924  1.00092128  1.33287988  0.438658001 -0.4169448
+## 37   1.17083738 -1.4659924  1.00092128  1.61797278  2.194372480 -0.4169448
+## 38   1.17083738 -1.4659924 -0.93696465  1.04778698 -0.410258891 -0.4169448
+## 39   1.17083738  0.6798805 -0.93696465 -1.23295623  0.033493121 -0.4169448
+## 40   1.17083738  0.6798805 -0.93696465  0.19250828  0.149254515 -0.4169448
+## 41   1.17083738  0.6798805  1.96986425  0.36356402  0.689474355  2.3904835
+## 42   1.06073070  0.6798805  1.96986425 -1.23295623 -0.680368811 -0.4169448
+## 43   1.06073070 -1.4659924 -0.93696465  2.75834438  1.519097680 -0.4169448
+## 44   1.06073070 -1.4659924  1.00092128  0.47760118  1.287574892 -0.4169448
+## 45   1.06073070 -1.4659924 -0.93696465 -0.09258463  1.094639235 -0.4169448
+## 46   1.06073070  0.6798805 -0.93696465 -0.20662179  0.322896606 -0.4169448
+## 47   1.06073070  0.6798805  1.96986425  2.18815858 -0.371671759 -0.4169448
+## 48   1.06073070  0.6798805  1.00092128  0.47760118  1.712033337 -0.4169448
+## 49   1.06073070  0.6798805  1.00092128 -0.37767753  1.210400629 -0.4169448
+## 50   1.06073070  0.6798805 -0.93696465 -0.66277043 -0.005094011 -0.4169448
+## 51   1.06073070  0.6798805 -0.93696465  0.76269408 -0.661075245 -0.4169448
+## 52   0.95062402  0.6798805  1.96986425  0.76269408 -0.255910365  2.3904835
+## 53   0.95062402 -1.4659924  1.00092128  0.19250828  0.110667384 -0.4169448
+## 54   0.95062402 -1.4659924  0.03197832  0.47760118 -0.989065862 -0.4169448
+## 55   0.95062402  0.6798805 -0.93696465 -0.09258463  0.149254515 -0.4169448
+## 56   0.95062402  0.6798805 -0.93696465 -0.09258463  1.615565509  2.3904835
+## 57   0.95062402 -1.4659924 -0.93696465  1.04778698  3.101170069 -0.4169448
+## 58   0.95062402 -1.4659924 -0.93696465 -1.34699339  0.438658001 -0.4169448
+## 59   0.95062402  0.6798805 -0.93696465  0.47760118 -1.143414388 -0.4169448
+## 60   0.95062402 -1.4659924 -0.93696465 -0.43469611 -0.950478731 -0.4169448
+## 61   0.84051734  0.6798805  1.00092128 -0.09258463 -0.294497496 -0.4169448
+## 62   0.84051734 -1.4659924 -0.93696465 -0.43469611 -0.718955942 -0.4169448
+## 63   0.84051734 -1.4659924 -0.93696465  0.47760118  2.850353714 -0.4169448
+## 64   0.84051734  0.6798805  0.03197832 -0.20662179 -0.738249508  2.3904835
+## 65   0.84051734 -1.4659924 -0.93696465  0.47760118  0.419364435 -0.4169448
+## 66   0.84051734  0.6798805 -0.93696465 -0.66277043  0.400070869 -0.4169448
+## 67   0.84051734 -1.4659924 -0.93696465  1.61797278 -1.587166399 -0.4169448
+## 68   0.84051734 -1.4659924  1.00092128 -0.09258463  0.322896606 -0.4169448
+## 69   0.84051734  0.6798805  0.03197832 -0.66277043  0.670180789 -0.4169448
+## 70   0.84051734 -1.4659924 -0.93696465  0.36356402  0.920997143  2.3904835
+## 71   0.84051734 -1.4659924 -0.93696465  1.04778698 -0.043681142 -0.4169448
+## 72   0.73041066  0.6798805  1.00092128  1.04778698 -0.062974708  2.3904835
+## 73   0.73041066 -1.4659924 -0.93696465 -0.09258463  1.615565509 -0.4169448
+## 74   0.73041066  0.6798805 -0.93696465 -0.66277043  0.265015909 -0.4169448
+## 75   0.73041066 -1.4659924 -0.93696465  0.76269408  1.171813498 -0.4169448
+## 76   0.73041066  0.6798805  1.96986425  0.13548970 -0.236616799 -0.4169448
+## 77   0.73041066  0.6798805 -0.93696465  0.36356402 -1.548579268 -0.4169448
+## 78   0.73041066  0.6798805 -0.93696465  0.47760118 -0.757543073 -0.4169448
+## 79   0.73041066  0.6798805 -0.93696465  0.93374982 -0.834717336 -0.4169448
+## 80   0.62030398 -1.4659924  1.00092128 -1.68910487  1.384042720 -0.4169448
+## 81   0.62030398 -1.4659924  1.00092128 -0.66277043 -1.317056479  2.3904835
+## 82   0.62030398 -1.4659924  1.96986425  1.04778698 -0.120855405 -0.4169448
+## 83   0.62030398  0.6798805 -0.93696465 -0.09258463 -0.776836639 -0.4169448
+## 84   0.62030398  0.6798805 -0.93696465 -0.83382617 -0.313791062  2.3904835
+## 85   0.62030398  0.6798805 -0.93696465 -0.09258463  0.129960949 -0.4169448
+## 86   0.62030398  0.6798805 -0.93696465  0.76269408  0.689474355 -0.4169448
+## 87   0.62030398  0.6798805  1.00092128  0.47760118 -1.182001519 -0.4169448
+## 88   0.62030398  0.6798805 -0.93696465 -0.37767753  0.226428778 -0.4169448
+## 89   0.62030398 -1.4659924 -0.93696465  1.04778698  0.226428778 -0.4169448
+## 90   0.62030398  0.6798805 -0.93696465  0.47760118  0.901703578 -0.4169448
+## 91   0.51019730  0.6798805 -0.93696465  0.19250828 -0.236616799 -0.4169448
+## 92   0.51019730  0.6798805  1.00092128  1.04778698 -0.661075245  2.3904835
+## 93   0.51019730  0.6798805  0.03197832  0.47760118 -0.487433154 -0.4169448
+## 94   0.51019730  0.6798805  1.96986425  2.64430722  0.457951566 -0.4169448
+## 95   0.51019730  0.6798805 -0.93696465  0.36356402  0.477245132 -0.4169448
+## 96   0.51019730  0.6798805 -0.93696465  2.18815858  1.538391246 -0.4169448
+## 97   0.51019730  0.6798805 -0.93696465 -1.23295623 -0.140148971 -0.4169448
+## 98   0.51019730  0.6798805 -0.93696465  0.47760118 -1.336350045 -0.4169448
+## 99   0.51019730  0.6798805  1.96986425  2.18815858  0.805235749 -0.4169448
+## 100  0.51019730 -1.4659924 -0.93696465  2.41623290  0.052786686 -0.4169448
+## 101  0.51019730  0.6798805  1.96986425  1.61797278  0.515832263 -0.4169448
+## 102  0.51019730  0.6798805  1.00092128 -0.32065895 -0.545313851  2.3904835
+## 103  0.51019730  0.6798805  1.96986425  0.13548970 -0.815423771 -0.4169448
+## 104  0.51019730  0.6798805 -0.93696465  1.84604710 -1.355643610  2.3904835
+## 105  0.40009061 -1.4659924  1.96986425  1.04778698  0.708767921  2.3904835
+## 106  0.40009061 -1.4659924  1.00092128 -0.66277043  1.808501166 -0.4169448
+## 107  0.40009061  0.6798805  1.00092128  0.47760118 -0.680368811  2.3904835
+## 108  0.40009061  0.6798805  1.00092128 -1.51804913 -0.120855405 -0.4169448
+## 109  0.40009061 -1.4659924 -0.93696465 -1.80314203  0.033493121 -0.4169448
+## 110  0.40009061 -1.4659924 -0.93696465 -0.09258463 -0.950478731 -0.4169448
+## 111  0.40009061  0.6798805  0.03197832 -0.37767753 -0.506726719 -0.4169448
+## 112  0.40009061  0.6798805  0.03197832 -0.66277043  0.728061486 -0.4169448
+## 113  0.40009061  0.6798805  1.00092128  0.02145254 -0.429552456 -0.4169448
+## 114  0.40009061  0.6798805  1.00092128 -1.11891907 -0.313791062 -0.4169448
+## 115  0.40009061  0.6798805 -0.93696465 -0.20662179 -0.583900982 -0.4169448
+## 116  0.40009061  0.6798805 -0.93696465  1.04778698  0.457951566 -0.4169448
+## 117  0.40009061  0.6798805 -0.93696465 -0.37767753  1.036758538 -0.4169448
+## 118  0.40009061  0.6798805 -0.93696465 -0.20662179  0.245722343 -0.4169448
+## 119  0.40009061  0.6798805 -0.93696465 -1.80314203 -0.236616799 -0.4169448
+## 120  0.40009061  0.6798805 -0.93696465  0.81971266 -0.545313851 -0.4169448
+## 121  0.40009061 -1.4659924  0.03197832  0.24952686  1.403336286  2.3904835
+## 122  0.40009061  0.6798805 -0.93696465 -1.00488191  1.384042720 -0.4169448
+## 123  0.40009061 -1.4659924 -0.93696465  2.18815858 -0.410258891  2.3904835
+## 124  0.28998393 -1.4659924 -0.93696465 -0.66277043  2.078611086 -0.4169448
+## 125  0.28998393  0.6798805 -0.93696465  0.47760118 -1.046946559 -0.4169448
+## 126  0.28998393  0.6798805  1.00092128  1.04778698 -1.509992136 -0.4169448
+## 127  0.28998393 -1.4659924 -0.93696465 -0.20662179  1.094639235 -0.4169448
+## 128  0.28998393  0.6798805 -0.93696465  0.02145254 -0.757543073 -0.4169448
+## 129  0.28998393  0.6798805  1.00092128  1.04778698 -2.320321896  2.3904835
+## 130  0.28998393  0.6798805 -0.93696465 -1.23295623 -0.873304468 -0.4169448
+## 131  0.28998393  0.6798805 -0.93696465  1.04778698  0.573712961 -0.4169448
+## 132  0.28998393  0.6798805  1.00092128 -0.20662179 -0.333084628 -0.4169448
+## 133  0.28998393  0.6798805 -0.93696465  1.90306568  0.824529315  2.3904835
+## 134  0.28998393  0.6798805 -0.93696465  1.16182414  0.535125829 -0.4169448
+## 135  0.28998393  0.6798805  0.03197832 -0.43469611  0.284309475 -0.4169448
+## 136  0.28998393  0.6798805  0.03197832  1.27586130 -0.275203931 -0.4169448
+## 137  0.28998393  0.6798805 -0.93696465 -1.23295623  1.712033337 -0.4169448
+## 138  0.28998393 -1.4659924 -0.93696465  0.47760118 -0.101561839 -0.4169448
+## 139  0.28998393  0.6798805 -0.93696465 -0.09258463 -2.223854067 -0.4169448
+## 140  0.28998393 -1.4659924  0.03197832 -0.09258463 -0.198029668 -0.4169448
+## 141  0.17987725  0.6798805  0.03197832 -0.66277043 -0.198029668 -0.4169448
+## 142  0.17987725 -1.4659924  0.03197832  0.47760118  0.920997143 -0.4169448
+## 143  0.17987725  0.6798805  1.96986425 -0.66277043 -1.027652993 -0.4169448
+## 144  0.17987725  0.6798805  0.03197832 -0.09258463 -0.487433154 -0.4169448
+## 145  0.17987725  0.6798805  0.03197832 -0.66277043 -0.120855405 -0.4169448
+## 146  0.17987725  0.6798805  1.00092128 -0.09258463  0.187841646  2.3904835
+## 147  0.17987725  0.6798805 -0.93696465 -0.37767753  0.052786686  2.3904835
+## 148  0.17987725 -1.4659924 -0.93696465  3.89871598  0.805235749  2.3904835
+## 149  0.17987725  0.6798805 -0.93696465  0.02145254 -1.201295085 -0.4169448
+## 150  0.17987725 -1.4659924 -0.93696465  0.13548970  3.139757200 -0.4169448
+## 151  0.17987725  0.6798805 -0.93696465 -0.09258463  0.708767921  2.3904835
+## 152  0.06977057 -1.4659924  0.03197832  0.19250828  0.072080252 -0.4169448
+## 153  0.06977057  0.6798805  0.03197832 -0.09258463  0.303603041 -0.4169448
+## 154  0.06977057 -1.4659924  0.03197832  0.02145254  1.847088297 -0.4169448
+## 155  0.06977057  0.6798805 -0.93696465  0.02145254  2.059317520 -0.4169448
+## 156  0.06977057  0.6798805 -0.93696465  0.47760118 -0.564607416 -0.4169448
+## 157  0.06977057  0.6798805 -0.93696465  1.61797278  0.824529315 -0.4169448
+## 158  0.06977057 -1.4659924 -0.93696465  2.75834438  1.557684812 -0.4169448
+## 159  0.06977057 -1.4659924 -0.93696465 -0.20662179 -0.796130205 -0.4169448
+## 160 -0.04033611  0.6798805 -0.93696465  0.47760118 -0.140148971 -0.4169448
+## 161 -0.04033611  0.6798805  1.00092128 -0.37767753  0.515832263 -0.4169448
+## 162 -0.04033611 -1.4659924  1.00092128  0.19250828  1.113932800  2.3904835
+## 163 -0.04033611  0.6798805  1.00092128  1.04778698 -0.275203931 -0.4169448
+## 164 -0.04033611  0.6798805  0.03197832 -1.34699339  1.210400629 -0.4169448
+## 165 -0.04033611  0.6798805  1.00092128 -0.66277043  0.226428778 -0.4169448
+## 166 -0.04033611 -1.4659924  1.00092128 -1.23295623 -0.622488113 -0.4169448
+## 167 -0.04033611 -1.4659924  0.03197832  0.02145254  0.805235749  2.3904835
+## 168 -0.04033611 -1.4659924  1.00092128 -1.34699339  0.400070869 -0.4169448
+## 169 -0.04033611 -1.4659924  1.00092128  1.61797278 -0.873304468 -0.4169448
+## 170 -0.04033611  0.6798805 -0.93696465 -0.43469611  0.380777303 -0.4169448
+## 171 -0.04033611  0.6798805 -0.93696465 -0.66277043 -1.124120822 -0.4169448
+## 172 -0.04033611  0.6798805 -0.93696465 -1.23295623 -0.140148971 -0.4169448
+## 173 -0.04033611  0.6798805  0.03197832  3.44256734  0.708767921 -0.4169448
+## 174 -0.04033611  0.6798805 -0.93696465 -1.23295623 -0.776836639 -0.4169448
+## 175 -0.04033611  0.6798805 -0.93696465 -0.54873327  0.766648618 -0.4169448
+## 176 -0.15044279  0.6798805  1.00092128 -0.09258463 -0.950478731  2.3904835
+## 177 -0.15044279 -1.4659924 -0.93696465 -0.09258463  0.342190172 -0.4169448
+## 178 -0.15044279 -1.4659924  1.00092128 -0.20662179 -0.583900982 -0.4169448
+## 179 -0.15044279 -1.4659924 -0.93696465  0.36356402 -0.236616799 -0.4169448
+## 180 -0.15044279  0.6798805 -0.93696465  0.59163834 -0.390965325 -0.4169448
+## 181 -0.15044279  0.6798805  1.00092128 -0.09258463 -0.005094011  2.3904835
+## 182 -0.15044279  0.6798805 -0.93696465  0.47760118 -0.834717336  2.3904835
+## 183 -0.15044279  0.6798805 -0.93696465 -0.49171469  0.689474355 -0.4169448
+## 184 -0.26054947  0.6798805  1.00092128  2.30219574 -0.911891599  2.3904835
+## 185 -0.26054947  0.6798805  0.03197832 -0.66277043  1.519097680 -0.4169448
+## 186 -0.26054947  0.6798805  0.03197832  0.13548970 -0.873304468 -0.4169448
+## 187 -0.26054947  0.6798805  1.96986425 -0.77680759 -1.162707953 -0.4169448
+## 188 -0.26054947  0.6798805  0.03197832 -0.20662179 -0.796130205  2.3904835
+## 189 -0.26054947  0.6798805  1.96986425  1.16182414  0.998171406  2.3904835
+## 190 -0.26054947  0.6798805  1.00092128  0.36356402 -0.448846022 -0.4169448
+## 191 -0.26054947  0.6798805 -0.93696465 -1.34699339 -0.255910365  2.3904835
+## 192 -0.26054947 -1.4659924  1.00092128  0.24952686 -0.969772296 -0.4169448
+## 193 -0.26054947  0.6798805 -0.93696465 -0.20662179  0.168548081 -0.4169448
+## 194 -0.26054947  0.6798805 -0.93696465 -1.11891907 -0.313791062 -0.4169448
+## 195 -0.26054947  0.6798805 -0.93696465 -0.37767753 -0.661075245 -0.4169448
+## 196 -0.26054947  0.6798805 -0.93696465 -0.20662179 -0.815423771  2.3904835
+## 197 -0.37065616  0.6798805  1.00092128 -1.23295623 -1.374937176 -0.4169448
+## 198 -0.37065616  0.6798805  1.96986425 -0.37767753 -0.641781679 -0.4169448
+## 199 -0.37065616 -1.4659924  1.00092128  0.47760118  1.191107063 -0.4169448
+## 200 -0.37065616 -1.4659924  1.00092128 -0.09258463  0.187841646 -0.4169448
+## 201 -0.37065616  0.6798805  1.00092128 -1.80314203 -0.468139588 -0.4169448
+## 202 -0.37065616  0.6798805  1.00092128 -2.14525351 -0.371671759 -0.4169448
+## 203 -0.37065616  0.6798805 -0.93696465  0.47760118  0.284309475 -0.4169448
+## 204 -0.37065616  0.6798805  1.00092128 -0.37767753 -0.024387576  2.3904835
+## 205 -0.37065616 -1.4659924  1.00092128 -0.66277043  0.940290709 -0.4169448
+## 206 -0.37065616 -1.4659924 -0.93696465 -0.09258463  1.133226366 -0.4169448
+## 207 -0.37065616  0.6798805 -0.93696465  0.47760118  1.017464972 -0.4169448
+## 208 -0.37065616  0.6798805 -0.93696465  0.47760118  0.998171406 -0.4169448
+## 209 -0.48076284 -1.4659924  1.00092128 -0.66277043 -0.526020285 -0.4169448
+## 210 -0.48076284  0.6798805  1.00092128 -0.14960321 -0.969772296 -0.4169448
+## 211 -0.48076284 -1.4659924  0.03197832 -0.66277043 -0.043681142 -0.4169448
+## 212 -0.48076284 -1.4659924 -0.93696465 -1.23295623  0.149254515 -0.4169448
+## 213 -0.48076284  0.6798805 -0.93696465  1.04778698 -0.062974708 -0.4169448
+## 214 -0.48076284  0.6798805  1.00092128  0.47760118 -0.255910365 -0.4169448
+## 215 -0.48076284  0.6798805 -0.93696465  0.70567550 -0.892598033 -0.4169448
+## 216 -0.59086952  0.6798805  0.03197832 -0.09258463  0.380777303 -0.4169448
+## 217 -0.59086952 -1.4659924  0.03197832  0.13548970  0.477245132 -0.4169448
+## 218 -0.59086952 -1.4659924 -0.93696465 -0.09258463  0.438658001 -0.4169448
+## 219 -0.59086952  0.6798805  1.00092128 -0.66277043 -1.124120822 -0.4169448
+## 220 -0.59086952  0.6798805  1.00092128 -0.77680759 -1.876569885 -0.4169448
+## 221 -0.70097620 -1.4659924  1.00092128 -0.09258463  0.554419395 -0.4169448
+## 222 -0.70097620  0.6798805  0.03197832 -0.09258463 -0.024387576 -0.4169448
+## 223 -0.70097620  0.6798805 -0.93696465 -0.54873327 -0.468139588 -0.4169448
+## 224 -0.70097620  0.6798805  1.00092128 -0.43469611  0.168548081  2.3904835
+## 225 -0.70097620  0.6798805  0.03197832 -1.23295623 -0.333084628 -0.4169448
+## 226 -0.70097620  0.6798805 -0.93696465 -0.09258463  0.187841646  2.3904835
+## 227 -0.70097620  0.6798805 -0.93696465 -0.43469611  0.535125829 -0.4169448
+## 228 -0.81108288  0.6798805  1.00092128  0.36356402  0.207135212 -0.4169448
+## 229 -0.81108288  0.6798805 -0.93696465 -1.11891907 -0.815423771 -0.4169448
+## 230 -0.81108288  0.6798805  1.00092128 -0.09258463  0.129960949 -0.4169448
+## 231 -0.81108288  0.6798805  1.00092128 -1.34699339 -0.062974708 -0.4169448
+## 232 -0.81108288  0.6798805 -0.93696465 -1.23295623  0.554419395 -0.4169448
+## 233 -0.92118956 -1.4659924  1.00092128  0.59163834 -1.336350045 -0.4169448
+## 234 -0.92118956  0.6798805  0.03197832 -1.74612345 -0.950478731  2.3904835
+## 235 -0.92118956 -1.4659924  0.03197832 -1.51804913 -0.815423771 -0.4169448
+## 236 -0.92118956 -1.4659924 -0.93696465  0.36356402 -0.062974708 -0.4169448
+## 237 -0.92118956  0.6798805  1.00092128  1.04778698 -0.294497496 -0.4169448
+## 238 -0.92118956  0.6798805 -0.93696465 -0.66277043  0.052786686 -0.4169448
+## 239 -0.92118956  0.6798805 -0.93696465  0.47760118  1.248987760 -0.4169448
+## 240 -1.03129624  0.6798805 -0.93696465 -1.57506771 -0.738249508 -0.4169448
+## 241 -1.03129624  0.6798805 -0.93696465 -0.94786333  0.265015909 -0.4169448
+## 242 -1.03129624 -1.4659924  0.03197832 -0.09258463 -0.236616799 -0.4169448
+## 243 -1.03129624  0.6798805  0.03197832 -0.20662179  1.191107063 -0.4169448
+## 244 -1.03129624 -1.4659924  0.03197832 -1.11891907 -1.664340662 -0.4169448
+## 245 -1.03129624 -1.4659924 -0.93696465  0.36356402 -0.198029668 -0.4169448
+## 246 -1.03129624  0.6798805 -0.93696465  0.59163834  1.210400629 -0.4169448
+## 247 -1.03129624  0.6798805  1.96986425 -1.23295623  0.342190172 -0.4169448
+## 248 -1.14140292  0.6798805  0.03197832 -0.66277043  0.322896606 -0.4169448
+## 249 -1.14140292  0.6798805  1.00092128 -0.09258463 -0.255910365 -0.4169448
+## 250 -1.14140292  0.6798805  0.03197832 -0.09258463 -0.526020285 -0.4169448
+## 251 -1.14140292  0.6798805  1.00092128  0.47760118 -0.217323234 -0.4169448
+## 252 -1.14140292 -1.4659924  1.00092128 -1.34699339 -2.030918410 -0.4169448
+## 253 -1.14140292  0.6798805  0.03197832 -0.66277043 -0.506726719 -0.4169448
+## 254 -1.14140292 -1.4659924  1.00092128 -0.77680759 -0.082268274 -0.4169448
+## 255 -1.14140292  0.6798805  1.00092128 -0.66277043 -0.390965325 -0.4169448
+## 256 -1.14140292  0.6798805 -0.93696465 -1.11891907  0.843822881 -0.4169448
+## 257 -1.14140292  0.6798805 -0.93696465 -1.23295623 -0.950478731 -0.4169448
+## 258 -1.14140292  0.6798805 -0.93696465 -0.66277043 -1.490698570 -0.4169448
+## 259 -1.25150961  0.6798805 -0.93696465  1.04778698  0.014199555 -0.4169448
+## 260 -1.25150961 -1.4659924  1.00092128 -0.54873327 -0.641781679 -0.4169448
+## 261 -1.25150961  0.6798805  1.00092128 -0.09258463  1.326162023 -0.4169448
+## 262 -1.25150961  0.6798805 -0.93696465 -1.23295623 -0.680368811 -0.4169448
+## 263 -1.25150961  0.6798805 -0.93696465 -0.94786333  1.094639235 -0.4169448
+## 264 -1.25150961  0.6798805 -0.93696465 -0.66277043 -1.336350045 -0.4169448
+## 265 -1.25150961 -1.4659924 -0.93696465  0.02145254  1.827794732  2.3904835
+## 266 -1.25150961  0.6798805 -0.93696465  0.02145254  0.014199555  2.3904835
+## 267 -1.36161629  0.6798805 -0.93696465  0.47760118 -0.390965325 -0.4169448
+## 268 -1.36161629 -1.4659924 -0.93696465 -1.68910487  0.361483738 -0.4169448
+## 269 -1.36161629  0.6798805  1.96986425  0.93374982 -0.043681142 -0.4169448
+## 270 -1.36161629  0.6798805  1.00092128 -0.66277043 -0.120855405  2.3904835
+## 271 -1.36161629  0.6798805  0.03197832 -0.66277043  0.940290709 -0.4169448
+## 272 -1.36161629 -1.4659924  1.00092128 -0.66277043 -0.718955942 -0.4169448
+## 273 -1.36161629  0.6798805  1.00092128 -0.09258463 -1.278469348 -0.4169448
+## 274 -1.36161629  0.6798805 -0.93696465  0.24952686  1.326162023 -0.4169448
+## 275 -1.47172297 -1.4659924  0.03197832 -0.09258463 -0.815423771 -0.4169448
+## 276 -1.47172297 -1.4659924  0.03197832 -1.51804913 -0.931185165 -0.4169448
+## 277 -1.47172297  0.6798805  0.03197832  0.19250828 -0.834717336 -0.4169448
+## 278 -1.47172297  0.6798805  1.00092128 -1.11891907  0.072080252 -0.4169448
+## 279 -1.47172297  0.6798805  1.00092128 -0.09258463 -0.622488113 -0.4169448
+## 280 -1.47172297 -1.4659924  1.00092128 -1.11891907  0.419364435 -0.4169448
+## 281 -1.47172297  0.6798805  0.03197832 -1.23295623 -0.217323234 -0.4169448
+## 282 -1.47172297 -1.4659924  0.03197832 -0.32065895  1.152519932 -0.4169448
+## 283 -1.47172297  0.6798805  0.03197832 -0.66277043 -1.722221359 -0.4169448
+## 284 -1.47172297  0.6798805 -0.93696465 -1.23295623 -1.432817873 -0.4169448
+## 285 -1.58182965  0.6798805  1.96986425  0.47760118 -0.911891599 -0.4169448
+## 286 -1.58182965  0.6798805 -0.93696465 -1.23295623 -1.529285702 -0.4169448
+## 287 -1.58182965  0.6798805 -0.93696465  1.16182414 -0.448846022 -0.4169448
+## 288 -1.69193633  0.6798805  1.00092128  0.47760118  1.441923418 -0.4169448
+## 289 -1.69193633 -1.4659924  1.00092128 -2.14525351 -0.911891599 -0.4169448
+## 290 -1.69193633 -1.4659924  1.00092128  0.36356402 -0.506726719 -0.4169448
+## 291 -1.69193633  0.6798805 -0.93696465 -0.77680759 -0.526020285 -0.4169448
+## 292 -1.80204301  0.6798805  1.00092128  0.36356402 -1.374937176 -0.4169448
+## 293 -1.80204301  0.6798805  1.00092128  0.36356402 -1.374937176 -0.4169448
+## 294 -1.80204301  0.6798805  1.96986425 -0.66277043 -0.294497496 -0.4169448
+## 295 -1.91214969  0.6798805  1.00092128 -0.09258463  0.072080252 -0.4169448
+## 296 -1.91214969 -1.4659924  1.00092128 -0.66277043 -0.603194548 -0.4169448
+## 297 -2.13236306 -1.4659924 -0.93696465  0.36356402 -1.220588650 -0.4169448
+## 298 -2.13236306  0.6798805  0.03197832 -0.54873327 -1.046946559 -0.4169448
+## 299 -2.13236306  0.6798805 -0.93696465 -0.66277043 -0.931185165 -0.4169448
+## 300 -2.13236306  0.6798805 -0.93696465 -0.32065895  0.689474355 -0.4169448
+## 301 -2.24246974  0.6798805  1.96986425 -0.77680759 -1.239882216 -0.4169448
+## 302 -2.24246974 -1.4659924  0.03197832 -0.77680759 -0.699662376 -0.4169448
+## 303 -2.79300315  0.6798805  0.03197832 -0.09258463 -0.815423771 -0.4169448
+##        restecg     thalach    exang     oldpeak      slope         ca
+## 1   -1.0041707  0.53931667  1.43311 -0.89538052  0.9747397  2.2204312
+## 2    2.7991259 -1.46896433 -0.69548  0.05201734 -0.6480412 -0.7132490
+## 3   -1.0041707 -1.25067292  1.43311 -0.72312637  0.9747397  0.2646444
+## 4    0.8974776  0.53931667 -0.69548 -0.55087221  0.9747397  1.2425378
+## 5   -1.0041707 -0.85774837 -0.69548 -0.89538052  0.9747397  0.2646444
+## 6    0.8974776 -1.07603979 -0.69548  0.48265274 -0.6480412 -0.7132490
+## 7   -1.0041707 -0.29019070 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 8    0.8974776 -1.07603979  1.43311  1.34392353 -2.2708221 -0.7132490
+## 9   -1.0041707 -1.77457231 -0.69548  1.17166937 -0.6480412  2.2204312
+## 10   0.8974776 -1.64359746  1.43311  1.60230476 -0.6480412  0.2646444
+## 11   0.8974776  0.05907556 -0.69548  0.65490690  0.9747397  1.2425378
+## 12  -1.0041707 -0.81409009 -0.69548 -0.80925344 -0.6480412  0.2646444
+## 13  -1.0041707 -0.15921585 -0.69548  0.82716105 -0.6480412  2.2204312
+## 14   0.8974776  0.05907556 -0.69548 -0.03410973  0.9747397  0.2646444
+## 15  -1.0041707 -1.51262261 -0.69548  0.39652566 -0.6480412 -0.7132490
+## 16  -1.0041707  0.01541728  1.43311  0.48265274 -0.6480412 -0.7132490
+## 17   0.8974776 -0.37750726 -0.69548  2.03294016 -0.6480412  1.2425378
+## 18  -1.0041707  0.45200011 -0.69548  0.48265274 -0.6480412 -0.7132490
+## 19   0.8974776  0.97589950 -0.69548 -0.89538052  0.9747397  0.2646444
+## 20   0.8974776 -0.33384898 -0.69548 -0.63699929  0.9747397  1.2425378
+## 21  -1.0041707 -1.81823059  1.43311  0.39652566 -0.6480412  2.2204312
+## 22  -1.0041707 -0.90140666  1.43311  1.34392353 -0.6480412  1.2425378
+## 23   0.8974776  0.58297496 -0.69548 -0.72312637 -0.6480412  1.2425378
+## 24  -1.0041707 -1.07603979  1.43311 -0.12023681 -0.6480412  1.2425378
+## 25   0.8974776 -3.43358705 -0.69548 -0.03410973 -0.6480412 -0.7132490
+## 26  -1.0041707  0.01541728 -0.69548 -0.20636389 -0.6480412 -0.7132490
+## 27   0.8974776 -1.55628090 -0.69548  1.34392353 -2.2708221 -0.7132490
+## 28  -1.0041707  0.05907556 -0.69548 -0.55087221 -0.6480412 -0.7132490
+## 29  -1.0041707 -0.50848211 -0.69548  1.08554229  0.9747397 -0.7132490
+## 30  -1.0041707  0.10273385 -0.69548 -0.89538052 -0.6480412  0.2646444
+## 31   0.8974776 -1.29433120  1.43311 -0.89538052 -0.6480412  2.2204312
+## 32   0.8974776  0.67029152  1.43311 -0.03410973 -0.6480412  1.2425378
+## 33  -1.0041707 -0.77043181  1.43311 -0.80925344  0.9747397  0.2646444
+## 34  -1.0041707  0.32102526 -0.69548 -0.20636389  0.9747397  0.2646444
+## 35   0.8974776 -0.42116555 -0.69548 -0.55087221  0.9747397 -0.7132490
+## 36   0.8974776 -0.07189928 -0.69548 -0.20636389  0.9747397 -0.7132490
+## 37  -1.0041707  0.05907556 -0.69548 -0.20636389  0.9747397 -0.7132490
+## 38  -1.0041707 -1.55628090 -0.69548 -0.03410973 -0.6480412  2.2204312
+## 39  -1.0041707  0.36468354 -0.69548 -0.37861805  0.9747397  1.2425378
+## 40  -1.0041707 -0.98872322 -0.69548  1.51617769 -0.6480412  0.2646444
+## 41  -1.0041707  1.06321607 -0.69548  0.31039858 -0.6480412  0.2646444
+## 42  -1.0041707 -0.24653242  1.43311  0.65490690 -0.6480412 -0.7132490
+## 43   0.8974776  0.19005041  1.43311 -0.89538052  0.9747397 -0.7132490
+## 44   0.8974776 -0.72677353 -0.69548 -0.72312637  0.9747397 -0.7132490
+## 45   0.8974776 -1.20701464 -0.69548  0.82716105 -0.6480412  1.2425378
+## 46   0.8974776 -1.94920544  1.43311 -0.72312637 -0.6480412  0.2646444
+## 47  -1.0041707  0.23370870 -0.69548 -0.37861805 -0.6480412 -0.7132490
+## 48   0.8974776  0.36468354 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 49   0.8974776 -0.81409009  1.43311  0.65490690 -0.6480412 -0.7132490
+## 50  -1.0041707 -2.34212999  1.43311  0.99941521 -2.2708221  0.2646444
+## 51  -1.0041707 -0.77043181 -0.69548  0.82716105 -0.6480412  1.2425378
+## 52  -1.0041707  0.01541728 -0.69548  1.08554229 -2.2708221 -0.7132490
+## 53  -1.0041707  0.97589950 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 54   0.8974776  1.28150748 -0.69548 -0.89538052  0.9747397  1.2425378
+## 55  -1.0041707 -0.11555757 -0.69548  0.31039858 -0.6480412  0.2646444
+## 56  -1.0041707 -0.77043181  1.43311  0.65490690  0.9747397  2.2204312
+## 57  -1.0041707  0.19005041 -0.69548  2.54970263 -0.6480412  2.2204312
+## 58   0.8974776  0.84492465  1.43311  0.65490690 -0.6480412  1.2425378
+## 59  -1.0041707 -0.24653242  1.43311  2.54970263  0.9747397  1.2425378
+## 60   0.8974776 -0.59579868  1.43311 -0.89538052 -0.6480412 -0.7132490
+## 61   0.8974776 -0.15921585 -0.69548  0.65490690 -0.6480412  2.2204312
+## 62   0.8974776  0.58297496 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 63  -1.0041707  0.32102526 -0.69548  0.13814442 -0.6480412 -0.7132490
+## 64  -1.0041707 -0.42116555 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 65  -1.0041707  0.45200011 -0.69548  2.20519432 -2.2708221  1.2425378
+## 66   0.8974776 -2.21115514  1.43311  0.65490690 -0.6480412  1.2425378
+## 67  -1.0041707 -0.20287413 -0.69548  4.44449837 -2.2708221  2.2204312
+## 68   0.8974776 -2.29847170 -0.69548  0.13814442 -0.6480412  0.2646444
+## 69  -1.0041707 -2.03652201 -0.69548  0.31039858 -0.6480412  0.2646444
+## 70   0.8974776 -1.90554716 -0.69548  0.74103398 -0.6480412  2.2204312
+## 71   0.8974776  0.19005041  1.43311  0.31039858 -0.6480412 -0.7132490
+## 72   0.8974776 -0.55214039  1.43311 -0.03410973 -0.6480412 -0.7132490
+## 73  -1.0041707  0.84492465 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 74   0.8974776 -0.42116555  1.43311  2.20519432 -0.6480412  0.2646444
+## 75  -1.0041707 -0.15921585  1.43311 -0.03410973 -0.6480412 -0.7132490
+## 76   0.8974776 -0.20287413 -0.69548  1.34392353 -0.6480412  1.2425378
+## 77  -1.0041707 -1.07603979  1.43311  2.20519432 -0.6480412  0.2646444
+## 78  -1.0041707 -0.50848211  1.43311  0.74103398  0.9747397  0.2646444
+## 79   0.8974776  0.49565839 -0.69548 -0.89538052  0.9747397  0.2646444
+## 80   0.8974776  0.45200011 -0.69548 -0.89538052  0.9747397  0.2646444
+## 81   0.8974776 -2.34212999 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 82   0.8974776  0.93224122 -0.69548 -0.12023681  0.9747397 -0.7132490
+## 83  -1.0041707 -0.77043181  1.43311  1.17166937 -0.6480412  1.2425378
+## 84   0.8974776  0.45200011  1.43311  0.31039858  0.9747397  1.2425378
+## 85   0.8974776 -0.24653242  1.43311  0.31039858  0.9747397  0.2646444
+## 86  -1.0041707 -0.33384898  1.43311  1.51617769 -0.6480412  1.2425378
+## 87  -1.0041707  0.23370870 -0.69548  1.68843184 -0.6480412 -0.7132490
+## 88  -1.0041707 -0.37750726  1.43311  1.51617769 -0.6480412  0.2646444
+## 89  -1.0041707  0.32102526 -0.69548  1.34392353 -0.6480412  1.2425378
+## 90  -1.0041707  0.88858294 -0.69548  0.13814442 -0.6480412  1.2425378
+## 91   0.8974776  0.49565839 -0.69548 -0.46474513 -0.6480412 -0.7132490
+## 92   0.8974776  0.32102526 -0.69548  0.48265274  0.9747397 -0.7132490
+## 93   0.8974776  0.62663324  1.43311 -0.89538052  0.9747397 -0.7132490
+## 94  -1.0041707 -0.20287413 -0.69548  2.72195679 -2.2708221 -0.7132490
+## 95  -1.0041707  1.41248233 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 96  -1.0041707 -0.42116555  1.43311  2.03294016 -2.2708221 -0.7132490
+## 97  -1.0041707 -0.33384898  1.43311  0.13814442 -0.6480412  0.2646444
+## 98   0.8974776  0.53931667  1.43311 -0.89538052  0.9747397  0.2646444
+## 99  -1.0041707  0.40834183 -0.69548 -0.72312637 -0.6480412 -0.7132490
+## 100  0.8974776 -0.29019070  1.43311 -0.89538052 -0.6480412 -0.7132490
+## 101 -1.0041707 -1.07603979 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 102  0.8974776 -0.68311524 -0.69548  0.99941521 -0.6480412  0.2646444
+## 103  0.8974776  0.53931667 -0.69548 -0.20636389  0.9747397  1.2425378
+## 104 -1.0041707 -2.60407968 -0.69548 -0.03410973 -0.6480412  1.2425378
+## 105 -1.0041707  0.53931667 -0.69548 -0.03410973  0.9747397 -0.7132490
+## 106  0.8974776  0.97589950 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 107 -1.0041707  0.67029152 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 108 -1.0041707  0.19005041  1.43311 -0.37861805 -0.6480412 -0.7132490
+## 109 -1.0041707 -1.20701464 -0.69548 -0.03410973 -0.6480412 -0.7132490
+## 110  0.8974776 -0.81409009 -0.69548 -0.37861805 -0.6480412 -0.7132490
+## 111  0.8974776 -0.24653242 -0.69548 -0.55087221 -0.6480412  3.1983246
+## 112 -1.0041707  0.45200011 -0.69548  0.65490690 -0.6480412 -0.7132490
+## 113 -1.0041707  1.01955778 -0.69548  1.86068600  0.9747397  1.2425378
+## 114 -1.0041707  0.67029152 -0.69548  1.25779645 -0.6480412  0.2646444
+## 115 -1.0041707 -0.81409009  1.43311  0.99941521 -0.6480412  2.2204312
+## 116 -1.0041707 -1.68725575  1.43311 -0.20636389  0.9747397 -0.7132490
+## 117 -1.0041707  0.93224122 -0.69548 -0.89538052  0.9747397  1.2425378
+## 118 -1.0041707 -0.85774837  1.43311  1.68843184 -0.6480412  1.2425378
+## 119  0.8974776  0.27736698 -0.69548 -0.80925344  0.9747397  0.2646444
+## 120  0.8974776 -1.94920544 -0.69548  0.82716105 -0.6480412  0.2646444
+## 121 -1.0041707  0.10273385 -0.69548 -0.89538052  0.9747397  1.2425378
+## 122  2.7991259 -0.42116555 -0.69548  2.89421095 -2.2708221  2.2204312
+## 123 -1.0041707 -0.15921585  1.43311  1.51617769 -0.6480412  1.2425378
+## 124  0.8974776  0.58297496  1.43311 -0.37861805  0.9747397 -0.7132490
+## 125  0.8974776 -0.07189928 -0.69548 -0.55087221 -0.6480412 -0.7132490
+## 126  0.8974776  1.06321607 -0.69548  0.48265274  0.9747397 -0.7132490
+## 127 -1.0041707  0.40834183 -0.69548 -0.89538052  0.9747397  0.2646444
+## 128  0.8974776  0.80126637  1.43311 -0.89538052  0.9747397 -0.7132490
+## 129  0.8974776  1.01955778 -0.69548 -0.72312637  0.9747397  0.2646444
+## 130  0.8974776 -1.03238150  1.43311  0.39652566 -0.6480412 -0.7132490
+## 131 -1.0041707 -1.64359746  1.43311 -0.37861805 -0.6480412  0.2646444
+## 132 -1.0041707  0.01541728 -0.69548 -0.55087221 -0.6480412  0.2646444
+## 133 -1.0041707 -1.11969807 -0.69548 -0.03410973 -0.6480412  2.2204312
+## 134  0.8974776 -2.69139625  1.43311  0.13814442 -0.6480412  0.2646444
+## 135  0.8974776 -0.37750726 -0.69548 -0.63699929  0.9747397 -0.7132490
+## 136 -1.0041707  0.62663324 -0.69548 -0.89538052  0.9747397  0.2646444
+## 137  0.8974776 -0.29019070  1.43311  1.68843184 -0.6480412  0.2646444
+## 138  0.8974776 -1.16335635  1.43311 -0.72312637 -0.6480412 -0.7132490
+## 139  0.8974776 -1.51262261  1.43311  0.13814442 -0.6480412  0.2646444
+## 140 -1.0041707  1.06321607 -0.69548 -0.89538052 -0.6480412  0.2646444
+## 141  0.8974776  1.23784920 -0.69548 -0.20636389  0.9747397 -0.7132490
+## 142 -1.0041707  0.14639213 -0.69548  0.22427150 -0.6480412 -0.7132490
+## 143 -1.0041707  0.53931667 -0.69548  0.74103398 -0.6480412 -0.7132490
+## 144 -1.0041707  0.58297496 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 145  0.8974776  0.84492465 -0.69548 -0.89538052 -2.2708221 -0.7132490
+## 146 -1.0041707 -0.33384898  1.43311 -0.37861805 -0.6480412  0.2646444
+## 147 -1.0041707 -0.24653242  1.43311  0.13814442 -0.6480412  0.2646444
+## 148 -1.0041707 -0.72677353  1.43311  2.54970263 -2.2708221  1.2425378
+## 149 -1.0041707 -1.94920544  1.43311  0.91328813 -0.6480412  0.2646444
+## 150 -1.0041707  0.01541728  1.43311  0.74103398 -0.6480412  1.2425378
+## 151 -1.0041707 -2.03652201  1.43311  0.48265274 -2.2708221 -0.7132490
+## 152 -1.0041707  0.49565839 -0.69548  0.31039858 -0.6480412 -0.7132490
+## 153  0.8974776  0.23370870 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 154  0.8974776  0.71394981 -0.69548  0.13814442  0.9747397 -0.7132490
+## 155  0.8974776 -0.77043181  1.43311  0.13814442 -0.6480412  0.2646444
+## 156  0.8974776 -1.68725575  1.43311  3.92773589 -2.2708221 -0.7132490
+## 157 -1.0041707 -0.20287413  1.43311 -0.20636389 -0.6480412  0.2646444
+## 158  2.7991259 -1.42530605  1.43311  2.03294016 -0.6480412 -0.7132490
+## 159  2.7991259 -0.85774837  1.43311  0.82716105 -0.6480412  0.2646444
+## 160  0.8974776  0.45200011 -0.69548  0.13814442  0.9747397 -0.7132490
+## 161 -1.0041707  0.10273385 -0.69548 -0.46474513 -2.2708221  0.2646444
+## 162  0.8974776  0.88858294 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 163 -1.0041707  0.67029152 -0.69548  0.48265274  0.9747397 -0.7132490
+## 164  0.8974776  0.27736698 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 165 -1.0041707 -0.11555757 -0.69548 -0.55087221 -0.6480412 -0.7132490
+## 166  0.8974776  0.36468354 -0.69548  0.48265274 -0.6480412 -0.7132490
+## 167 -1.0041707  0.40834183  1.43311 -0.89538052  0.9747397  0.2646444
+## 168 -1.0041707  0.75760809 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 169  0.8974776  0.58297496 -0.69548 -0.89538052  0.9747397  0.2646444
+## 170 -1.0041707 -1.77457231  1.43311  0.99941521 -0.6480412  0.2646444
+## 171  0.8974776 -1.59993918 -0.69548  0.31039858 -0.6480412  0.2646444
+## 172  0.8974776 -1.03238150  1.43311  1.51617769 -0.6480412  0.2646444
+## 173 -1.0041707  1.98004000 -0.69548 -0.89538052  0.9747397  0.2646444
+## 174 -1.0041707 -1.81823059  1.43311 -0.89538052 -0.6480412  0.2646444
+## 175 -1.0041707 -1.46896433  1.43311  1.86068600 -0.6480412  1.2425378
+## 176 -1.0041707  0.10273385 -0.69548  0.13814442 -2.2708221 -0.7132490
+## 177 -1.0041707 -0.29019070 -0.69548 -0.55087221 -0.6480412 -0.7132490
+## 178 -1.0041707 -1.51262261 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 179 -1.0041707  0.45200011 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 180 -1.0041707 -1.68725575  1.43311 -0.89538052  0.9747397 -0.7132490
+## 181 -1.0041707  1.01955778 -0.69548 -0.89538052  0.9747397  2.2204312
+## 182 -1.0041707  0.23370870  1.43311  1.77455892 -2.2708221 -0.7132490
+## 183  0.8974776 -2.38578827  1.43311  0.82716105 -0.6480412  1.2425378
+## 184  0.8974776  0.53931667 -0.69548 -0.46474513  0.9747397 -0.7132490
+## 185  0.8974776  0.97589950 -0.69548 -0.72312637  0.9747397 -0.7132490
+## 186  0.8974776  0.36468354 -0.69548 -0.20636389  0.9747397  0.2646444
+## 187 -1.0041707  1.76174859 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 188  0.8974776  1.49979889 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 189  0.8974776  1.23784920 -0.69548  0.13814442 -0.6480412 -0.7132490
+## 190  0.8974776  0.84492465 -0.69548 -0.89538052  0.9747397  3.1983246
+## 191  0.8974776 -0.11555757 -0.69548 -0.80925344  0.9747397  2.2204312
+## 192 -1.0041707  0.84492465 -0.69548 -0.80925344 -0.6480412 -0.7132490
+## 193  0.8974776  0.49565839  1.43311 -0.89538052  0.9747397  0.2646444
+## 194  0.8974776  0.45200011 -0.69548 -0.89538052  0.9747397  0.2646444
+## 195  0.8974776  0.80126637 -0.69548 -0.03410973  0.9747397  1.2425378
+## 196  0.8974776  0.27736698  1.43311 -0.03410973 -0.6480412 -0.7132490
+## 197  0.8974776 -1.16335635 -0.69548 -0.37861805  0.9747397 -0.7132490
+## 198 -1.0041707 -1.07603979  1.43311  0.31039858  0.9747397  0.2646444
+## 199 -1.0041707 -0.33384898 -0.69548  0.39652566  0.9747397  0.2646444
+## 200 -1.0041707 -0.02824100 -0.69548 -0.46474513  0.9747397 -0.7132490
+## 201  0.8974776 -0.29019070  1.43311  0.13814442 -0.6480412 -0.7132490
+## 202  0.8974776  0.19005041  1.43311 -0.89538052  0.9747397  0.2646444
+## 203 -1.0041707  1.58711546  1.43311 -0.89538052  0.9747397 -0.7132490
+## 204 -1.0041707  0.71394981 -0.69548  1.17166937 -0.6480412 -0.7132490
+## 205 -1.0041707  0.32102526 -0.69548 -0.37861805  0.9747397 -0.7132490
+## 206  0.8974776 -0.33384898  1.43311  0.13814442 -0.6480412 -0.7132490
+## 207  0.8974776  1.01955778  1.43311  0.48265274  0.9747397 -0.7132490
+## 208  0.8974776 -1.20701464  1.43311  2.72195679 -0.6480412  2.2204312
+## 209  0.8974776  0.36468354 -0.69548  0.48265274 -0.6480412 -0.7132490
+## 210  0.8974776  0.58297496 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 211  0.8974776  0.53931667 -0.69548  0.05201734  0.9747397 -0.7132490
+## 212 -1.0041707  0.40834183 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 213 -1.0041707 -0.94506494 -0.69548  1.34392353 -0.6480412 -0.7132490
+## 214  0.8974776  0.58297496 -0.69548 -0.37861805 -0.6480412  0.2646444
+## 215 -1.0041707 -1.03238150  1.43311 -0.12023681 -0.6480412 -0.7132490
+## 216  0.8974776  0.93224122 -0.69548 -0.37861805  0.9747397 -0.7132490
+## 217  0.8974776  0.53931667 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 218  0.8974776  0.58297496 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 219  0.8974776 -0.46482383 -0.69548  0.82716105 -0.6480412  2.2204312
+## 220 -1.0041707 -1.03238150 -0.69548 -0.20636389  0.9747397  2.2204312
+## 221  0.8974776 -0.46482383 -0.69548 -0.72312637  0.9747397 -0.7132490
+## 222 -1.0041707  1.32516576 -0.69548 -0.72312637 -0.6480412 -0.7132490
+## 223 -1.0041707  1.58711546 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 224  0.8974776  1.10687435 -0.69548 -0.89538052  0.9747397  1.2425378
+## 225  0.8974776  0.80126637 -0.69548 -0.03410973 -2.2708221 -0.7132490
+## 226 -1.0041707  0.01541728  1.43311 -0.89538052  0.9747397  1.2425378
+## 227 -1.0041707  0.71394981 -0.69548 -0.46474513 -0.6480412 -0.7132490
+## 228 -1.0041707  0.27736698 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 229  0.8974776 -0.29019070 -0.69548 -0.80925344  0.9747397 -0.7132490
+## 230  0.8974776  1.28150748 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 231  0.8974776  0.10273385 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 232 -1.0041707 -1.38164777  1.43311 -0.03410973 -0.6480412  0.2646444
+## 233 -1.0041707  0.45200011  1.43311  0.31039858 -2.2708221 -0.7132490
+## 234  0.8974776  0.27736698 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 235  0.8974776  0.97589950 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 236 -1.0041707  0.10273385  1.43311 -0.89538052 -0.6480412 -0.7132490
+## 237  0.8974776 -0.11555757 -0.69548  2.20519432 -0.6480412 -0.7132490
+## 238 -1.0041707 -0.24653242 -0.69548 -0.20636389  0.9747397 -0.7132490
+## 239  0.8974776 -1.29433120  1.43311  0.65490690 -0.6480412  1.2425378
+## 240 -1.0041707 -0.07189928  1.43311  1.68843184 -0.6480412 -0.7132490
+## 241 -1.0041707  1.54345718 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 242 -1.0041707  1.10687435 -0.69548 -0.37861805 -0.6480412 -0.7132490
+## 243 -1.0041707  0.88858294 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 244  0.8974776 -0.50848211 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 245 -1.0041707  0.10273385  1.43311 -0.72312637 -0.6480412 -0.7132490
+## 246 -1.0041707 -0.11555757  1.43311 -0.89538052 -0.6480412  2.2204312
+## 247  0.8974776 -0.77043181 -0.69548  0.13814442 -0.6480412 -0.7132490
+## 248  0.8974776  1.01955778 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 249  0.8974776  1.28150748  1.43311 -0.55087221  0.9747397 -0.7132490
+## 250 -1.0041707  1.67443203 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 251 -1.0041707  1.32516576 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 252  0.8974776  1.10687435 -0.69548 -0.37861805 -0.6480412 -0.7132490
+## 253  0.8974776  0.88858294 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 254  0.8974776 -0.02824100 -0.69548 -0.63699929 -0.6480412  0.2646444
+## 255  0.8974776  0.84492465 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 256 -1.0041707  0.14639213 -0.69548 -0.89538052  0.9747397  0.2646444
+## 257 -1.0041707  1.19419092 -0.69548 -0.89538052  0.9747397  0.2646444
+## 258  0.8974776 -0.24653242  1.43311  1.51617769 -2.2708221 -0.7132490
+## 259  0.8974776  0.93224122 -0.69548  0.39652566  0.9747397 -0.7132490
+## 260  0.8974776  0.67029152 -0.69548 -0.72312637 -0.6480412 -0.7132490
+## 261  0.8974776  0.53931667 -0.69548  0.74103398  0.9747397  0.2646444
+## 262  0.8974776  0.49565839 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 263  0.8974776  1.36882405 -0.69548  0.13814442 -0.6480412 -0.7132490
+## 264 -1.0041707 -1.29433120  1.43311  1.25779645 -0.6480412 -0.7132490
+## 265 -1.0041707 -0.59579868  1.43311  1.68843184 -0.6480412 -0.7132490
+## 266 -1.0041707 -0.29019070  1.43311 -0.80925344 -0.6480412  3.1983246
+## 267  0.8974776  1.23784920 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 268 -1.0041707 -1.20701464 -0.69548 -0.37861805 -0.6480412 -0.7132490
+## 269 -1.0041707  1.23784920 -0.69548 -0.20636389  0.9747397  1.2425378
+## 270  0.8974776  1.93638172 -0.69548 -0.20636389 -2.2708221 -0.7132490
+## 271  0.8974776  0.53931667 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 272  0.8974776  1.01955778 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 273  0.8974776  0.01541728 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 274  0.8974776 -1.07603979  1.43311  0.65490690 -0.6480412 -0.7132490
+## 275 -1.0041707  0.97589950 -0.69548  0.31039858  0.9747397 -0.7132490
+## 276  0.8974776  0.80126637 -0.69548 -0.89538052  0.9747397  0.2646444
+## 277  0.8974776 -0.77043181 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 278  0.8974776  1.28150748 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 279 -1.0041707  0.80126637 -0.69548  0.82716105 -0.6480412 -0.7132490
+## 280 -1.0041707  0.97589950  1.43311 -0.89538052  0.9747397 -0.7132490
+## 281  0.8974776  0.14639213 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 282  0.8974776  0.58297496 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 283  0.8974776  1.41248233 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 284 -1.0041707  0.36468354 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 285  0.8974776  1.23784920  1.43311  0.31039858  0.9747397 -0.7132490
+## 286 -1.0041707 -1.55628090  1.43311  0.82716105 -0.6480412 -0.7132490
+## 287  0.8974776  1.36882405 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 288 -1.0041707  1.41248233 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 289  0.8974776  1.28150748 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 290  0.8974776  0.10273385 -0.69548 -0.89538052 -0.6480412 -0.7132490
+## 291  0.8974776 -0.42116555 -0.69548  0.13814442 -0.6480412 -0.7132490
+## 292  0.8974776  1.01955778 -0.69548 -0.89538052  0.9747397  3.1983246
+## 293  0.8974776  1.01955778 -0.69548 -0.89538052  0.9747397  3.1983246
+## 294  0.8974776  1.41248233  1.43311  2.37744847 -0.6480412 -0.7132490
+## 295  0.8974776  1.63077374 -0.69548  2.11906724 -2.2708221 -0.7132490
+## 296  0.8974776  0.88858294 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 297  0.8974776  1.41248233 -0.69548  0.31039858  0.9747397 -0.7132490
+## 298  0.8974776  1.06321607 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 299  0.8974776 -0.85774837  1.43311  0.48265274 -0.6480412 -0.7132490
+## 300 -1.0041707  0.27736698  1.43311 -0.89538052  0.9747397 -0.7132490
+## 301 -1.0041707  1.06321607 -0.69548 -0.89538052  0.9747397 -0.7132490
+## 302  0.8974776  1.84906516 -0.69548 -0.29249097  0.9747397 -0.7132490
+## 303 -1.0041707  2.28564798 -0.69548 -0.89538052  0.9747397 -0.7132490
+##           thal                   class
+## 1   -0.5120748 greater than/equal to 0
+## 2   -0.5120748 greater than/equal to 0
+## 3   -0.5120748 greater than/equal to 0
+## 4   -0.5120748 greater than/equal to 0
+## 5   -0.5120748 greater than/equal to 0
+## 6   -0.5120748 greater than/equal to 0
+## 7   -0.5120748 greater than/equal to 0
+## 8    1.1211742 greater than/equal to 0
+## 9   -0.5120748 greater than/equal to 0
+## 10   1.1211742 greater than/equal to 0
+## 11  -0.5120748 greater than/equal to 0
+## 12  -0.5120748 greater than/equal to 0
+## 13   1.1211742 greater than/equal to 0
+## 14   1.1211742 greater than/equal to 0
+## 15  -0.5120748 greater than/equal to 0
+## 16   1.1211742 greater than/equal to 0
+## 17   1.1211742 greater than/equal to 0
+## 18   1.1211742 greater than/equal to 0
+## 19  -0.5120748 greater than/equal to 0
+## 20  -0.5120748 greater than/equal to 0
+## 21  -0.5120748 greater than/equal to 0
+## 22   1.1211742 greater than/equal to 0
+## 23   1.1211742 greater than/equal to 0
+## 24  -0.5120748 greater than/equal to 0
+## 25  -0.5120748 greater than/equal to 0
+## 26   1.1211742 greater than/equal to 0
+## 27  -0.5120748 greater than/equal to 0
+## 28  -0.5120748 greater than/equal to 0
+## 29  -2.1453238 greater than/equal to 0
+## 30  -0.5120748 greater than/equal to 0
+## 31  -2.1453238 greater than/equal to 0
+## 32   1.1211742 greater than/equal to 0
+## 33  -0.5120748 greater than/equal to 0
+## 34  -0.5120748 greater than/equal to 0
+## 35   1.1211742 greater than/equal to 0
+## 36  -0.5120748 greater than/equal to 0
+## 37  -0.5120748 greater than/equal to 0
+## 38   1.1211742 greater than/equal to 0
+## 39  -2.1453238 greater than/equal to 0
+## 40   1.1211742 greater than/equal to 0
+## 41  -0.5120748 greater than/equal to 0
+## 42  -0.5120748 greater than/equal to 0
+## 43  -0.5120748 greater than/equal to 0
+## 44   1.1211742 greater than/equal to 0
+## 45  -0.5120748 greater than/equal to 0
+## 46   1.1211742 greater than/equal to 0
+## 47   1.1211742 greater than/equal to 0
+## 48  -0.5120748 greater than/equal to 0
+## 49   1.1211742 greater than/equal to 0
+## 50  -0.5120748 greater than/equal to 0
+## 51  -2.1453238 greater than/equal to 0
+## 52  -2.1453238 greater than/equal to 0
+## 53  -0.5120748 greater than/equal to 0
+## 54  -0.5120748 greater than/equal to 0
+## 55   1.1211742 greater than/equal to 0
+## 56   1.1211742 greater than/equal to 0
+## 57   1.1211742 greater than/equal to 0
+## 58  -0.5120748 greater than/equal to 0
+## 59   1.1211742 greater than/equal to 0
+## 60  -0.5120748 greater than/equal to 0
+## 61   1.1211742 greater than/equal to 0
+## 62  -0.5120748 greater than/equal to 0
+## 63  -0.5120748 greater than/equal to 0
+## 64  -0.5120748 greater than/equal to 0
+## 65  -0.5120748 greater than/equal to 0
+## 66   1.1211742 greater than/equal to 0
+## 67   1.1211742 greater than/equal to 0
+## 68   1.1211742 greater than/equal to 0
+## 69   1.1211742 greater than/equal to 0
+## 70  -0.5120748 greater than/equal to 0
+## 71  -0.5120748 greater than/equal to 0
+## 72  -0.5120748 greater than/equal to 0
+## 73  -0.5120748 greater than/equal to 0
+## 74   1.1211742 greater than/equal to 0
+## 75   1.1211742 greater than/equal to 0
+## 76  -0.5120748 greater than/equal to 0
+## 77  -0.5120748 greater than/equal to 0
+## 78   1.1211742 greater than/equal to 0
+## 79   1.1211742 greater than/equal to 0
+## 80  -0.5120748 greater than/equal to 0
+## 81  -0.5120748 greater than/equal to 0
+## 82  -0.5120748 greater than/equal to 0
+## 83   1.1211742 greater than/equal to 0
+## 84   1.1211742 greater than/equal to 0
+## 85   1.1211742 greater than/equal to 0
+## 86   1.1211742 greater than/equal to 0
+## 87  -0.5120748 greater than/equal to 0
+## 88   1.1211742 greater than/equal to 0
+## 89   1.1211742 greater than/equal to 0
+## 90   1.1211742 greater than/equal to 0
+## 91   1.1211742 greater than/equal to 0
+## 92  -0.5120748 greater than/equal to 0
+## 93  -0.5120748 greater than/equal to 0
+## 94   1.1211742 greater than/equal to 0
+## 95  -0.5120748 greater than/equal to 0
+## 96   1.1211742 greater than/equal to 0
+## 97   1.1211742 greater than/equal to 0
+## 98   1.1211742 greater than/equal to 0
+## 99   1.1211742 greater than/equal to 0
+## 100 -0.5120748 greater than/equal to 0
+## 101 -0.5120748 greater than/equal to 0
+## 102 -2.1453238 greater than/equal to 0
+## 103 -0.5120748 greater than/equal to 0
+## 104 -2.1453238 greater than/equal to 0
+## 105 -0.5120748 greater than/equal to 0
+## 106 -0.5120748 greater than/equal to 0
+## 107 -0.5120748 greater than/equal to 0
+## 108  1.1211742 greater than/equal to 0
+## 109 -0.5120748 greater than/equal to 0
+## 110 -0.5120748 greater than/equal to 0
+## 111  1.1211742 greater than/equal to 0
+## 112 -0.5120748 greater than/equal to 0
+## 113  1.1211742 greater than/equal to 0
+## 114  1.1211742 greater than/equal to 0
+## 115  1.1211742 greater than/equal to 0
+## 116  1.1211742 greater than/equal to 0
+## 117  1.1211742 greater than/equal to 0
+## 118  1.1211742 greater than/equal to 0
+## 119  1.1211742 greater than/equal to 0
+## 120  1.1211742 greater than/equal to 0
+## 121 -0.5120748 greater than/equal to 0
+## 122 -2.1453238 greater than/equal to 0
+## 123 -2.1453238 greater than/equal to 0
+## 124 -0.5120748 greater than/equal to 0
+## 125 -2.1453238 greater than/equal to 0
+## 126 -0.5120748 greater than/equal to 0
+## 127 -0.5120748 greater than/equal to 0
+## 128  1.1211742 greater than/equal to 0
+## 129  1.1211742 greater than/equal to 0
+## 130 -2.1453238 greater than/equal to 0
+## 131 -2.1453238 greater than/equal to 0
+## 132  1.1211742 greater than/equal to 0
+## 133  1.1211742 greater than/equal to 0
+## 134  1.1211742 greater than/equal to 0
+## 135  1.1211742 greater than/equal to 0
+## 136 -0.5120748 greater than/equal to 0
+## 137  1.1211742 greater than/equal to 0
+## 138  1.1211742 greater than/equal to 0
+## 139  1.1211742 greater than/equal to 0
+## 140 -0.5120748 greater than/equal to 0
+## 141 -0.5120748 greater than/equal to 0
+## 142 -0.5120748 greater than/equal to 0
+## 143  1.1211742 greater than/equal to 0
+## 144  1.1211742 greater than/equal to 0
+## 145 -0.5120748 greater than/equal to 0
+## 146 -2.1453238 greater than/equal to 0
+## 147 -0.5120748 greater than/equal to 0
+## 148  1.1211742 greater than/equal to 0
+## 149 -2.1453238 greater than/equal to 0
+## 150  1.1211742 greater than/equal to 0
+## 151  1.1211742 greater than/equal to 0
+## 152 -0.5120748 greater than/equal to 0
+## 153 -0.5120748 greater than/equal to 0
+## 154 -0.5120748 greater than/equal to 0
+## 155  1.1211742 greater than/equal to 0
+## 156  1.1211742 greater than/equal to 0
+## 157  1.1211742 greater than/equal to 0
+## 158 -0.5120748 greater than/equal to 0
+## 159  1.1211742 greater than/equal to 0
+## 160 -0.5120748             less than 0
+## 161 -0.5120748             less than 0
+## 162 -0.5120748             less than 0
+## 163  1.1211742             less than 0
+## 164  1.1211742             less than 0
+## 165  1.1211742             less than 0
+## 166 -0.5120748             less than 0
+## 167 -0.5120748             less than 0
+## 168 -0.5120748             less than 0
+## 169 -0.5120748             less than 0
+## 170  1.1211742             less than 0
+## 171  1.1211742             less than 0
+## 172  1.1211742             less than 0
+## 173  1.1211742             less than 0
+## 174 -0.5120748             less than 0
+## 175 -0.5120748             less than 0
+## 176 -0.5120748             less than 0
+## 177 -0.5120748             less than 0
+## 178 -3.7785728             less than 0
+## 179 -0.5120748             less than 0
+## 180  1.1211742             less than 0
+## 181 -0.5120748             less than 0
+## 182  1.1211742             less than 0
+## 183  1.1211742             less than 0
+## 184  1.1211742             less than 0
+## 185 -0.5120748             less than 0
+## 186 -0.5120748             less than 0
+## 187 -2.1453238             less than 0
+## 188 -0.5120748             less than 0
+## 189  1.1211742             less than 0
+## 190 -0.5120748             less than 0
+## 191  1.1211742             less than 0
+## 192 -0.5120748             less than 0
+## 193  1.1211742             less than 0
+## 194 -0.5120748             less than 0
+## 195  1.1211742             less than 0
+## 196 -3.7785728             less than 0
+## 197 -0.5120748             less than 0
+## 198 -0.5120748             less than 0
+## 199 -0.5120748             less than 0
+## 200 -0.5120748             less than 0
+## 201 -0.5120748             less than 0
+## 202  1.1211742             less than 0
+## 203 -0.5120748             less than 0
+## 204 -0.5120748             less than 0
+## 205 -0.5120748             less than 0
+## 206  1.1211742             less than 0
+## 207  1.1211742             less than 0
+## 208  1.1211742             less than 0
+## 209 -0.5120748             less than 0
+## 210 -0.5120748             less than 0
+## 211 -0.5120748             less than 0
+## 212 -0.5120748             less than 0
+## 213  1.1211742             less than 0
+## 214  1.1211742             less than 0
+## 215  1.1211742             less than 0
+## 216 -0.5120748             less than 0
+## 217 -0.5120748             less than 0
+## 218 -0.5120748             less than 0
+## 219  1.1211742             less than 0
+## 220 -0.5120748             less than 0
+## 221 -0.5120748             less than 0
+## 222 -0.5120748             less than 0
+## 223 -0.5120748             less than 0
+## 224 -0.5120748             less than 0
+## 225  1.1211742             less than 0
+## 226  1.1211742             less than 0
+## 227  1.1211742             less than 0
+## 228 -0.5120748             less than 0
+## 229 -0.5120748             less than 0
+## 230 -0.5120748             less than 0
+## 231 -0.5120748             less than 0
+## 232 -0.5120748             less than 0
+## 233 -0.5120748             less than 0
+## 234  1.1211742             less than 0
+## 235 -0.5120748             less than 0
+## 236 -0.5120748             less than 0
+## 237 -0.5120748             less than 0
+## 238  1.1211742             less than 0
+## 239  1.1211742             less than 0
+## 240 -0.5120748             less than 0
+## 241 -0.5120748             less than 0
+## 242 -0.5120748             less than 0
+## 243 -0.5120748             less than 0
+## 244 -0.5120748             less than 0
+## 245 -0.5120748             less than 0
+## 246  1.1211742             less than 0
+## 247  1.1211742             less than 0
+## 248  1.1211742             less than 0
+## 249 -0.5120748             less than 0
+## 250 -0.5120748             less than 0
+## 251 -0.5120748             less than 0
+## 252 -0.5120748             less than 0
+## 253 -0.5120748             less than 0
+## 254 -0.5120748             less than 0
+## 255 -0.5120748             less than 0
+## 256 -0.5120748             less than 0
+## 257 -0.5120748             less than 0
+## 258 -2.1453238             less than 0
+## 259 -0.5120748             less than 0
+## 260 -0.5120748             less than 0
+## 261 -0.5120748             less than 0
+## 262  1.1211742             less than 0
+## 263 -0.5120748             less than 0
+## 264  1.1211742             less than 0
+## 265  1.1211742             less than 0
+## 266  1.1211742             less than 0
+## 267 -0.5120748             less than 0
+## 268 -0.5120748             less than 0
+## 269 -0.5120748             less than 0
+## 270  1.1211742             less than 0
+## 271 -0.5120748             less than 0
+## 272 -0.5120748             less than 0
+## 273 -0.5120748             less than 0
+## 274 -2.1453238             less than 0
+## 275 -0.5120748             less than 0
+## 276 -0.5120748             less than 0
+## 277 -2.1453238             less than 0
+## 278 -0.5120748             less than 0
+## 279 -0.5120748             less than 0
+## 280 -0.5120748             less than 0
+## 281 -0.5120748             less than 0
+## 282 -0.5120748             less than 0
+## 283 -0.5120748             less than 0
+## 284  1.1211742             less than 0
+## 285  1.1211742             less than 0
+## 286  1.1211742             less than 0
+## 287  1.1211742             less than 0
+## 288 -0.5120748             less than 0
+## 289 -0.5120748             less than 0
+## 290 -0.5120748             less than 0
+## 291  1.1211742             less than 0
+## 292 -0.5120748             less than 0
+## 293 -0.5120748             less than 0
+## 294  1.1211742             less than 0
+## 295 -0.5120748             less than 0
+## 296 -0.5120748             less than 0
+## 297 -0.5120748             less than 0
+## 298 -0.5120748             less than 0
+## 299  1.1211742             less than 0
+## 300  1.1211742             less than 0
+## 301 -0.5120748             less than 0
+## 302 -0.5120748             less than 0
+## 303 -0.5120748                    &lt;NA&gt;</code></pre>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="going-further-the-mclust-package.html#cb59-1"></a><span class="co"># Define our predictors (X) and class labels (class)</span></span>
+<span id="cb59-2"><a href="going-further-the-mclust-package.html#cb59-2"></a>X &lt;-<span class="st"> </span><span class="kw">subset</span>(ml_num, <span class="dt">select =</span> <span class="op">-</span><span class="kw">c</span>(class))</span>
+<span id="cb59-3"><a href="going-further-the-mclust-package.html#cb59-3"></a></span>
+<span id="cb59-4"><a href="going-further-the-mclust-package.html#cb59-4"></a>class &lt;-<span class="st"> </span>data_original<span class="op">$</span>target</span>
+<span id="cb59-5"><a href="going-further-the-mclust-package.html#cb59-5"></a></span>
+<span id="cb59-6"><a href="going-further-the-mclust-package.html#cb59-6"></a><span class="co"># Fit the model (EEE covariance structure, basically the same as linear discriminant analysis)</span></span>
+<span id="cb59-7"><a href="going-further-the-mclust-package.html#cb59-7"></a>mclust_model2 &lt;-<span class="st"> </span><span class="kw">MclustDA</span>(X, <span class="dt">class =</span> class, <span class="dt">modelType =</span> <span class="st">&quot;EDDA&quot;</span>, <span class="dt">modelNames =</span> <span class="st">&quot;EEE&quot;</span>)</span>
+<span id="cb59-8"><a href="going-further-the-mclust-package.html#cb59-8"></a></span>
+<span id="cb59-9"><a href="going-further-the-mclust-package.html#cb59-9"></a><span class="co"># Cross-validate!</span></span>
+<span id="cb59-10"><a href="going-further-the-mclust-package.html#cb59-10"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb59-11"><a href="going-further-the-mclust-package.html#cb59-11"></a>cv_mclust &lt;-<span class="st"> </span><span class="kw">cvMclustDA</span>(mclust_model2, <span class="dt">nfold =</span> <span class="dv">20</span>)</span>
+<span id="cb59-12"><a href="going-further-the-mclust-package.html#cb59-12"></a></span>
+<span id="cb59-13"><a href="going-further-the-mclust-package.html#cb59-13"></a><span class="co"># View cross-validation error and standard error of the cv error</span></span>
+<span id="cb59-14"><a href="going-further-the-mclust-package.html#cb59-14"></a>cv_mclust[<span class="kw">c</span>(<span class="st">&quot;error&quot;</span>, <span class="st">&quot;se&quot;</span>)]</span></code></pre></div>
+<pre><code>## $error
+## [1] 0.05610561
+## 
+## $se
+## [1] 0.00997984</code></pre>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="the-pvclust-package.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/09-hclust.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["machine-learning-in-r.pdf", "machine-learning-in-r.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
