@@ -4,31 +4,32 @@
 
 The following packages are required to run the code in this workshop:
 
-```{r setup}
-if (FALSE) {
-  # Run these lines manually (once) to install the necessary packages.
+```{r}
+
+# Install packages 
+if (!require("pacman")) install.packages("pacman")
+
+install.packages("tidyverse")
+
+pacman::p_load(# Tidymodels framework 
+               tidymodels,
+               # Tidyverse packages including dplyr and ggplot2 
+               tidyverse,
+               # Algorithms
+               glmnet, ranger, rpart, xgboost, pvclust, mclust, 
+               # Visualization
+               rpart.plot, vip, ape, corrr, GGally,
+               # Machine learning frameworks
+               caret, SuperLearner,
+               # R utility packages
+               remotes, here, glue, patchwork, doParallel,
+               # Import/export of any filetype.
+               rio,
+               # Misc
+               pROC, bookdown)
   
-  # Install packages from CRAN.
-  install.packages(c(# Tidymodels framework 
-                     "tidymodels",
-                     # Tidyverse packages including dplyr and ggplot2 
-                     "tidyverse",
-                     # Algorithms
-                     "glmnet", "ranger", "rpart", "xgboost", "pvclust", "mclust", 
-                     # Visualization
-                     "rpart.plot", "vip", "ape", "corrr", "GGally",
-                     # Machine learning frameworks
-                     "caret", "SuperLearner",
-                     # R utility packages
-                     "remotes", "here", "glue", "patchwork", "doParallel",
-                     # Import/export of any filetype.
-                     "rio",
-                     # Misc
-                     "pROC", "bookdown"))
-  
-  # Install packages not on CRAN or with old version on CRAN.
-  remotes::install_github("ck37/ck37r")
-}
+# Install packages not on CRAN or with old version on CRAN.
+remotes::install_github("ck37/ck37r")
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
