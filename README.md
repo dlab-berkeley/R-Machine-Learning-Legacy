@@ -5,7 +5,7 @@ This is [Jae Yeon Kim](https://jaeyk.github.io/)'s remix version of the [D-Labâ€
 [View the associated slides here](https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels/docs/slides.html#1).
 
 RStudio Binder:
-[![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-in-R/master?urlpath=rstudio)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-with-tidymodels/master?urlpath=rstudio)
 
 ## Content outline
 
