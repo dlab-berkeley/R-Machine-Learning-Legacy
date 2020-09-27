@@ -215,12 +215,10 @@ tree_res <- tree_wf %>%
 tree_res %>%
   collect_metrics() %>%
   mutate(tree_depth = factor(tree_depth)) %>%
-  ggplot(aes(cost_complexity, mean, color = tree_depth)) +
-  # Line + Point plot 
-  geom_line(size = 1.5, alpha = 0.6) +
-  geom_point(size = 2) +
+  ggplot(aes(cost_complexity, mean, col = .metric)) +
+  geom_point(size = 3) +
   # Subplots 
-  facet_wrap(~ .metric, 
+  facet_wrap(~ tree_depth, 
              scales = "free", 
              nrow = 2) +
   # Log scale x 
@@ -229,7 +227,8 @@ tree_res %>%
   scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
   labs(x = "Cost complexity",
        col = "Tree depth",
-       y = NULL)
+       y = NULL) +
+  coord_flip()
 
 ```
 ```{r}
