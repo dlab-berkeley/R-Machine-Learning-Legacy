@@ -5,22 +5,20 @@ author: "D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   xaringan::moon_reader:
-    css: ["scrollable.css", "mtheme_max.css", "fonts_mtheme_max.css"]
+    css: ["scrollable.css", 
+          "mtheme_max.css",     
+          "fonts_mtheme_max.css"]
     self_contained: false
     lib_dir: libs
     chakra: libs/remark-latest.min.js
     nature:
       ratio: '16:9'
-      highlightStyle: github
       highlightLines: true
-      highlightSpans: true
-      countIncrementalSlides: true
       slideNumberFormat: |
         <div class="progress-bar-container">
           <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
           </div>
         </div>`
-    seal: false   
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -191,6 +189,14 @@ Seek "actionable insight":
 
 ---
 
+# How to teach machines
+
+![](https://i.vas3k.ru/7w9.jpg)
+
+- Based on [vas3k blog](https://vas3k.com/blog/machine_learning/).
+
+---
+
 # The map of the machine learning universe
 
 .center[<img src="https://i.vas3k.ru/7vx.jpg"
@@ -277,7 +283,14 @@ mtcars[1:5,]
 
 # Data preprocessing
 
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Clean, subset, and handle missing data if necessary** before the splitting process commences.  
+.pull-left[
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Clean, subset, and handle missing data if necessary** before the splitting process commences.
+]
+
+.pull-right[
+![](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/parsnip.png)
+Art by Allison Horst
+]
 
 ---
 
@@ -343,7 +356,17 @@ class: left
 
 # Tidymodels 
 
+.pull-left[
 ![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/ds.png)
+
+From RStudio.
+]
+
+.pull-right[
+> tidymodels are an integrated, modular, extensible set of packages that implement a framework that facilitates creating predicative stochastic models. - Joseph Rickert@RStudio
+
+- Currently, 238 models are [available](https://topepo.github.io/caret/available-models.html) 
+]
 
 ---
 
@@ -354,6 +377,8 @@ class: left
 ## Workflow 
 
 ![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+From Rstudio.
+
 ]
 
 .pull-right[
@@ -366,12 +391,14 @@ class: left
 set.seed(1234)
 
 df_split  <- rsample::initial_split(df, prop = 0.7)
-train <- rsample::training(df_split) 
+train <- rsample::training(df_split)
 test <- rsample::testing(df_split)
 
 # preprocess 
 df_recipe <- df %>% recipe(resonse ~.) %>%
+  # Centering: x - mean(x)
   step_center(all_predictors(), -all_outcomes()) %>%
+  # Scaling: x * k 
   step_scale(all_predictors(), -all_outcomes()) %>%
   prep()
 
@@ -392,6 +419,8 @@ processed_test <- df_recipe %>% bake(test)
 ## Workflow 
 
 ![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+From Rstudio.
+
 ]
 
 .pull-right[
@@ -400,14 +429,18 @@ processed_test <- df_recipe %>% bake(test)
 
 ```{r eval = FALSE}
 
-# fit model 
+# Fit model 
 
+  ## Choose model 
 df_ranger <- rand_forest(trees = 1000, 
+                         ## Declare mode 
                          mode = "classification") %>%
+  ## Choose engine 
   set_engine("ranger") %>%
+  ## Fit 
   fit(response ~ ., data = processed_train)
 
-# make predictions 
+# Make predictions 
 
 df_pred <- predict(df_ranger, processed_test)
 
@@ -421,9 +454,43 @@ df_pred <- predict(df_ranger, processed_test)
 
 .pull-left[
 
+## Non-tidy way 
+
+```{r eval = FALSE}
+
+train(y ~ x, 
+      data = train_set, 
+      method = "lm",
+      tryControl = fitControl)
+
+```
+
+]
+
+.pull-right[
+
+## Tidy-way
+
+```{r eval = FALSE}
+
+linear_reg() %>%
+set_engine("lm") %>%
+fit(y~x, data = training)
+
+```
+
+]
+---
+
+# Tidymodels 
+
+.pull-left[
+
 ## Workflow 
 
 ![](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/tidymodels.png)
+From Rstudio.
+
 ]
 
 .pull-right[
@@ -436,6 +503,7 @@ df_pred <- predict(df_ranger, processed_test)
 
 df_pred %>%
   bind_cols(processed_test) %>%
+  # You can also easily change metrics you want to use 
   metrics(truth = response, estimate = .pred_class)
 
 ## # A tibble: 2 x 3
@@ -447,6 +515,38 @@ df_pred %>%
 ```
 
 ]
+
+---
+
+# Tidymodels
+
+[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
+
+```{r echo=FALSE}
+pacman::p_load(animation)
+
+ani.options(interval = 1, nmax = 15)
+
+cv.ani(main = "Demonstration of the k-fold Cross Validation", 
+  bty = "l")
+
+```
+
+---
+
+# Tidymodels
+
+[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
+
+```{r echo=FALSE}
+pacman::p_load(animation)
+
+ani.options(interval = 1, nmax = 15)
+
+cv.ani(main = "Demonstration of the k-fold Cross Validation", 
+  bty = "l")
+
+```
 
 ---
 # Data preprocessing
@@ -462,14 +562,6 @@ The short version is that we need to:
 6. Define training and test datasets  
 
 ### Open "2-preprocessing.Rmd" to get started with the data.  
-
----
-
-# Cross-validation
-
-[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
-
-.center[![](slides_img/K-fold_cross_validation_EN.jpg)]
 
 ---
 
@@ -666,35 +758,37 @@ Let's compare the algorithms you have previously fitted individually in this wor
 
 # Principal component analysis
 
-The previous methods we have examined are supervised - they are used to predict some $y$ outcome variable based on $x$ predictors. Principal component analysis (PCA) is an unsupervised method, which does not use any $y$ variable for supervision but instead sorts the data based _only_ on the $x$ variables. PCA and other ordination/dimension reduction techniques are helpful for optimizing other machine learning algorithms. 
+.pull-left[
+PCA and other ordination/dimension reduction techniques are helpful for optimizing other machine learning algorithms. PCA is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation into "components" across many variables onto a reduced feature space. Axis loadings can then be extracted to see which variables contribute most to variation along each component.
+]
+.pull-right[
 
-PCA is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation into "components" across many variables onto a reduced feature space, such as a two or three-dimensional scatterplot. Axis loadings can then be extracted to see which variables contribute most to variation along each component.
+![](https://i.stack.imgur.com/Q7HIP.gif)
+Projecting 2D-data to a line (PCA). From vas3k.com
 
----
 
-# Principal component analysis
+#### Open "08-PCA.Rmd" to work through the principal component analysis examples.
 
-<img style="right;width:325px;" src="slides_img/pca-scatter.png"/>
-<img style="center;width:350px;" src="slides_img/pca-sqload.png"/>
-<img style="left;width:350px;" src="slides_img/pca-ml.png"/>
-
-### Open "08-PCA.Rmd" to work through the principal component analysis examples.
+]
 
 ---
 
 # Hierarchical agglomerative clustering
 
+.pull-left[
 Hierarchical agglomerative clustering is a bottom-up approach. Each observation begins as its own cluster and forms clusters with like items as it moves up the hierarchy. That is, all leaves are their own clusters to begin with and form clusters as grouping moves up the trunk and various branches are formed.  
 
-Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).  
+Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).]
 
----
+.pull-right[
 
-# Hierarchical agglomerative clustering
+![](https://miro.medium.com/max/770/1*ET8kCcPpr893vNZFs8j4xg.gif)
 
-<img style="right;" src="slides_img/clust-rad-link-unc.png"/>
+Agglomerative Hierarchical Clustering. From [George Seif's medium post](https://towardsdatascience.com/the-5-clustering-algorithms-data-scientists-need-to-know-a36d136ef68).
 
-### Open "09-hclust.Rmd" to work through the clustering examples.
+#### Open "09-hclust.Rmd" to work through the clustering examples.
+
+]
 
 ---
 
