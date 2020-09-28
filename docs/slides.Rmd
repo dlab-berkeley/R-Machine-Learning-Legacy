@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Machine Learning in R"
+title: "Introduction to Machine Learning with Tidymodels"
 subtitle: ""
 author: "D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -37,6 +37,7 @@ knitr::opts_chunk$set(
 
 library(ggplot2)
 # This is good for getting the ggplot background consistent with
+
 # the html background color
 thm <- theme_bw() + 
   theme(
@@ -46,25 +47,9 @@ thm <- theme_bw() +
     legend.background = element_rect(fill = "transparent", colour = NA),
     legend.key = element_rect(fill = "transparent", colour = NA)
   )
+
 theme_set(thm)
 ```
-
-class: title-slide   
-<a href="https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-
-<br><br><br><br>
-# .font130[Introduction to Machine Learning in R]
-
-### Evan Muzzall, Chris Kennedy, and Jae Yeon Kim  
-### September 28, 2020
-
----
-
-class: center, middle, inverse
-
-# "It’s tough to make predictions, especially about the future." -Yogi Berra
-
----
 
 # D-Lab - IOKN2K! (It's OK Not To Know!)
 [Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services, resources, and other R offerings:  
@@ -180,22 +165,22 @@ Seek "actionable insight":
 
 ---
 
-# The main types of machine learning 
+# How to teach machines
 
-.center[<img src="https://i.vas3k.ru/7vz.jpg"
-  height = "500"/>]
+![](https://i.vas3k.ru/7w9.jpg)
 
 - Based on [vas3k blog](https://vas3k.com/blog/machine_learning/). Many images in these slides come from vas3k blog. (Jae: Thank you!) 
 
 ---
 
-# How to teach machines
+# The main types of machine learning 
 
-![](https://i.vas3k.ru/7w9.jpg)
+.center[<img src="https://i.vas3k.ru/7vz.jpg"
+  height = "500"/>]
 
 - Based on [vas3k blog](https://vas3k.com/blog/machine_learning/).
 
----
+--- 
 
 # The map of the machine learning universe
 
@@ -302,7 +287,7 @@ A model that performs poorly on the training dataset is **underfit** because it 
 
 A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
-**Common performance metrics**: Accuracy, Mean squared error, Sensitivity and specificity, Area under the ROC curve (AUC)  
+**Common performance metrics**: Mean squared error, [Area under the ROC curve (AUC)](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc), [Accuracy](https://developers.google.com/machine-learning/crash-course/classification/accuracy), [Sensitivity and specificity](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)  
 
 ---
 
@@ -310,6 +295,7 @@ class: left
 
 # Workshop goals
 
+.pull-left[
 ### 1) Learn the basics of using six supervised machine learning algorithms in R:  
 
 - OLS regression  
@@ -318,30 +304,36 @@ class: left
 - Random forest  
 - Boosting  
 - SuperLearner  
-  
+]
+
+.pull-right[
 ### 2) Vizualize important information:  
 - Lasso coefficient paths  
 - Decision trees  
 - Random forest variable importance  
 - AUC from different boosting models  
 - SuperLearner cross-validated risk   
+]
 
 ---
 
 # Workshop goals
 
+.pull-left[
 ### 3) Examine the performance of these models  
 * (Root) mean-squared error, lasso penalization coefficient  
 * Mean decrease accuracy
 * Accuracy
 * AUC
 * Cross-validated risk
+]
 
+.pull-right[
 ### 4) Simultaneously compare multiple algorithms in an ensemble  
 * Compare various tunings of multiple algorithms at once
 * Weighted ensemble average
 * Discrete winner
-
+]
 ---
 
 # Specific workshop goals - heart disease dataset  
@@ -386,7 +378,6 @@ From Rstudio.
 ## Pre-process 
 
 ```{r eval = FALSE}
-
 # data split 
 set.seed(1234)
 
@@ -515,22 +506,6 @@ df_pred %>%
 ```
 
 ]
-
----
-
-# Tidymodels
-
-[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
-
-```{r echo=FALSE}
-pacman::p_load(animation)
-
-ani.options(interval = 1, nmax = 15)
-
-cv.ani(main = "Demonstration of the k-fold Cross Validation", 
-  bty = "l")
-
-```
 
 ---
 

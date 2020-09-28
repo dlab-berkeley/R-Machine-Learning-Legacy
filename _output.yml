@@ -3,10 +3,9 @@ bookdown::gitbook:
   config:
     toc:
       before: |
-        <li><a href="./">Machine Learning in R</a></li>
+        <li><a href="./">Machine Learning with Tidymodels</a></li>
       #after: |
-      #  <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
-    edit: https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/%s
+      #  <li><a href="https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels" target="blank">Published with bookdown</a></li>
     download: ["pdf", "epub"]
 bookdown::pdf_book:
   includes:

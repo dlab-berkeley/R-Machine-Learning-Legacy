@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Introduction to Machine Learning in R</title>
+    <title>Introduction to Machine Learning with Tidymodels</title>
     <meta charset="utf-8" />
     <meta name="author" content="D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim" />
     <script src="libs/header-attrs/header-attrs.js"></script>
@@ -13,7 +13,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Introduction to Machine Learning in R
+# Introduction to Machine Learning with Tidymodels
 ### D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim
 ### 28 September, 2020
 
@@ -21,23 +21,6 @@ class: center, middle, inverse, title-slide
 
 
 
-
-class: title-slide   
-&lt;a href="https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels"&gt;&lt;img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"&gt;&lt;/a&gt;
-
-&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
-# .font130[Introduction to Machine Learning in R]
-
-### Evan Muzzall, Chris Kennedy, and Jae Yeon Kim  
-### September 28, 2020
-
----
-
-class: center, middle, inverse
-
-# "It’s tough to make predictions, especially about the future." -Yogi Berra
-
----
 
 # D-Lab - IOKN2K! (It's OK Not To Know!)
 [Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services, resources, and other R offerings:  
@@ -153,22 +136,22 @@ Seek "actionable insight":
 
 ---
 
-# The main types of machine learning 
+# How to teach machines
 
-.center[&lt;img src="https://i.vas3k.ru/7vz.jpg"
-  height = "500"/&gt;]
+![](https://i.vas3k.ru/7w9.jpg)
 
 - Based on [vas3k blog](https://vas3k.com/blog/machine_learning/). Many images in these slides come from vas3k blog. (Jae: Thank you!) 
 
 ---
 
-# How to teach machines
+# The main types of machine learning 
 
-![](https://i.vas3k.ru/7w9.jpg)
+.center[&lt;img src="https://i.vas3k.ru/7vz.jpg"
+  height = "500"/&gt;]
 
 - Based on [vas3k blog](https://vas3k.com/blog/machine_learning/).
 
----
+--- 
 
 # The map of the machine learning universe
 
@@ -293,6 +276,7 @@ class: left
 
 # Workshop goals
 
+.pull-left[
 ### 1) Learn the basics of using six supervised machine learning algorithms in R:  
 
 - OLS regression  
@@ -301,30 +285,36 @@ class: left
 - Random forest  
 - Boosting  
 - SuperLearner  
-  
+]
+
+.pull-right[
 ### 2) Vizualize important information:  
 - Lasso coefficient paths  
 - Decision trees  
 - Random forest variable importance  
 - AUC from different boosting models  
 - SuperLearner cross-validated risk   
+]
 
 ---
 
 # Workshop goals
 
+.pull-left[
 ### 3) Examine the performance of these models  
 * (Root) mean-squared error, lasso penalization coefficient  
 * Mean decrease accuracy
 * Accuracy
 * AUC
 * Cross-validated risk
+]
 
+.pull-right[
 ### 4) Simultaneously compare multiple algorithms in an ensemble  
 * Compare various tunings of multiple algorithms at once
 * Weighted ensemble average
 * Discrete winner
-
+]
 ---
 
 # Specific workshop goals - heart disease dataset  
@@ -370,7 +360,6 @@ From Rstudio.
 
 
 ```r
-
 # data split 
 set.seed(1234)
 
@@ -511,14 +500,6 @@ df_pred %&gt;%
 [Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
 
 &lt;img src="slides_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-2.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-3.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-4.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-5.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-6.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-7.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-8.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-9.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-7-10.png" style="display: block; margin: auto;" /&gt;
-
----
-
-# Tidymodels
-
-[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
-
-&lt;img src="slides_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-2.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-3.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-4.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-5.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-6.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-7.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-8.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-9.png" style="display: block; margin: auto;" /&gt;&lt;img src="slides_files/figure-html/unnamed-chunk-8-10.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Data preprocessing
