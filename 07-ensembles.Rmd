@@ -5,10 +5,10 @@
 ```{r message=FALSE, warning=FALSE}
 
 library(ck37r)
+library(SuperLearner)
 library(vip)
 library(tidymodels) # tidymodels framework 
-library(here) # reproducible way to find files 
-library(stacks)
+library(here) # reproducible way to find files
 
 theme_set(theme_minimal())
 
@@ -23,32 +23,15 @@ Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variab
 load(here("data", "preprocessed.RData"))
 ```
 
-## Load models 
-
-```{r}
-
-list_models <- list.files(path = here("data"), 
-            pattern = "*_out.RData")
-
-for (i in seq(list_models)){
-load(here("data", list_models[i]))
-}
-
-```
-
 ## Overview
 
-In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned: 
+### Stacking/Super Learning 
 
-- Ways to setup your data to plug it into different algorithms
+Wolpert, D.H., 1992. [Stacked generalization](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.56.1533). *Neural networks*, 5(2), pp.241-259.
 
-- Some common moving parts of different algorithms
+Breiman, L., 1996. [Stacked regressions]((https://statistics.berkeley.edu/sites/default/files/tech-reports/367.pdf). *Machine learning*, 24(1), pp.49-64.
 
-- How to define control structures and grid searches and why they are important
-
-- How to configure hyperparameter settings to improve performance
-
-- Why comparing more than one algorithm at once is preferred
+### SuperLearner 
 
 The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms.
 
@@ -59,12 +42,17 @@ A "wrapper" is a short function that adapts an algorithm for the SuperLearner pa
 ### Choose algorithms
 
 ```{r}
+# Review available models 
 SuperLearner::listWrappers()
 ```
 
 ```{r cvsl_fit, cache = TRUE}
 # Compile the algorithm wrappers to be used.
-sl_lib <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.rpart", "SL.ranger", "SL.xgboost")
+sl_lib <- c("SL.mean", # Marginal mean of the outcome () 
+            "SL.glmnet", # GLM with lasso/elasticnet regularization 
+            "SL.rpart", # Decision tree 
+            "SL.ranger", # Random forest  
+            "SL.xgboost") # Xgbboost 
 
 ```
 
@@ -80,29 +68,56 @@ Fit the ensemble!
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This will take a few minutes to execute - take a look at the .html file to see the output!
-cv_sl <- SuperLearner::CV.SuperLearner(
-  Y = as.numeric(as.character(train_y_class)), 
+cv_sl <-  SuperLearner::CV.SuperLearner(
+  Y = as.numeric(as.character(train_y_class)),
   X = train_x_class,
   family = binomial(),
   # For a real analysis we would use V = 10.
   cvControl = list(V = 5L, stratifyCV = TRUE),
   SL.library = sl_lib,
   verbose = FALSE)
-
 ```
 
 ### Risk
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least *squares* regression). View the summary, plot results, and compute the Area Under the ROC Curve (AUC)!
 
-### Plot the risk
+#### Summary 
+
+* `Discrete SL` chooses the best single learner (in this case, `SL.glmnet` or `lasso`).
+* `SuperLearner` takes a weighted average of the learners using the coefficients (importance of each individual learner in the overall ensemble). Coefficient 0 means that learner is not used at all.
+* `SL.mean_All` (the mean of $Y$) is a benchmark algorithm. 
+
+```{r}
+
+summary(cv_sl)
+
+```
+
+#### Plot
 
 ```{r cvsl_review}
-# Plot the cross-validated risk estimate.
+# Plot the cross-validated risk estimate with 95% CIs.
+
 plot(cv_sl)
+
 ```
 
 ### Compute AUC for all estimators
+
+**ROC**
+
+ROC: an ROC (receiver operating characteristic curve) plots the relationship between True Positive Rate (Y-axis) and FALSE Positive Rate (X-axis). 
+
+![Area Under the ROC Curve](https://developers.google.com/machine-learning/crash-course/images/AUC.svg)
+
+**AUC** 
+
+AUC: Area Under the ROC Curve 
+
+1 = perfect 
+
+0.5 = no better than chance 
 
 ```{r}
 auc_table(cv_sl)
@@ -120,9 +135,9 @@ plot_roc(cv_sl)
 print(cvsl_weights(cv_sl), row.names = FALSE)
 ```
 
-"Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
+General stacking approach is available in the tidymodels framework through [`stacks`](https://github.com/tidymodels/stacks) package (developmental stage). 
 
-- SuperLearner is currently not available in the tidymodels framework. But you'd like to, you can easily build a parsnip model. Here, I just show a snapshot of the whole process. If you are interested in knowing more about it, please take a look at [this vignette](https://www.tidymodels.org/learn/develop/models/) of the tidymodels.
+However, SuperLearner is currently not available in the tidymodels framework. If you'd like to, you can easily build and add a parsnip model. Here, I just show a snapshot of the whole process. If you are interested in knowing more about it, please take a look at [this vignette](https://www.tidymodels.org/learn/develop/models/) of the tidymodels.
 
 ```{r}
 # Set model 

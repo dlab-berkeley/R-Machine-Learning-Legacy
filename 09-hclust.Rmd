@@ -3,7 +3,7 @@
 
 # Load packages 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(ape)
 library(pvclust)
 library(mclust)
@@ -30,6 +30,7 @@ data <- data_original
 # Overview
 
 Hierarchical agglomerative clustering is a "bottom-up" method of clustering. Each observation begins as its own cluster and forms clusters with like items as it moves up the hierarchy. That is, all leaves are their own clusters to begin with and form clusters as grouping moves up the trunk and various branches are formed.  
+
 Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between two clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).  
 
 # Preprocess data 
