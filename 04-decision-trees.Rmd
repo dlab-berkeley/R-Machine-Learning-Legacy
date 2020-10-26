@@ -3,7 +3,7 @@
 
 ## Load packages
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 
 library(rpart)
 library(rpart.plot)
@@ -84,7 +84,7 @@ tree$variable.importance
 
 ### parsnip 
 
-- Build a model 
+Build a model 
 
 1. Specify a model 
 2. Specify an engine 
@@ -110,7 +110,8 @@ tree_wf <- tree_wf %>% add_model(tree_spec)
 
 ```
 
-- Fit a model
+
+Fit a model
 
 ```{r}
 
@@ -120,19 +121,19 @@ tree_fit <- tree_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_
 
 ### yardstick 
 
-- Let's formally test prediction performance. 
+Let's formally test prediction performance. 
 
 **Metrics**
 
-- `accuracy`: The proportion of the data predicted correctly 
+* `accuracy`: The proportion of the data predicted correctly 
 
-- `precision`: Positive predictive value
+* `precision`: Positive predictive value
 
-- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+* `recall` (specificity): True positive rate (e.g., healthy people really healthy)
 
 ![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
 
-- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
 
 ```{r}
 
@@ -193,7 +194,7 @@ tree_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class
 # Update workflow 
 tree_wf <- tree_wf %>% update_model(tune_spec)
 
-cl <- makeCluster(4)
+cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 
 # Tuning results 
@@ -208,7 +209,7 @@ tree_res <- tree_wf %>%
 
 #### Visualize 
 
-- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
 
 ```{r}
 
@@ -232,10 +233,9 @@ tree_res %>%
 
 ```
 ```{r}
+
 # Optimal parameter
 best_tree <- select_best(tree_res, "recall")
-
-best_tree
 
 # Add the parameter to the workflow 
 finalize_tree <- tree_wf %>%
@@ -255,7 +255,7 @@ tree_fit_tuned <- finalize_tree %>%
 
 ```
 
-- Visualize variable importance 
+Visualize variable importance 
 
 ```{r}
 
@@ -266,7 +266,7 @@ tree_fit_tuned %>%
 ```
 #### Test fit
 
-- Apply the tuned model to the test dataset 
+Apply the tuned model to the test dataset 
 
 ```{r}
 
@@ -275,6 +275,14 @@ test_fit <- finalize_tree %>%
 
 evaluate_class(test_fit)
 
+```
+
+Save the optimized decision tree model 
+
+```{r}
+save(tree_wf, 
+     tree_res,
+     file = here("data", "tree_out.RData"))
 ```
 
 TBD: Challenge 2 

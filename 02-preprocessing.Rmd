@@ -11,7 +11,7 @@ library(tidymodels) # tidymodels framework
 library(here) # reproducible way to find files 
 ```
 
-## Load the data
+data## Load the data
 
 Load the heart disease dataset. 
 
@@ -114,6 +114,8 @@ One additional preprocessing aspect to consider: datasets that contain factor (c
 data <- data %>%
   mutate(across(c("sex", "ca", "cp", "slope", "thal"), as.factor)) 
 
+glimpse(data) 
+
 ```
 
 ### Task 2: Handling missing data
@@ -177,7 +179,6 @@ data %>%
 ## Preprocessing workflow 
 
 ![Art by Allison Horst](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/recipes.png)
-
 - Step 1: `recipe()` defines target and predictor variables (ingredients).
 
 - Step 2: `step_*()` defines preprocessing steps to be taken (recipe).
@@ -246,8 +247,10 @@ prep_reg <- rec_reg %>% prep(retain = TRUE)
 ```{r}
 
 # x features 
-train_x_reg <- juice(prep_reg, all_predictors()) 
-test_x_reg <- bake(prep_reg, raw_test_x_reg, all_predictors())
+train_x_reg <- juice(prep_reg, all_predictors())
+
+test_x_reg <- bake(object = prep_reg, 
+                   new_data = raw_test_x_reg, all_predictors())
 
 # y variables 
 train_y_reg <- juice(prep_reg, all_outcomes())$age %>% as.numeric()
@@ -255,6 +258,7 @@ test_y_reg <- bake(prep_reg, raw_test_x_reg, all_outcomes())$age %>% as.numeric(
 
 # Checks
 names(train_x_reg) # Make sure there's no age variable!
+
 class(train_y_reg) # Make sure this is a continuous variable!
 
 ```
@@ -291,7 +295,7 @@ For classification, we then use [stratified random sampling](https://stats.stack
 
 # split 
 split_class <- initial_split(data %>%
-                               mutate(target = as.factor(target)), 
+                             mutate(target = as.factor(target)), 
                              prop = 0.7, 
                              strata = target)
 

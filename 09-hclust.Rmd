@@ -1,3 +1,4 @@
+
 # Hierarchical Agglomerative Clustering
 
 # Load packages 
@@ -190,7 +191,7 @@ The [`mclust`](https://cran.r-project.org/web/packages/mclust/index.html) packag
 ```{r}
 # Fit model
 mclust_model <- Mclust(ml_num)
-
+z
 # View various plots
 plot(mclust_model, what = "BIC")
 plot(mclust_model, what = "classification")

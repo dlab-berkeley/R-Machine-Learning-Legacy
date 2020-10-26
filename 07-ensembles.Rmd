@@ -2,39 +2,57 @@
 
 ## Load packages
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 
-library(SuperLearner)
 library(ck37r)
 library(vip)
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
+library(stacks)
 
 theme_set(theme_minimal())
 
 ```
 
-## Load data 
+## Load data
 
-Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variables we defined in 02-preprocessing.Rmd for this *classification* task. 
+Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variables we defined in 02-preprocessing.Rmd for this *classification* task.
 
 ```{r}
 # Objects: task_reg, task_class
-load(here("data" , "preprocessed.RData"))
+load(here("data", "preprocessed.RData"))
+```
+
+## Load models 
+
+```{r}
+
+list_models <- list.files(path = here("data"), 
+            pattern = "*_out.RData")
+
+for (i in seq(list_models)){
+load(here("data", list_models[i]))
+}
+
 ```
 
 ## Overview
 
 In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned: 
-- Ways to setup your data to plug it into different algorithms  
-- Some common moving parts of different algorithms  
-- How to define control structures and grid searches and why they are important  
-- How to configure hyperparameter settings to improve performance  
-- Why comparing more than one algorithm at once is preferred  
 
-The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms. 
+- Ways to setup your data to plug it into different algorithms
 
-Let's see how the four classification algorithms you learned in this workshop (1-lasso, 2-decision tree, 3-random forest, and 4-gradient boosted trees) compare to each other and also to 5-binary logistic regression (`glm`) and to the 6-mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
+- Some common moving parts of different algorithms
+
+- How to define control structures and grid searches and why they are important
+
+- How to configure hyperparameter settings to improve performance
+
+- Why comparing more than one algorithm at once is preferred
+
+The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms.
+
+Let's see how the four classification algorithms you learned in this workshop (1-lasso, 2-decision tree, 3-random forest, and 4-gradient boosted trees) compare to each other and also to 5-binary logistic regression (`glm`) and to the 6-mean of Y as a benchmark algorithm, in terms of their cross-validated error!
 
 A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
 
@@ -50,10 +68,11 @@ sl_lib <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.rpart", "SL.ranger", "SL.xgboo
 
 ```
 
-## Non-tidy 
+## Non-tidy
+
 ### Fit model
 
-Fit the ensemble! 
+Fit the ensemble!
 
 ```{r}
 # This is a seed that is compatible with multicore parallel processing.
@@ -74,7 +93,7 @@ cv_sl <- SuperLearner::CV.SuperLearner(
 
 ### Risk
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the Area Under the ROC Curve (AUC)!
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least *squares* regression). View the summary, plot results, and compute the Area Under the ROC Curve (AUC)!
 
 ### Plot the risk
 
@@ -108,25 +127,20 @@ print(cvsl_weights(cv_sl), row.names = FALSE)
 ```{r}
 # Set model 
 set_new_model("superlearner")
-
 # Set mode 
 set_model_mode(model = "superlearner", 
                mode = "classification")
-
 # Set model engine 
 set_model_engine(
   "superlearner",
   mode = "classification",
   eng = "SuperLearner"
 )
-
 # Set dependency 
 set_dependency("superlearner", 
                eng = "SuperLearner", pkg = "SuperLearner")
-
 # Show model info 
 show_model_info("superlearner")
-
 # Add arguments 
 set_model_arg(
   model = "superlearner",
@@ -137,9 +151,7 @@ set_model_arg(
               fun = "CV.SuperLearner"),
   has_submodel = TRUE # Are you making multiple iterations?
 )
-
 show_model_info("superlearner")
-
 ```
 
 ## Challenge 5

@@ -3,6 +3,7 @@
 # Load packages
 
 ```{r}
+
 library(dplyr)
 library(tidyverse) # tidyverse packages 
 library(corrr) # correlation analysis 
@@ -56,6 +57,7 @@ pca_recipe <- recipe(~., data = data_original) %>%
   step_meanimpute(all_predictors()) %>%
   # Normalize some numeric variables 
   step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) 
+
 ```
 
 # PCA analysis 
@@ -69,7 +71,7 @@ pca_res <- pca_recipe %>%
 
 pca_res %>%
   tidy(id = "pca") 
-  
+
 ```
 
 ## Screeplot

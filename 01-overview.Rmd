@@ -9,33 +9,31 @@ The following packages are required to run the code in this workshop:
 # Install packages 
 if (!require("pacman")) install.packages("pacman")
 
-install.packages("tidyverse")
-
-pacman::p_load(# Tidymodels framework 
-               tidymodels,
-               # Tidyverse packages including dplyr and ggplot2 
+pacman::p_load(# Tidyverse packages including dplyr and ggplot2 
                tidyverse,
                # Algorithms
                glmnet, ranger, rpart, xgboost, pvclust, mclust, 
                # Visualization
                rpart.plot, vip, ape, corrr, GGally,
                # Machine learning frameworks
-               caret, SuperLearner,
+               caret, tidymodels, 
                # R utility packages
                remotes, here, glue, patchwork, doParallel,
-               # Import/export of any filetype.
+               # Import/export of any filetype
                rio,
                # Misc
                pROC, bookdown)
   
 # Install packages not on CRAN or with old version on CRAN.
 remotes::install_github("ck37/ck37r")
+remotes::install_github("tidymodels/stacks", ref = "main")
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
   library(ape)          # Cluster visualizations
   library(caret)        # createDataPartition creates a stratified random split 
-  library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
+  library(ck37r)        # Chris's personal pkg 
+  library(stacks)       # impute_missing_values, standardize, SuperLearner helpers
   library(glmnet)       # Lasso 
   library(mclust)       # Model-based clustering
   library(PCAmixdata)   # PCA

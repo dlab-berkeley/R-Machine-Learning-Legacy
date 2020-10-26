@@ -2,7 +2,7 @@
 
 ## Load packages
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 
 library(caret)
 library(pROC)
@@ -49,6 +49,7 @@ Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to 
 
 ```{r caret_prep}
 # Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default "bootstrap")
+
 cv_control <- caret::trainControl(
   method = "repeatedcv",
   # Number of folds
@@ -131,11 +132,9 @@ model <- caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, tra
 # system time = the CPU time charged for execution by the system on behalf of the calling  process
 # elapsed time = real time since the process was started
 
-model$times 
-
 ```
 
-- Review model summary table
+Review model summary table
 
 ```{r}
 model
@@ -237,7 +236,7 @@ xg_wf <- xg_wf %>% add_model(xg_spec)
 
 ```
 
-- Fit a model
+Fit a model
 
 ```{r}
 
@@ -247,19 +246,19 @@ xg_fit <- xg_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_clas
 
 ### yardstick 
 
-- Let's formally test prediction performance. 
+Let's formally test prediction performance. 
 
 **Metrics**
 
-- `accuracy`: The proportion of the data predicted correctly 
+* `accuracy`: The proportion of the data predicted correctly 
 
-- `precision`: Positive predictive value
+* `precision`: Positive predictive value
 
-- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+* `recall` (specificity): True positive rate (e.g., healthy people really healthy)
 
 ![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
 
-- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
 
 ```{r}
 
@@ -278,9 +277,7 @@ xg_fit_viz_metr <- visualize_class_eval(xg_fit)
 xg_fit_viz_metr
 
 ```
-- Visualize the confusion matrix. 
-
-  - The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
+Visualize the confusion matrix. The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
   
 ```{r}
 
@@ -298,8 +295,7 @@ We focus on the following parameters: `trees,` `tree_depth,` `learn_rate,` `min_
 
 ```{r}
 
-tune_spec <- 
-  xg_spec <- boost_tree(
+tune_spec <- boost_tree(
   
            # Mode 
            mode = "classification",
@@ -350,7 +346,7 @@ xg_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class))
 # Update workflow 
 xg_wf <- xg_wf %>% update_model(tune_spec)
 
-cl <- makeCluster(4)
+cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 
 # Tuning results 
@@ -365,7 +361,7 @@ xg_res <- xg_wf %>%
 
 #### Visualize 
 
-- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
 
 ```{r}
 
@@ -409,7 +405,7 @@ xg_fit_tuned <- finalize_xg %>%
 
 ```
 
-- Visualize variable importance 
+Visualize variable importance 
 
 ```{r}
 
@@ -421,7 +417,7 @@ xg_fit_tuned %>%
 
 #### Test fit
 
-- Apply the tuned model to the test dataset 
+Apply the tuned model to the test dataset 
 
 ```{r}
 
@@ -430,6 +426,13 @@ test_fit <- finalize_xg %>%
 
 evaluate_class(test_fit)
 
+```
+Save the optimized xgboost model 
+
+```{r}
+save(xg_wf, 
+     xg_res,
+     file = here("data", "xg_out.RData"))
 ```
 
 TBD: Challenge 4

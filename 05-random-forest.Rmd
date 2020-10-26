@@ -2,7 +2,7 @@
 
 ## Load packages
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 
 library(ranger)
 library(vip)
@@ -77,7 +77,7 @@ vip::vi(rf1)
 
 ### parsnip 
 
-- Build a model 
+Build a model 
 
 1. Specify a model 
 2. Specify an engine 
@@ -107,7 +107,7 @@ rand_wf <- rand_wf %>% add_model(rand_spec)
 
 ```
 
-- Fit a model
+Fit a model
 
 ```{r}
 
@@ -117,19 +117,19 @@ rand_fit <- rand_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_
 
 ### yardstick 
 
-- Let's formally test prediction performance. 
+Let's formally test prediction performance. 
 
 **Metrics**
 
-- `accuracy`: The proportion of the data predicted correctly 
+* `accuracy`: The proportion of the data predicted correctly 
 
-- `precision`: Positive predictive value
+* `precision`: Positive predictive value
 
-- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+* `recall` (specificity): True positive rate (e.g., healthy people really healthy)
 
 ![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
 
-- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
 
 ```{r}
 
@@ -142,7 +142,7 @@ rand_fit_viz_metr
 
 ```
 
-- Visualize the confusion matrix. 
+Visualize the confusion matrix. 
   
 ```{r}
 
@@ -158,9 +158,9 @@ rand_fit_viz_mat
 
 We focus on the following two parameters:
 
-- `mtry`: The number of predictors to available for splitting at each node.
+* `mtry`: The number of predictors to available for splitting at each node.
 
-- `min_n`: The minimum number of data points needed to keep splitting nodes. 
+* `min_n`: The minimum number of data points needed to keep splitting nodes. 
 
 ```{r}
 
@@ -182,6 +182,9 @@ rand_grid <- grid_regular(mtry(range = c(1, 10)),
 rand_grid %>%
   count(min_n)
 
+```
+
+```{r}
 # 10-fold cross-validation
 
 set.seed(1234) # for reproducibility 
@@ -199,7 +202,7 @@ rand_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class
 # Update workflow 
 rand_wf <- rand_wf %>% update_model(tune_spec)
 
-cl <- makeCluster(4)
+cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 
 # Tuning results 
@@ -214,7 +217,7 @@ rand_res <- rand_wf %>%
 
 #### Visualize 
 
-- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
 
 ```{r}
 
@@ -265,7 +268,7 @@ rand_fit_tuned <- finalize_tree %>%
 
 ```
 
-- Visualize variable importance 
+Visualize variable importance 
 
 ```{r}
 
@@ -277,7 +280,7 @@ rand_fit_tuned %>%
 
 #### Test fit
 
-- Apply the tuned model to the test dataset 
+Apply the tuned model to the test dataset 
 
 ```{r}
 
@@ -286,6 +289,13 @@ test_fit <- finalize_tree %>%
 
 evaluate_class(test_fit)
 
+```
+Save the optimized random forest model 
+
+```{r}
+save(rand_wf, 
+     rand_res,
+     file = here("data", "rand_out.RData"))
 ```
 
 TBD: Challenge 3 
