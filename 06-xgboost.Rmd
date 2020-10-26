@@ -34,13 +34,14 @@ load(here("data", "preprocessed.RData"))
 ## Overview
 
 From [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
-"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space."  
+"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient (partial derivative of loss function) boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space."  
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
 
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them (=focusing on failures). This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.  
+
 Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
 
 ## Non-tidy 
@@ -221,11 +222,12 @@ xg_spec <- boost_tree(
            
            # Tuning parameters
            
-           # The number of trees to fit, aka boosting iterations
+           # The number of trees (=iterations) to fit, aka boosting iterations
            trees = c(100, 300, 500, 700, 900),
            # The depth of the decision tree (how many levels of splits).
 	         tree_depth = c(1, 6), 
-           # Learning rate: lower means the ensemble will adapt more slowly.
+           # Learning rate (step size): lower means the ensemble will adapt more slowly.
+           # This hyperparameter is about how to descent the gradient 
            learn_rate = c(0.0001, 0.01, 0.2),
            # Stop splitting a tree if we only have this many obs in a tree node.
 	         min_n = 10L

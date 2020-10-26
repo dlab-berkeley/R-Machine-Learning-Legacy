@@ -85,8 +85,8 @@ Risk is a performance estimate - it's the average loss, and loss is how far off 
 #### Summary 
 
 * `Discrete SL` chooses the best single learner (in this case, `SL.glmnet` or `lasso`).
-* `SuperLearner` takes a weighted average of the learners using the coefficients (importance of each individual learner in the overall ensemble). Coefficient 0 means that learner is not used at all.
-* `SL.mean_All` (the mean of $Y$) is a benchmark algorithm. 
+* `SuperLearner` takes a weighted average of the **models** using the coefficients (importance of each individual learner in the overall ensemble). Coefficient 0 means that learner is not used at all.
+* `SL.mean_All` (the weighted mean of $Y$) is a benchmark algorithm (ignoring features). 
 
 ```{r}
 
@@ -123,7 +123,7 @@ AUC: Area Under the ROC Curve
 auc_table(cv_sl)
 ```
 
-### Plot the ROC curve for the best estimator
+### Plot the ROC curve for the best estimator (DiscretSL)
 
 ```{r}
 plot_roc(cv_sl)
@@ -142,20 +142,25 @@ However, SuperLearner is currently not available in the tidymodels framework. If
 ```{r}
 # Set model 
 set_new_model("superlearner")
+
 # Set mode 
 set_model_mode(model = "superlearner", 
                mode = "classification")
+
 # Set model engine 
 set_model_engine(
   "superlearner",
   mode = "classification",
   eng = "SuperLearner"
 )
+
 # Set dependency 
 set_dependency("superlearner", 
                eng = "SuperLearner", pkg = "SuperLearner")
+
 # Show model info 
 show_model_info("superlearner")
+
 # Add arguments 
 set_model_arg(
   model = "superlearner",
@@ -166,6 +171,7 @@ set_model_arg(
               fun = "CV.SuperLearner"),
   has_submodel = TRUE # Are you making multiple iterations?
 )
+
 show_model_info("superlearner")
 ```
 
