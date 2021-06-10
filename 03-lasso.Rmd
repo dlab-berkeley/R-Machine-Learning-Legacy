@@ -89,6 +89,8 @@ sqrt(mean((lasso_predicted - test_y_reg)^2))
 
 #### parsnip 
 
+Here is an explanantion and vignette about [parsnip](https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/).
+
 Build models 
 
 1. Specify a model 
