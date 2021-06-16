@@ -6,7 +6,7 @@ Fill in the blanks to complete the below lasso code that predicts "Petal.Width" 
 > HINT: Use the `03-lasso.Rmd` and `Challenge 1 - solution.Rmd` files as your guide!
 
 ### 1. Setup
-- Load the iris dataset 
+- Load the student-mat.csv dataset 
 - Load the glmnet library
 - Set your seed to 1 for reproducibility
 
