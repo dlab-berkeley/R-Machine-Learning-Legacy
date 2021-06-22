@@ -1,4 +1,4 @@
-# Challenge 1 - solution
+# Challenge 1 
 # 03-lasso.Rmd 
 
 Fill in the blanks to complete the below lasso code that predicts "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
@@ -11,85 +11,82 @@ Fill in the blanks to complete the below lasso code that predicts "Petal.Width" 
 - Set your seed to 1 for reproducibility
 
 ```{r}
-data(iris)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+
+data <-import(here("data-raw", "student-mat.csv"))
 library(glmnet)
 set.seed(1)
 ```
 
-### 2. Define y variable
-
+### 2. Define y variable as G3
 ```{r}
-iris_y = iris$Petal.Width
+student_y = data$G3
 ```
 
 ### 3. Define x variables
-
 Remove Petal.Width from the dataset
-
 ```{r}
-iris_x = subset(iris, select = -Petal.Width)
-dim(iris_x)
+data_x = subset(data, data = -G3)
+dim(data_x)
 ```
 
-### 4. Convert Species from factor to indicator
-
+### 4. Convert from factor to indicator
 ```{r}
 ?model.matrix
-features_iris = data.frame(model.matrix( ~ . -1 , iris_x))
-head(features_iris)
+features_students = data.frame(model.matrix( ~ . -1 , data_x))
+head(features_students)
 ```
 
 ### 5. Perform a 70/30 random split.
-
 ```{r}
-(training_size = floor(0.70 * nrow(features_iris)))
+(training_size = floor(0.70 * nrow(features_students)))
 # Set seed for reproducibility.
 set.seed(1)
-training_rows_iris = sample(nrow(features_iris), size = training_size)
+training_rows_students = sample(nrow(features_students), size = training_size)
 ```
 
 ### 6. Partition training and test sets
-
 ```{r}
-train_x_iris = features_iris[training_rows_iris, ] # partition training dataset
-test_x_iris = features_iris[-training_rows_iris, ] # partition test dataset
+train_x_students = features_students[training_rows_students, ] # partition training dataset
+test_x_students = features_students[-training_rows_students, ] # partition test dataset
 
-train_y_iris = iris_y[training_rows_iris] # partition training Y vector labels
-test_y_iris = iris_y[-training_rows_iris] # partition test Y vector labels
+train_y_students = student_y[training_rows_students] # partition training Y vector labels
+test_y_students = student_y[-training_rows_students] # partition test Y vector labels
 
 ### Check lengths of x and y data
-dim(train_x_iris)
-length(train_y_iris)
+dim(train_x_students)
+length(train_y_students)
 
-dim(test_x_iris)
-length(test_y_iris)
+dim(test_x_students)
+length(test_y_students)
 ```
 
 ### 7. Fit lasso model and visualize lambda distribution and different lambda values
-
 ```{r}
-lasso_iris = cv.glmnet(as.matrix(train_x_iris), train_y_iris, family = "gaussian", alpha = 1)
-plot(lasso_iris)
-plot(lasso_iris$glmnet.fit, xvar = "lambda", label = T)
+lasso_student = cv.glmnet(as.matrix(train_x_students), train_y_students, family = "gaussian", alpha = 1)
+plot(lasso_student)
+plot(lasso_student$glmnet.fit, xvar = "lambda", label = T)
 
 # View minimum MSE and higher lambda within one standard error
-lasso_iris$lambda.min
-lasso_iris$lambda.1se
+lasso_student$lambda.min
+lasso_student$lambda.1se
 
 # View coefficients
-coef(lasso_iris, s = "lambda.min")
-coef(lasso_iris, s = "lambda.1se")
+coef(lasso_student, s = "lambda.min")
+coef(lasso_student, s = "lambda.1se")
 
 # Predict on test set
-predictions_iris = predict(lasso_iris, s = lasso_iris$lambda.1se, newx = as.matrix(test_x_iris))
+predictions_students = predict(lasso_student, s = lasso_student$lambda.1se, newx = as.matrix(test_x_students))
 ```
 
 # 8. Calculate MSE and RMSE
-
 ```{r}
 # Calculate mean-squared error = 0.0262426
-mean((predictions_iris - test_y_iris)^2)
+mean((predictions_students - test_y_students)^2)
 
 # Calculate root mean-squared error = 0.1619957
-sqrt(mean((predictions_iris - test_y_iris)^2))
+sqrt(mean((predictions_students - test_y_students)^2))
 ```
