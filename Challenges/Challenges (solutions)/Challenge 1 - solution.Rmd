@@ -1,12 +1,12 @@
 # Challenge 1 
 # 03-lasso.Rmd 
 
-Fill in the blanks to complete the below lasso code that predicts "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
+Fill in the blanks to complete the below lasso code that predicts "G3" variable from the Student Performance dataset. What predictors are most strongly associated with values for "Petal.Width"? 
 
 > HINT: Use the `03-lasso.Rmd` and `Challenge 1 - solution.Rmd` files as your guide!
 
 ### 1. Setup
-- Load the iris dataset 
+- Load the Student Performance dataset 
 - Load the glmnet library
 - Set your seed to 1 for reproducibility
 
@@ -27,13 +27,13 @@ student_y = data$G3
 ```
 
 ### 3. Define x variables
-Remove Petal.Width from the dataset
+Remove G3 from the dataset
 ```{r}
 data_x = subset(data, data = -G3)
 dim(data_x)
 ```
 
-### 4. Convert from factor to indicator
+### 4. Create a features matrix
 ```{r}
 ?model.matrix
 features_students = data.frame(model.matrix( ~ . -1 , data_x))
@@ -84,9 +84,9 @@ predictions_students = predict(lasso_student, s = lasso_student$lambda.1se, newx
 
 # 8. Calculate MSE and RMSE
 ```{r}
-# Calculate mean-squared error = 0.0262426
+# Calculate mean-squared error = 0.01883421
 mean((predictions_students - test_y_students)^2)
 
-# Calculate root mean-squared error = 0.1619957
+# Calculate root mean-squared error = 0.1372378
 sqrt(mean((predictions_students - test_y_students)^2))
 ```

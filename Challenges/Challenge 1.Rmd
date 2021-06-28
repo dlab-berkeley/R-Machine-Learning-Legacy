@@ -1,7 +1,7 @@
 # Challenge 1 
 # 03-lasso.Rmd 
 
-Fill in the blanks to complete the below lasso code that predicts "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
+Fill in the blanks to complete the below lasso code that predicts "G3" variable from the Student Performance dataset. What predictors are most strongly associated with values for "G3"? 
 
 > HINT: Use the `03-lasso.Rmd` and `Challenge 1 - solution.Rmd` files as your guide!
 
@@ -33,7 +33,7 @@ data_x = subset(data, ____ = -__)
 dim(data_x)
 ```
 
-### 4. Convert from factor to indicator
+### 4. Create a features matrix
 ```{r}
 ?model.matrix
 features_students = data.frame(model.matrix( ~ . -1 , ______))
