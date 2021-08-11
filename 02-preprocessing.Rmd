@@ -194,7 +194,7 @@ data %>%
 
 ## Regressioin setup 
 
-Splitting data into training and test subsets is a fundamental step in machine learning. Usually, the marjority portion of the original dataset is partitioned to the training set, where the algorithms learn the relationships between the $x$ feature predictors and the $y$ outcome variable. Then, these models are given new data (the test set) to see how well they perform on data they have not yet seen. 
+Splitting data into training and test subsets is a fundamental step in machine learning. Usually, the larger portion of the original dataset is partitioned to the training set, where the algorithms learn the relationships between the $x$ feature predictors and the $y$ outcome variable. These models are then given new data (the test set) to see how well they perform on data they have not yet seen. 
 
 Since **age** is a **continuous variable** and will be **the outcome** for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
 
@@ -208,7 +208,7 @@ data$age %>% unique()
 ```
 ### Data splitting using random sampling 
 
-Take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set.
+Take the simple approach to data splitting and divide our data into training and test sets: 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set.
 
 ```{r}
 
@@ -235,7 +235,7 @@ rec_reg <- raw_train_x_reg %>%
   # Define the outcome variable 
   recipe(age ~ .) %>%
   # Median impute oldpeak column 
-  step_medianimpute(oldpeak) %>%
+  step_impute_median(oldpeak) %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
   step_dummy(c("sex", "ca", "cp", "slope", "thal"))
 
@@ -289,7 +289,7 @@ data$target %>% unique()
 ```
 ### Data splitting using stratified random sampling
 
-For classification, we then use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
+For classification, we then use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test set. 
 
 ```{r}
 
@@ -316,7 +316,7 @@ rec_class <- raw_train_x_class %>%
   # Define the outcome variable 
   recipe(target ~ .) %>%
   # Median impute oldpeak column 
-  step_medianimpute(oldpeak) %>%
+  step_impute_median(oldpeak) %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators).
   step_normalize(age) %>%
   step_dummy(c("sex", "ca", "cp", "slope", "thal")) 

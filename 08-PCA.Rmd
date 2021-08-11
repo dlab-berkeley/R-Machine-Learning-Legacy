@@ -54,7 +54,7 @@ data_original %>%
 
 pca_recipe <- recipe(~., data = data_original) %>%
   # Imputing NAs using mean 
-  step_meanimpute(all_predictors()) %>%
+  step_impute_mean(all_predictors()) %>%
   # Normalize some numeric variables 
   step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) 
 
@@ -130,7 +130,7 @@ test_set <- testing(split_cluster)
 # Apply the recipe we created above 
 final_recipe <- recipe(~., data = train_set) %>%
   # Imputing NAs using mean 
-  step_meanimpute(all_predictors()) %>%
+  step_impute_mean(all_predictors()) %>%
   # Normalize some numeric variables 
   step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) %>%
   step_pca(all_predictors()) # id argument identifies each PCA step 
