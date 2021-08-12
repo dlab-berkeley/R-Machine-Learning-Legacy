@@ -298,4 +298,4 @@ save(rand_wf,
      file = here("data", "rand_out.RData"))
 ```
 
-TBD: Challenge 3 
+See Challenge 2 for some practice with random forests. 

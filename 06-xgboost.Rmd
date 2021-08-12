@@ -437,4 +437,4 @@ save(xg_wf,
      file = here("data", "xg_out.RData"))
 ```
 
-TBD: Challenge 4
+See Challenge 4 for some practice with XGBoost. 

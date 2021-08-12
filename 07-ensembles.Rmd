@@ -177,6 +177,6 @@ show_model_info("superlearner")
 
 ## Challenge 5
 
-Open Challenge 5 in the "Challenges" folder. 
+Open Challenge 5 in the "Challenges" folder. This challenge provides some practice with SuperLearner. Note that this is a harder challenge than others.  
 
 A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)
