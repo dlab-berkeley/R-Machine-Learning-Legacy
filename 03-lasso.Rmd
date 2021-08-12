@@ -307,4 +307,4 @@ save(rec_wf,
      file = here("data", "rec_out.RData"))
 ```
 
-TBD: Challenge 1
+See Challenge 1 for some practice with LASSO. 

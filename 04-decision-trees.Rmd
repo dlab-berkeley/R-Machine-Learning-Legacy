@@ -285,4 +285,4 @@ save(tree_wf,
      file = here("data", "tree_out.RData"))
 ```
 
-TBD: Challenge 2 
+See Challenge 2 for some practice with decision trees. 
