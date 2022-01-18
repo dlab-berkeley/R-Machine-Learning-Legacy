@@ -11,6 +11,27 @@ Other resources Athey and Imbens Annual Review Piece
 
 Introduction to Statistical Learning 2nd Edition James et al 
 
+## Workshop structure 
+
+1. Conceptualizing Machine Learning 
+  - What is it?
+  - What kind of problems does it work well on?
+  - What kind of problems does it work less well on?
+  - Regression and Classification
+2. Introduce Tidymodels 
+  - Data spend 
+  - Workflow process 
+    - Data preprocessing with `recipes` 
+    - Model fitting with `parsnip` 
+    - Model evaluation with `yardstick` 
+    - Resampling with `rsample` 
+    - Model optimization with `tune`
+  - Important concepts and structure 
+3. Tidymodels with supervised learning 
+  - Linear Regression
+  - Classification 
+  - Random Forests 
+  - Ensembles
 
 
 ## Libraries 
