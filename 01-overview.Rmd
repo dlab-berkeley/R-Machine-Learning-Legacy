@@ -5,48 +5,19 @@
 The following packages are required to run the code in this workshop:
 
 ```{r}
-
-# Install packages 
-if (!require("pacman")) install.packages("pacman")
-
-pacman::p_load(# Tidyverse packages including dplyr and ggplot2 
-               tidyverse,
-               # Algorithms
-               glmnet, ranger, rpart, xgboost, pvclust, mclust, 
-               # Visualization
-               rpart.plot, vip, ape, corrr, GGally,
-               # Machine learning frameworks
-               caret, tidymodels, 
-               # R utility packages
-               remotes, here, glue, patchwork, doParallel,
-               # Import/export of any filetype
-               rio,
-               # Misc
-               pROC, bookdown)
-  
-# Install packages not on CRAN or with old version on CRAN.
-remotes::install_github("ck37/ck37r")
-remotes::install_github("tidymodels/stacks", ref = "main")
+install.packages(c("tidyverse", "tidymodels","here",
+                   "glmnet", "ranger", "rpart", "xgboost",
+                   "rpart.plot", "vip", "corrr", "GGally",
+                   "glue", "patchwork", "doParallel", "rio",
+                   "pROC"))
 
 # Hide the many messages and possible warnings from loading all these packages.
-suppressMessages(suppressWarnings({  
-  library(ape)          # Cluster visualizations
-  library(caret)        # createDataPartition creates a stratified random split 
-  library(ck37r)        # Chris's personal pkg 
-  library(stacks)       # impute_missing_values, standardize, SuperLearner helpers
-  library(glmnet)       # Lasso 
-  library(mclust)       # Model-based clustering
-  library(PCAmixdata)   # PCA
-  library(pROC)         # Compute and plot AUC 
-  library(pvclust)      # Dendrograms with p-values
-  library(ranger)       # Random forest algorithm
-  library(remotes)      # Allows installing packages from github
-  library(rio)          # Import/export for any filetype.
-  library(rpart)        # Decision tree algorithm
-  library(rpart.plot)   # Decision tree plotting
-  library(SuperLearner) # Ensemble methods
-  library(xgboost)      # Boosting method
-  library(vip)          # Variable importance plots
+suppressMessages(suppressWarnings({ 
+  library(tidyverse)
+  library(tidymodels)
+  library(here)
+  library(rio)
+  library(vip)
 }))
 
 ```
