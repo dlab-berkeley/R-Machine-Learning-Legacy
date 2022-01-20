@@ -1,53 +1,81 @@
 ---
-title: "Tidymodels Book Notes" 
+title: "Machine Learning with Tidymodels" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
 ---
-## General points 
-
-Rewrite all of this. 
-
-For references make sure to cite Tidymodels book by Kuhn and Silge 
-
-Other resources Athey and Imbens Annual Review Piece 
-
-Introduction to Statistical Learning 2nd Edition James et al 
-
-## Workshop structure 
-
-1. Conceptualizing Machine Learning 
-  - What is it?
-  - What kind of problems does it work well on?
-  - What kind of problems does it work less well on?
-  - Regression and Classification
-2. Introduce Tidymodels 
-  - Data spend 
-  - Workflow process 
-    - Data preprocessing with `recipes` 
-    - Model fitting with `parsnip` 
-    - Model evaluation with `yardstick` 
-    - Resampling with `rsample` 
-    - Model optimization with `tune`
-  - Important concepts and structure 
-3. Tidymodels with supervised learning 
-  - Linear Regression
-  - Classification 
-  - Random Forests 
-  - Ensembles
-
 
 ## Libraries 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidymodels)
-library(tidyverse)
-library(broom)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(rio)
+  library(vip)
+}))
+# prefer tidymodels function in any case of name conflict
+tidymodels::tidymodels_prefer() 
 ```
 
+## Introduction 
 
-## Terminology 
+Welcome to Machine Learning with Tidymodels. 
 
-## Dataset and EDA 
+This workshop has three sections: 
 
-## Data Spending 
+1. We are going to discuss what machine learning is, what problems it works well for, and what problems it might work less well for. 
+2. Introduce the Tidymodels framework for a consistent way to fit machine learning models. 
+3. Apply the Tidymodels framework to explore multiple machine learning algorithms.
+
+## Resources 
+
+The concepts contained herein draw on several fantastic resources that we highly recommend that you read and work through after the workshop. First we are indebted to [*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/). Second, much of the mathematical description comes from [*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/) as well as ["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075). 
+
+## Required Packages
+
+If you have not already done so, please run the following chunk to load all the packages needed for the course. 
+
+```{r}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(rio)
+  library(vip)
+}))
+# prefer tidymodels function in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+## Conceptualizing Machine Learning 
+
+### What is Machine Learning? 
+
+### What kind of problems does it work well on? 
+
+### What kind of problems does it work less well on? 
+
+### Supervised v. Unsupervised Learning 
+
+This workshop focuses on supervised learning. 
+
+## The `tidymodels` package
+
+The `tidymodels` metapackage and framework is a collection of R packages for modeling that use tidyverse principles. `tidymodels` is designed like the [`tidyverse`](https://www.tidyverse.org/) as a set of modular packages, each with a narrow scope. Throughout the workshop we will highlight which packages `tidymodels` functions come from. A downside of a modular design is that there are lots of packages to keep track of as a user. Fortunately, the `tidymodels` metapackage loads a core set of `tidymodels` and `tidyverse` packages. 
+
+A natural question is why does "tidiness" matter for machine learning? A strength of the R language is that developers can create any user-interface that fits their needs. Often, this leads to design for developers and not design for end users. Inconsistencies between naming conventions and arguments crop up between packages, which increases the time it takes to write code, and adds an unnecessary barrier for data analyses. 
+
+In contrast, `tidymodels` follows a consistent set of design principles (dubbed [Design for Humans](https://design.tidyverse.org/unifying-principles.html)) applied for modeling code. For a new user, the main takeaways are that the defaults in `tidymodels` code are sensible, functions take the data structures that users have as opposed to the data structure that developers necessarily want, and there is a common syntax and structure to functions and arguments. 
+
+As you advance in your machine learning journey, you may find that your needs are more specific than the ones provided in `tidymodels`. We hope that this introduction also gives you the appropriate terminology to reason through different packages and approaches. Throughout, we will highlight when a term is `tidymodels` specific or an application of a general concept. 
+
+Furthermore, to introduce features in `tidymodels` we will focus on a single dataset and a single algorithm--linear regression. We will see in the third part of the workshop that the same structure of the `tidymodels` code applies to a host of different modeling approaches. That's the main benefit!
+
+### Data spend (`rsample`)
 
 ```{r}
 ## package here is rsample 
@@ -60,181 +88,11 @@ ames_train <- training(ames_split)
 ames_test  <-  testing(ames_split)
 ```
 
-## Fitting models 
+### Workflow process 
 
-The package within tidymodels is `parsnip`. 
+#### Data preprocessing with `recipes` 
 
-REWRITE THIS 
-For tidymodels, the approach to specifying a model is intended to be more unified:
-
-1. Specify the type of model based on its mathematical structure (e.g., linear regression, random forest, K-nearest neighbors, etc).
-
-2. Specify the engine for fitting the model. Most often this reflects the software package that should be used.
-
-3. When required, declare the mode of the model. The mode reflects the type of prediction outcome. For numeric outcomes, the mode is regression; for qualitative outcomes, it is classification. If a model can only create one type of model, such as linear regression, the mode is already set.
-
-```{r}
-# CONSIDER THREE CASES, AN OLS, REGULARIZED REGRESSION VIA STAN, REGULARIZED REGRESSION VIA GLMNET
-linear_reg() %>% 
-  set_engine("lm")
-
-
-linear_reg() %>% 
-  set_engine("glmnet") 
-
-
-linear_reg() %>% 
-  set_engine("stan")
-
-lm_model <- 
-  linear_reg() %>% 
-  set_engine("lm")
-
-lm_form_fit <- 
-  lm_model %>% 
-  # Recall that Sale_Price has been pre-logged
-  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
-
-lm_xy_fit <- 
-  lm_model %>% 
-  fit_xy(
-    x = ames_train %>% select(Longitude, Latitude),
-    y = ames_train %>% pull(Sale_Price)
-  )
-
-lm_form_fit
-
-lm_xy_fit
-```
-The differences between fit() and fit_xy() may not be obvious.
-
-When fit() is used with a model specification, this almost always means that dummy variables will be created from qualitative predictors. If the underlying function requires a matrix (like glmnet), it will make them. However, if the underlying function uses a formula, fit() just passes the formula to that function. We estimate that 99% of modeling functions using formulas make dummy variables. The other 1% include tree-based methods that do not require purely numeric predictors.11
-
-The fit_xy() function always passes the data as-is to the underlying model function. It will not create dummy variables before doing so.
-
-Once the model is created and fit, we can use the results in a variety of ways; we might want to plot, print, or otherwise examine the model output. Several quantities are stored in a parsnip model object, including the fitted model. This can be found in an element called fit, which can be returned using the extract_fit_engine() function:
-
-```{r}
-lm_form_fit %>% 
-  extract_fit_engine()
-
-# Normal methods can be applied to this object, such as printing, plotting, and so on:
-
-lm_form_fit %>% 
-  extract_fit_engine() %>% 
-  vcov()
-
-## One way to get results 
-model_res <- 
-  lm_form_fit %>% 
-  extract_fit_engine() %>% 
-  summary()
-
-# The model coefficient table is accessible via the `coef` method.
-param_est <- coef(model_res)
-class(param_est)
-
-param_est
-
-
-model_res_better <- lm_form_fit %>% 
-  tidy() # from broom package
-```
-
-
-Never pass the fit element of a parsnip model to a model prediction function, i.e., use predict(lm_form_fit) but do not use predict(lm_form_fit$fit). If the data were preprocessed in any way, incorrect predictions will be generated (sometimes, without errors). The underlying model’s prediction function has no idea if any transformations have been made to the data prior to running the model. See Section 6.3 for more on making predictions.
-
-
-## predicting new points 
-For predictions, parsnip always conforms to the following rules:
-
-1. The results are always a tibble.
-
-2. The column names of the tibble are always predictable.
-
-|type value |column name(s)|
-|-----------|--------------|
-|numeric 	|.pred|
-|class 	|.pred_class|
-|prob 	|.pred_{class levels}|
-|conf_int |	.pred_lower, .pred_upper|
-|pred_int |	.pred_lower, .pred_upper|
-
-
-3. There are always as many rows in the tibble as there are in the input data set.
-
-```{r}
-ames_test_small <- ames_test %>% 
-  lice(1:5)
-predict(lm_form_fit, new_data = ames_test_small)
-
-ames_test_small %>% 
-  select(Sale_Price) %>% 
-  bind_cols(predict(lm_form_fit, ames_test_small)) %>% 
-  # Add 95% prediction intervals to the results:
-  bind_cols(predict(lm_form_fit, ames_test_small, type = "pred_int")) 
-## Suppose we used a decision tree 
-tree_model <- 
-  decision_tree(min_n = 2) %>% 
-  set_engine("rpart") %>% 
-  set_mode("regression")
-
-tree_fit <- 
-  tree_model %>% 
-  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
-
-ames_test_small %>% 
-  select(Sale_Price) %>% 
-  bind_cols(predict(tree_fit, ames_test_small))
-
-```
-
-## Model Workflow 
-
-The workflow is important in two ways. 
-
-1. using a workflow object encourages good methodology since it is a single point of entry to the estimation components of a data analysis. 
-
-2. it enables the user to better organize their projects. 
-
-The tidymodels package that holds the code for this is the `workflows` package. 
-
-```{r}
-lm_model <- 
-  linear_reg() %>% 
-  set_engine("lm")
-
-# Workflow function always requires a parsnip object 
-lm_wflow <- 
-  workflow() %>% 
-  add_model(lm_model)%>% 
-  # Simple preprocessor 
-  add_formula(Sale_Price ~ Longitude + Latitude)%>%
-  fit(ames_train)
-
-## Alternatively we can pass data with the add_variables() function 
-lm_wflow <- 
-  workflow() %>% 
-  add_model(lm_model)%>% 
-  # Simple preprocessor 
-  add_variables(outcome = Sale_Price, predictors = c(Longitude, 
-                                                     Latitude))%>%
-  fit(ames_train)
-
-## We can specify predictors with tidyselect methods 
-## predictors = c(ends_with("tude")) or predictors = everything()
-
-
-prediction <- lm_wflow %>%
-  # we can predict on this 
-  predict(newdata = ames_test %>% slice(1:3))
-
-# and we can update formulas 
-lm_wflow %>% 
-  update_formula(Sale_Price ~ Longitude)
-```
-
-## Feature Engineering 
+Feature Engineering 
 
 The tidymodels package for this is `recipes`. 
 
@@ -345,7 +203,184 @@ lm_fit <- fit(lm_wflow, ames_train)
 
 ```
 
-## Judging Model Effectiveness 
+#### Model fitting with `parsnip` 
+
+The package within tidymodels is `parsnip`. 
+
+REWRITE THIS 
+For tidymodels, the approach to specifying a model is intended to be more unified:
+
+1. Specify the type of model based on its mathematical structure (e.g., linear regression, random forest, K-nearest neighbors, etc).
+
+2. Specify the engine for fitting the model. Most often this reflects the software package that should be used.
+
+3. When required, declare the mode of the model. The mode reflects the type of prediction outcome. For numeric outcomes, the mode is regression; for qualitative outcomes, it is classification. If a model can only create one type of model, such as linear regression, the mode is already set.
+
+```{r}
+# CONSIDER THREE CASES, AN OLS, REGULARIZED REGRESSION VIA STAN, REGULARIZED REGRESSION VIA GLMNET
+linear_reg() %>% 
+  set_engine("lm")
+
+
+linear_reg() %>% 
+  set_engine("glmnet") 
+
+
+linear_reg() %>% 
+  set_engine("stan")
+
+lm_model <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+lm_form_fit <- 
+  lm_model %>% 
+  # Recall that Sale_Price has been pre-logged
+  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
+
+lm_xy_fit <- 
+  lm_model %>% 
+  fit_xy(
+    x = ames_train %>% select(Longitude, Latitude),
+    y = ames_train %>% pull(Sale_Price)
+  )
+
+lm_form_fit
+
+lm_xy_fit
+```
+The differences between fit() and fit_xy() may not be obvious.
+
+When fit() is used with a model specification, this almost always means that dummy variables will be created from qualitative predictors. If the underlying function requires a matrix (like glmnet), it will make them. However, if the underlying function uses a formula, fit() just passes the formula to that function. We estimate that 99% of modeling functions using formulas make dummy variables. The other 1% include tree-based methods that do not require purely numeric predictors.11
+
+The fit_xy() function always passes the data as-is to the underlying model function. It will not create dummy variables before doing so.
+
+Once the model is created and fit, we can use the results in a variety of ways; we might want to plot, print, or otherwise examine the model output. Several quantities are stored in a parsnip model object, including the fitted model. This can be found in an element called fit, which can be returned using the extract_fit_engine() function:
+
+```{r}
+lm_form_fit %>% 
+  extract_fit_engine()
+
+# Normal methods can be applied to this object, such as printing, plotting, and so on:
+
+lm_form_fit %>% 
+  extract_fit_engine() %>% 
+  vcov()
+
+## One way to get results 
+model_res <- 
+  lm_form_fit %>% 
+  extract_fit_engine() %>% 
+  summary()
+
+# The model coefficient table is accessible via the `coef` method.
+param_est <- coef(model_res)
+class(param_est)
+
+param_est
+
+
+model_res_better <- lm_form_fit %>% 
+  tidy() # from broom package
+```
+
+
+Never pass the fit element of a parsnip model to a model prediction function, i.e., use predict(lm_form_fit) but do not use predict(lm_form_fit$fit). If the data were preprocessed in any way, incorrect predictions will be generated (sometimes, without errors). The underlying model’s prediction function has no idea if any transformations have been made to the data prior to running the model. See Section 6.3 for more on making predictions.
+
+
+## predicting new points 
+
+For predictions, parsnip always conforms to the following rules:
+
+1. The results are always a tibble.
+
+2. The column names of the tibble are always predictable.
+
+|type value |column name(s)|
+|-----------|--------------|
+|numeric 	|.pred|
+|class 	|.pred_class|
+|prob 	|.pred_{class levels}|
+|conf_int |	.pred_lower, .pred_upper|
+|pred_int |	.pred_lower, .pred_upper|
+
+
+3. There are always as many rows in the tibble as there are in the input data set.
+
+```{r}
+ames_test_small <- ames_test %>% 
+  lice(1:5)
+predict(lm_form_fit, new_data = ames_test_small)
+
+ames_test_small %>% 
+  select(Sale_Price) %>% 
+  bind_cols(predict(lm_form_fit, ames_test_small)) %>% 
+  # Add 95% prediction intervals to the results:
+  bind_cols(predict(lm_form_fit, ames_test_small, type = "pred_int")) 
+## Suppose we used a decision tree 
+tree_model <- 
+  decision_tree(min_n = 2) %>% 
+  set_engine("rpart") %>% 
+  set_mode("regression")
+
+tree_fit <- 
+  tree_model %>% 
+  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
+
+ames_test_small %>% 
+  select(Sale_Price) %>% 
+  bind_cols(predict(tree_fit, ames_test_small))
+
+```
+
+#### Model workflows with `workflow`
+
+The workflow is important in two ways. 
+
+1. using a workflow object encourages good methodology since it is a single point of entry to the estimation components of a data analysis. 
+
+2. it enables the user to better organize their projects. 
+
+The tidymodels package that holds the code for this is the `workflows` package. 
+
+```{r}
+lm_model <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+# Workflow function always requires a parsnip object 
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model)%>% 
+  # Simple preprocessor 
+  add_formula(Sale_Price ~ Longitude + Latitude)%>%
+  fit(ames_train)
+
+## Alternatively we can pass data with the add_variables() function 
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model)%>% 
+  # Simple preprocessor 
+  add_variables(outcome = Sale_Price, predictors = c(Longitude, 
+                                                     Latitude))%>%
+  fit(ames_train)
+
+## We can specify predictors with tidyselect methods 
+## predictors = c(ends_with("tude")) or predictors = everything()
+
+
+prediction <- lm_wflow %>%
+  # we can predict on this 
+  predict(newdata = ames_test %>% slice(1:3))
+
+# and we can update formulas 
+lm_wflow %>% 
+  update_formula(Sale_Price ~ Longitude)
+```
+
+#### Model evaluation with `yardstick` 
+
+Judging Model Effectiveness 
 
 Once we have a model, we need to know how well it works. A quantitative approach for estimating effectiveness allows us to understand the model, to compare different models, or to tweak the model to improve performance. `tidymodels` focuses on empirical validation, which means using data that was not used to create the model to measure the models' effectiveness. 
 
@@ -359,7 +394,7 @@ function(data, truth, ...)
 # where data is a data frame or tibble and truth is the column with the observed outcome values. The ellipses or other arguments are used to specify the column(s) containing the predictions.
 ```
 
-## Resampling
+#### Resampling with `rsample` 
 
 Cross Validation 
 
@@ -481,37 +516,41 @@ rf_res <- rf_wflow %>% fit_resamples(resamples = ames_folds, control = keep_pred
 
 ```
 
-## Tuning 
+#### Model optimization with `tune`
 
 Tuning parameters or hyperparameters are often found in machine learning models:
 
-    Boosting is an ensemble method that combines a series of base models, each of which is created sequentially and depends on the previous models. The number of boosting iterations is an important parameter that usually requires optimization.
+Boosting is an ensemble method that combines a series of base models, each of which is created sequentially and depends on the previous models. The number of boosting iterations is an important parameter that usually requires optimization.
 
-    In the classic single-layer artificial neural network (a.k.a. the multilayer perceptron), the predictors are combined using two or more hidden units. The hidden units are linear combinations of the predictors that are captured in an activation function (typically a nonlinear function, such as a sigmoid). The hidden units are then connected to the outcome units; one outcome unit is used for regression models and multiple outcome units are required for classification. The number of hidden units and the type of activation function are important structural tuning parameters.
+In the classic single-layer artificial neural network (a.k.a. the multilayer perceptron), the predictors are combined using two or more hidden units. The hidden units are linear combinations of the predictors that are captured in an activation function (typically a nonlinear function, such as a sigmoid). The hidden units are then connected to the outcome units; one outcome unit is used for regression models and multiple outcome units are required for classification. The number of hidden units and the type of activation function are important structural tuning parameters.
 
-    Modern gradient descent methods are improved by finding the right optimization parameters. Examples are learning rates, momentum, and the number of optimization iterations/epochs (Goodfellow, Bengio, and Courville 2016). Neural networks and some ensemble models use gradient descent to estimate the model parameters. While the tuning parameters associated with gradient descent are not structural parameters, they often require tuning.
+Modern gradient descent methods are improved by finding the right optimization parameters. Examples are learning rates, momentum, and the number of optimization iterations/epochs (Goodfellow, Bengio, and Courville 2016). Neural networks and some ensemble models use gradient descent to estimate the model parameters. While the tuning parameters associated with gradient descent are not structural parameters, they often require tuning.
 
 In some cases, preprocessing techniques require tuning:
 
-    In principal component analysis, or its supervised cousin called partial least squares, the predictors are replaced with new, artificial features that have better properties related to collinearity. The number of extracted components can be tuned.
+In principal component analysis, or its supervised cousin called partial least squares, the predictors are replaced with new, artificial features that have better properties related to collinearity. The number of extracted components can be tuned.
 
-    Imputation methods estimate missing predictor values using the complete values of one or more predictors. One effective imputation tool uses K
-
-    -nearest neighbors of the complete columns to predict the missing value. The number of neighbors modulates the amount of averaging and can be tuned.
+Imputation methods estimate missing predictor values using the complete values of one or more predictors. One effective imputation tool uses K-nearest neighbors of the complete columns to predict the missing value. The number of neighbors modulates the amount of averaging and can be tuned.
 
 Some classical statistical models also have structural parameters:
 
-    In binary regression, the logit link is commonly used (i.e., logistic regression). Other link functions, such as the probit and complementary log-log, are also available (Dobson 1999). This example is described in more detail in the Section 12.2.
+In binary regression, the logit link is commonly used (i.e., logistic regression). Other link functions, such as the probit and complementary log-log, are also available (Dobson 1999). This example is described in more detail in the Section 12.2.
 
-    Non-Bayesian longitudinal and repeated measures models require a specification for the covariance or correlation structure of the data. Options include compound symmetric (a.k.a. exchangeable), autoregressive, Toeplitz, and others (Littell, Pendergast, and Natarajan 2000).
+Non-Bayesian longitudinal and repeated measures models require a specification for the covariance or correlation structure of the data. Options include compound symmetric (a.k.a. exchangeable), autoregressive, Toeplitz, and others (Littell, Pendergast, and Natarajan 2000).
 
 Tuning parameter optimization usually falls into one of two categories:
-
-    pre-define a set of parameter values to evaluate or
-    sequentially discover new parameter combinations based on previous results.
+  - pre-define a set of parameter values to evaluate or
+  - sequentially discover new parameter combinations based on previous results.
 
 The use of pre-defined sets is commonly called grid search. The main choices involved in grid search are how to make the grid and how many parameter combinations to evaluate. Grid search is often judged as inefficient since the number of grid points required to cover the parameter space can grow unmanageable with the curse of dimensionality. There is truth to this concern, but it is most true when the process is not optimized. 
 
 For sequential or iterative search methods, almost any nonlinear optimization method is appropriate, although some are more efficient than others. 
 
 How can we signal to tidymodels functions which arguments should be optimized? Parameters are marked for tuning by assigning them a value of tune()
+
+## Tidymodels with supervised learning 
+
+### Linear Regression
+### Classification 
+### Random Forests 
+### Ensembles
