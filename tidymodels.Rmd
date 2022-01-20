@@ -36,6 +36,8 @@ This workshop has three sections:
 
 The concepts contained herein draw on several fantastic resources that we highly recommend that you read and work through after the workshop. First we are indebted to [*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/). Second, much of the mathematical description comes from [*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/) as well as ["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075). 
 
+Other useful free resources at varying levels of complexity are [*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html), [*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5), and [*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
+
 ## Required Packages
 
 If you have not already done so, please run the following chunk to load all the packages needed for the course. 
@@ -75,7 +77,29 @@ As you advance in your machine learning journey, you may find that your needs ar
 
 Furthermore, to introduce features in `tidymodels` we will focus on a single dataset and a single algorithm--linear regression. We will see in the third part of the workshop that the same structure of the `tidymodels` code applies to a host of different modeling approaches. That's the main benefit!
 
-### Data spend (`rsample`)
+### Machine Learning Analysis: A Template 
+
+Most machine learning analyses follow a similar set of steps. Our discussion of `tidymodels` will be built around this structure. In any analysis, we expect to do the following, often over multiple iterations: 
+
+!["The Modeling Process. Taken from Kuhn and Silge 2021](https://www.tmwr.org/premade/modeling-process.svg)
+The figure shows the primary modeling steps. Analysts:
+  - Build a training and test set as well as conduct exploratory data analysis
+  - Decide if and how to pre-process data to be appropriate for modeling,
+  - build and fit models on a training set
+  - Evaluate models according to selected metrics 
+  - Refine their models
+  - Evaluate their chosen model against the test set
+
+Let's take each of these steps in terms and show how to implement them with `tidymodels` 
+
+### Building a training and test set 
+
+When modeling, a common technique to best use the data available for prediction is to split the data into groups. The most common split is two groups, one referred to as the "training" data and one referred to as the "test" data. The training data is used to develop models and feature sets, and comparing between different algorithms. The test set is only used at the conclusion of all model development to estimate a final, unbiased assessment of the model's performance. 
+
+In resources on the `tidymodels` framework, this process is often referred to as the *data spend*. The functions necessary for splitting the data are located in the `rsample` package that is loaded with tidymodels. 
+
+
+Data spend (`rsample`)
 
 ```{r}
 ## package here is rsample 
