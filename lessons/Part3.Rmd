@@ -14,8 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(suppressWarnings({ 
   library(tidymodels)
   library(here)
-  library(rio)
   library(palmerpenguins)
+  library(tidyverse)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
