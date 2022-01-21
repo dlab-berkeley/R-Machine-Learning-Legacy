@@ -16,6 +16,7 @@ suppressMessages(suppressWarnings({
   library(here)
   library(palmerpenguins)
   library(tidyverse)
+  library(doParallel)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
@@ -271,124 +272,59 @@ When comparing between models, we tend to prefer models with lower error rates a
 
 #### Resampling with `rsample` 
 
-Cross Validation 
+Resampling methods are a way of simulating the data generating process using some empirical data for modeling and different data for evaluation. The process of resampling is repeated iteratively. The test set is held out for the same reasons as before. For each iteration of resampling, the training data is partitioned into a set for analysis and a set for assessment. In `tidymodels` the tools for resampling are based in the `rsample` package. 
 
-The column named splits contains the information on how to split the data (similar to the object used to create the initial training/test partition).
+Cross Validation is the most common resampling approach. In cross validation, we split the iterations into *folds* and follow the iterative process. In the extreme, we could have *n* folds where n is the number of training data points. This would occur in Leave-One-Out-Cross-Validation where the subsets have one point for the assessment set and the remainder in the analysis set. 
 
-Packages for this are `rsample` and estimating performance with `tune`
+LOOCV is a special case of *k-fold* cross validation, In this approach we randomly divide the set of training data into k groups of approximately equal sizes. We then iterate over each fold, using it as the analysis set and the remaining data as the assessment data. There is a bias-variance trade-off associated with the choice of k, such that LOOCV tends to have higher variance on test error than more limited folds (James *et al* 2021). The typical rule of thumb is to perform cross validation with k between 5 and 10, as these values empirically yield test error rates that do not have excessively high bias or high variance (James *et al* 2021).
+
+We implement cross validation in `tidymodels` like so. 
 
 ```{r}
-set.seed(55)
-ames_folds <- vfold_cv(ames_train, v = 10)
-ames_folds
+set.seed(1234)
+# tidymodels uses v where much of the theoretical literature uses k
+# we can also set the replicates of the folds with the repeats argument
+penguins_folds <- vfold_cv(penguins_train, v = 10)
+penguins_folds
 
-## Manually retrieve partitioned data 
-# For the first fold:
-ames_folds$splits[[1]] %>% 
-  analysis() 
+## Perform resampling fits
+penguins_cv_res <- penguins_lm_wflow %>%
+  fit_resamples(resamples = penguins_folds, control = control_resamples(save_pred = TRUE))
 
+## see metrics 
+penguins_cv_res %>%
+  collect_metrics()
+
+
+## Get the assessment set predictions 
+penguins_cv_res %>% 
+  collect_predictions()
 ```
 
-To create a validation set object that uses 3/4 of the data for model fitting:
-```{r}
-set.seed(12)
-val_set <- validation_split(ames_train, prop = 3/4)
-val_set
-```
+Our comparison reveals that we can fit better models via cross validation than with just a single training set. This is reflected by the lower RMSE and higher $R^2$ averages. 
 
-Bootstrapping methods using rsample:
+From a computation perspective, each of these fits are "embarrasingly parallel" in the sense that all of them could be fit simultaneously without issues. Speed gains can occur by splitting computations across processors on the same computer, or across different computers in a cloud environment. Use the `parallel` package to take advantage of speed gains if that becomes an issue for your data. 
+
+
+For computations conducted on a single computer, the number of possible “worker processes” is determined by the `doParallel` package:
 
 ```{r}
-bootstraps(ames_train, times = 5)
-
-```
-
-
-Any of these resampling methods can be used to evaluate the modeling process (including preprocessing, model fitting, etc). These methods are effective because different groups of data are used to train the model and assess the model. To reiterate the process:
-
-1. During resampling, the analysis set is used to preprocess the data, apply the preprocessing to itself, and use these processed data to fit the model.
-
-2. The preprocessing statistics produced by the analysis set are applied to the assessment set. The predictions from the assessment set estimate performance.
-
-This sequence repeats for every resample. If there are B resamples, there are B replicates of each of the performance metrics. The final resampling estimate is the average of these B statistics. If B = 1, as with a validation set, the individual statistics represent overall performance.
-
-Parallel Processing 
-
-The models created during resampling are independent of one another. Computations of this kind are sometimes called “embarrassingly parallel”; each model could be fit simultaneously without issues. The tune package uses the foreach package to facilitate parallel computations. These computations could be split across processors on the same computer or across different computers, depending on the chosen technology.
-
-For computations conducted on a single computer, the number of possible “worker processes” is determined by the parallel package:
-
-```{r}
-# The number of physical cores in the hardware:
-parallel::detectCores(logical = FALSE)
-
-
-# The number of possible independent processes that can 
-# be simultaneously used:  
-parallel::detectCores(logical = TRUE)
-
-# All operating systems
-library(doParallel)
-
 # Create a cluster object and then register: 
 cl <- makePSOCKcluster(2)
 registerDoParallel(cl)
 
-# Now run fit_resamples()`...
+penguins_cv_res <- penguins_lm_wflow %>%
+  fit_resamples(resamples = penguins_folds, control = control_resamples(save_pred = TRUE))
 
 stopCluster(cl)
 
-```
+## see metrics 
+penguins_cv_res %>%
+  collect_metrics()
 
-General Code through Resampling 
-
-```{r}
-data(ames)
-ames <- mutate(ames, Sale_Price = log10(Sale_Price))
-
-set.seed(123)
-ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
-ames_train <- training(ames_split)
-ames_test  <-  testing(ames_split)
-
-ames_rec <- 
-  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type + 
-           Latitude + Longitude, data = ames_train) %>%
-  step_log(Gr_Liv_Area, base = 10) %>% 
-  step_other(Neighborhood, threshold = 0.01) %>% 
-  step_dummy(all_nominal_predictors()) %>% 
-  step_interact( ~ Gr_Liv_Area:starts_with("Bldg_Type_") ) %>% 
-  step_ns(Latitude, Longitude, deg_free = 20)
-
-lm_model <- linear_reg() %>% set_engine("lm")
-
-lm_wflow <- 
-  workflow() %>% 
-  add_model(lm_model) %>% 
-  add_recipe(ames_rec)
-
-lm_fit <- fit(lm_wflow, ames_train)
-
-rf_model <- 
-  rand_forest(trees = 1000) %>% 
-  set_engine("ranger") %>% 
-  set_mode("regression")
-
-rf_wflow <- 
-  workflow() %>% 
-  add_formula(
-    Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type + 
-      Latitude + Longitude) %>% 
-  add_model(rf_model) 
-
-set.seed(55)
-ames_folds <- vfold_cv(ames_train, v = 10)
-
-keep_pred <- control_resamples(save_pred = TRUE, save_workflow = TRUE)
-
-set.seed(130)
-rf_res <- rf_wflow %>% fit_resamples(resamples = ames_folds, control = keep_pred)
-
+## Get the assessment set predictions 
+penguins_cv_res %>% 
+  collect_predictions()
 ```
 
 #### Model optimization with `tune`

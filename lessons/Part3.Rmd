@@ -16,6 +16,7 @@ suppressMessages(suppressWarnings({
   library(here)
   library(palmerpenguins)
   library(tidyverse)
+  library(doParallel)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
@@ -30,6 +31,7 @@ Through the first two parts of this workshop we gave an overview of machine lear
 - build and fit models 
 - Judge model effectiveness using appropriate metrics
 - Resampling and cross validation to more effectively train and compare models
+- How to tune our models appropriately to increase predictive accuracy
 
 Each one of these steps is common no matter what language or structure you choose to implement your machine learning models. 
 
