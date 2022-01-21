@@ -19,3 +19,29 @@ suppressMessages(suppressWarnings({
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
 ```
+
+
+## Challenge 1
+
+The function we seek to learn often has more than one variable. Write the equivalent mathematical function to illustrate the relationship between flipper length, bill depth, body mass, and island. Choose any feature and graph the relationship with a machine learning smoother. 
+
+```{r}
+
+
+```
+
+## Challenge 2
+
+Think about your own interests. Come up and write down an example problem that is either a supervised or unsupervised learning problem. What kind of data would you want to have on hand to be able to estimate the relationship of interest? 
+
+*Answers will obviously vary. The key point is that supervised learning problems should be able to describe the dataset in terms of labels.*
+
+### Challenge 3 
+
+Explain whether the following are classification or regression problems 
+
+1. An advertiser is interested in the relationship between age and amount of hours of YouTube consumed. *regression. hours is quantitative*
+
+2. A medical testing company conducts a procedure to determine whether a person has a cancer diagnosis. *classification. a person has cancer or they do not*
+
+3. A researcher is interested in the effect of an education intervention on students' test scores. *regression. test scores is quantitative. However, we can imagine this problem being categorical if the test scores were not ordered. For example, someone's "learning style"*
