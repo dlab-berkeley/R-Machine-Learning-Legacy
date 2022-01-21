@@ -89,7 +89,6 @@ This workshop draws heavily on the following resources:
 ### Intermediate/Advanced Competency
 
 - [Unsupervised Learning in R](https://github.com/dlab-berkeley/Unsupervised-Learning-in-R)
-- [R Machine Learning with tidymodels](https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels)
 - [Introduction to Deep Learning in R](https://github.com/dlab-berkeley/Deep-Learning-in-R)
 - [Fairness and Bias in Machine Learning](https://github.com/dlab-berkeley/fairML)
 - [R Package Development](https://github.com/dlab-berkeley/R-package-development)
