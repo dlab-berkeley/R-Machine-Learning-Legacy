@@ -29,8 +29,8 @@ Welcome to Machine Learning with Tidymodels.
 This workshop has three sections: 
 
 1. We are going to discuss what machine learning is, what problems it works well for, and what problems it might work less well for. 
-2. Introduce the Tidymodels framework for a consistent way to fit machine learning models. 
-3. Apply the Tidymodels framework to explore multiple machine learning algorithms.
+2. We will learn about the `tidymodels` framework to learn how to fit machine learning models in R. 
+3. We will apply the `tidymodels` framework to explore multiple machine learning algorithms in R. 
 
 ## Resources 
 
@@ -575,6 +575,7 @@ How can we signal to tidymodels functions which arguments should be optimized? P
 ## Tidymodels with supervised learning 
 
 ### Linear Regression
+### Regularization and the Lasso
 ### Classification 
 ### Random Forests 
 ### Ensembles
