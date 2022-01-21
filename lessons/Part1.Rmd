@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning with Tidymodels" 
+title: "Machine Learning with `tidymodels`: Part 1" 
 theme: readable
 output:
   html_document:
@@ -24,7 +24,7 @@ tidymodels::tidymodels_prefer()
 
 ## Introduction 
 
-Welcome to Machine Learning with Tidymodels. 
+Welcome to Machine Learning with `tidymodels`. 
 
 This workshop has three sections: 
 
