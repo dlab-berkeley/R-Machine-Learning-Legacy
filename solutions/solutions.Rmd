@@ -46,3 +46,56 @@ Explain whether the following are classification or regression problems
 2. A medical testing company conducts a procedure to determine whether a person has a cancer diagnosis. *classification. a person has cancer or they do not*
 
 3. A researcher is interested in the effect of an education intervention on students' test scores. *regression. test scores is quantitative. However, we can imagine this problem being categorical if the test scores were not ordered. For example, someone's "learning style"*
+
+### Challenge 4 
+
+Sometimes features on different scales can lead to strange predictions and poor test fit. Therefore, one step that analysts may take is to center and normalize their data. Using the reference link, identify the function that normalizes data and add it to the recipe to apply it all numeric predictors in the data. 
+
+```{r}
+challenge4_recipe <- recipe(bill_length_mm ~ ., data = penguins_train)%>%
+  step_normalize(all_numeric_predictors())
+```
+
+
+### Challenge 5 
+
+Write and fit a logistic regression specification to classify penguin species based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. 
+
+```{r}
+class_model <- logistic_reg()%>%
+  set_engine("glm")%>%
+  set_mode("classification")%>%
+  fit(species ~ ., data = penguins_train)
+```
+
+### Challenge 6 
+
+Write a new recipe that predicts bill length from bill depth, flipper length, and body mass only. Normalize all variables. Write a workflow that uses your new recipe to fit a linear model. 
+
+
+```{r}
+challenge6_recipe <- recipe(bill_depth_mm ~ bill_depth_mm + flipper_length_mm + body_mass_g, data = penguins_train)%>%
+  step_normalize(all_numeric_predictors())
+
+# we could just use the lm_model specification we already have
+# for completeness included here as well 
+lm_model <- linear_reg()%>%
+  set_engine("lm")%>%
+  set_mode("regression")
+
+challenge6_wflow <- workflow()%>%
+  add_recipe(challenge6_recipe)%>%
+  add_model(lm_model)
+
+challenge6_fit <- fit(challenge6_wflow, penguins_train)
+challenge6_fit %>% 
+  tidy()
+
+## We could also predict new points 
+## Again just slicing the first five values for teaching purposes 
+## For a real model you would use the full test set
+predict(challenge6_fit, new_data = penguins_test %>% slice(1:5))
+```
+
+
+
