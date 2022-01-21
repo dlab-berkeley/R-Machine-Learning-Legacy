@@ -15,6 +15,7 @@ suppressMessages(suppressWarnings({
   library(tidymodels)
   library(here)
   library(rio)
+  library(palmerpenguins)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 

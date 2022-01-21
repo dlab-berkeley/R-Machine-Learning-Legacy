@@ -31,6 +31,7 @@ tidyverse, tidymodels, here,pROC
 glmnet, ranger, rpart, xgboost,
 rpart.plot, vip, corrr, GGally,
 glue, patchwork, doParallel, rio,
+palmerpenguins
 ```
 
 ## Run the Code
