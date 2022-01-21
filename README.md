@@ -64,10 +64,15 @@ By using this button, however, you cannot save your work.
 This workshop draws heavily on the following resources: 
 
 [*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/).
+
 [*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/)
+
 ["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075)
+
 [*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html)
+
 [*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5)
+
 [*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
 
 ## Other D-Lab R Workshops
