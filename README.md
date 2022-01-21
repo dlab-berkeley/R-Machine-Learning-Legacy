@@ -99,6 +99,9 @@ This workshop draws heavily on the following resources:
 [Alex Stephenson](https://github.com/asteves/)
 
 Previous versions of D-Lab's Machine Learning with R were built by: 
+
 [Chris Kennedy](https://ck37.com/)
+
 [Evan Muzzall](https://github.com/EastBayEv)
+
 [Jae Yeon Kim](https://jaeyk.github.io/)
