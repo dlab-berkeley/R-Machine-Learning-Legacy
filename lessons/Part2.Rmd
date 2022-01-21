@@ -8,3 +8,510 @@ output:
     fig_width: 12
     fig_height: 7
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(rio)
+  library(vip)
+}))
+# prefer tidymodels function in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+### Machine Learning Analysis: A Template 
+
+Most machine learning analyses follow a similar set of steps. Our discussion of `tidymodels` will be built around this structure. In any analysis, we expect to do the following, often over multiple iterations: 
+
+!["The Modeling Process. Taken from Kuhn and Silge 2021](https://www.tmwr.org/premade/modeling-process.svg)
+The figure shows the primary modeling steps. Analysts:
+  - Build a training and test set as well as conduct exploratory data analysis
+  - Decide if and how to pre-process data to be appropriate for modeling,
+  - build and fit models on a training set
+  - Evaluate models according to selected metrics 
+  - Refine their models
+  - Evaluate their chosen model against the test set
+
+Let's take each of these steps in terms and show how to implement them with `tidymodels`. To introduce features in `tidymodels` we will focus on a single dataset and a single algorithm--linear regression. We will see in the third part of the workshop that the same structure of the `tidymodels` code applies to a host of different modeling approaches. That's the main benefit!
+
+### Building a training and test set 
+
+When modeling, a common technique to best use the data available for prediction is to split the data into groups. The most common split is two groups, one referred to as the "training" data and one referred to as the "test" data. The training data is used to develop models and feature sets, and comparing between different algorithms. The test set is only used at the conclusion of all model development to estimate a final, unbiased assessment of the model's performance. 
+
+In resources on the `tidymodels` framework, this process is often referred to as the *data spend*. The functions necessary for splitting the data are located in the `rsample` package that is loaded with tidymodels. 
+
+
+Data spend (`rsample`)
+
+```{r}
+## package here is rsample 
+data(ames)
+ames <- ames %>% mutate(Sale_Price = log10(Sale_Price))
+
+set.seed(123)
+ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
+ames_train <- training(ames_split)
+ames_test  <-  testing(ames_split)
+```
+
+### Workflow process 
+
+#### Data preprocessing with `recipes` 
+
+Feature Engineering 
+
+The tidymodels package for this is `recipes`. 
+
+A recipe is also an object that defines a series of steps for data processing. Unlike the formula method inside a modeling function, the recipe defines the steps without immediately executing them; it is only a specification of what should be done. 
+
+```{r}
+library(tidymodels) # Includes the recipes package
+tidymodels_prefer()
+
+simple_ames <- 
+  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + 
+           Bldg_Type,
+         data = ames_train) %>%
+  step_log(Gr_Liv_Area, base = 10) %>% 
+  step_dummy(all_nominal_predictors())
+simple_ames
+```
+
+
+
+1. The call to recipe() with a formula tells the recipe the roles of the variables (e.g., predictor, outcome). It only uses the data ames_train to determine the data types for the columns.
+
+2. step_log() declares that Gr_Liv_Area should be log transformed.
+
+3. step_dummy() is used to specify which variables should be converted from a qualitative format to a quantitative format, in this case, using dummy or indicator variables. 
+
+The function all_nominal_predictors() captures the names of any predictor columns that are currently factor or character
+
+We can use recipes with workflows 
+
+```{r}
+lm_wflow <- 
+  lm_wflow %>% 
+  # We can only have one preprocessing method at a time in tidymodels
+  remove_variables()%>%
+  add_recipe(simple_ames)%>%
+  fit(ames_train)
+
+## Make predictions 
+lm_wflow %>% 
+  predict(ames_test %>% slice(1:3))
+
+## We can extract the bare recipe 
+lm_wflow %>% 
+  extract_recipe(estimated = TRUE)
+
+## Extract and tidy model fit 
+lm_fit %>% 
+  extract_fit_parsnip()%>%
+  tidy()
+```
+
+Examples of Recipes 
+
+Encoding qualitative data in a numeric format 
+
+```{r}
+simple_ames <- 
+  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type,
+         data = ames_train) %>%
+  step_log(Gr_Liv_Area, base = 10) %>% 
+  step_other(Neighborhood, threshold = 0.01) %>% 
+  step_dummy(all_nominal_predictors())
+
+```
+
+An Interactions Recipe 
+
+```{r}
+simple_ames <- 
+  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type,
+         data = ames_train) %>%
+  step_log(Gr_Liv_Area, base = 10) %>% 
+  step_other(Neighborhood, threshold = 0.01) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  # Gr_Liv_Area is on the log scale from a previous step
+  step_interact( ~ Gr_Liv_Area:starts_with("Bldg_Type_") )
+```
+
+A full Model and recipe example 
+
+```{r}
+data(ames)
+ames <- mutate(ames, Sale_Price = log10(Sale_Price))
+
+set.seed(123)
+ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
+ames_train <- training(ames_split)
+ames_test  <-  testing(ames_split)
+
+ames_rec <- 
+  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type + 
+           Latitude + Longitude, data = ames_train) %>%
+  step_log(Gr_Liv_Area, base = 10) %>% 
+  step_other(Neighborhood, threshold = 0.01) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_interact( ~ Gr_Liv_Area:starts_with("Bldg_Type_") ) %>% 
+  step_ns(Latitude, Longitude, deg_free = 20)
+  
+lm_model <- linear_reg() %>% set_engine("lm")
+
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model) %>% 
+  add_recipe(ames_rec)
+
+lm_fit <- fit(lm_wflow, ames_train)
+
+```
+
+#### Model fitting with `parsnip` 
+
+The package within tidymodels is `parsnip`. 
+
+REWRITE THIS 
+For tidymodels, the approach to specifying a model is intended to be more unified:
+
+1. Specify the type of model based on its mathematical structure (e.g., linear regression, random forest, K-nearest neighbors, etc).
+
+2. Specify the engine for fitting the model. Most often this reflects the software package that should be used.
+
+3. When required, declare the mode of the model. The mode reflects the type of prediction outcome. For numeric outcomes, the mode is regression; for qualitative outcomes, it is classification. If a model can only create one type of model, such as linear regression, the mode is already set.
+
+```{r}
+# CONSIDER THREE CASES, AN OLS, REGULARIZED REGRESSION VIA STAN, REGULARIZED REGRESSION VIA GLMNET
+linear_reg() %>% 
+  set_engine("lm")
+
+
+linear_reg() %>% 
+  set_engine("glmnet") 
+
+
+linear_reg() %>% 
+  set_engine("stan")
+
+lm_model <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+lm_form_fit <- 
+  lm_model %>% 
+  # Recall that Sale_Price has been pre-logged
+  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
+
+lm_xy_fit <- 
+  lm_model %>% 
+  fit_xy(
+    x = ames_train %>% select(Longitude, Latitude),
+    y = ames_train %>% pull(Sale_Price)
+  )
+
+lm_form_fit
+
+lm_xy_fit
+```
+The differences between fit() and fit_xy() may not be obvious.
+
+When fit() is used with a model specification, this almost always means that dummy variables will be created from qualitative predictors. If the underlying function requires a matrix (like glmnet), it will make them. However, if the underlying function uses a formula, fit() just passes the formula to that function. We estimate that 99% of modeling functions using formulas make dummy variables. The other 1% include tree-based methods that do not require purely numeric predictors.11
+
+The fit_xy() function always passes the data as-is to the underlying model function. It will not create dummy variables before doing so.
+
+Once the model is created and fit, we can use the results in a variety of ways; we might want to plot, print, or otherwise examine the model output. Several quantities are stored in a parsnip model object, including the fitted model. This can be found in an element called fit, which can be returned using the extract_fit_engine() function:
+
+```{r}
+lm_form_fit %>% 
+  extract_fit_engine()
+
+# Normal methods can be applied to this object, such as printing, plotting, and so on:
+
+lm_form_fit %>% 
+  extract_fit_engine() %>% 
+  vcov()
+
+## One way to get results 
+model_res <- 
+  lm_form_fit %>% 
+  extract_fit_engine() %>% 
+  summary()
+
+# The model coefficient table is accessible via the `coef` method.
+param_est <- coef(model_res)
+class(param_est)
+
+param_est
+
+
+model_res_better <- lm_form_fit %>% 
+  tidy() # from broom package
+```
+
+
+Never pass the fit element of a parsnip model to a model prediction function, i.e., use predict(lm_form_fit) but do not use predict(lm_form_fit$fit). If the data were preprocessed in any way, incorrect predictions will be generated (sometimes, without errors). The underlying model’s prediction function has no idea if any transformations have been made to the data prior to running the model. See Section 6.3 for more on making predictions.
+
+
+## predicting new points 
+
+For predictions, parsnip always conforms to the following rules:
+
+1. The results are always a tibble.
+
+2. The column names of the tibble are always predictable.
+
+|type value |column name(s)|
+|-----------|--------------|
+|numeric 	|.pred|
+|class 	|.pred_class|
+|prob 	|.pred_{class levels}|
+|conf_int |	.pred_lower, .pred_upper|
+|pred_int |	.pred_lower, .pred_upper|
+
+
+3. There are always as many rows in the tibble as there are in the input data set.
+
+```{r}
+ames_test_small <- ames_test %>% 
+  lice(1:5)
+predict(lm_form_fit, new_data = ames_test_small)
+
+ames_test_small %>% 
+  select(Sale_Price) %>% 
+  bind_cols(predict(lm_form_fit, ames_test_small)) %>% 
+  # Add 95% prediction intervals to the results:
+  bind_cols(predict(lm_form_fit, ames_test_small, type = "pred_int")) 
+## Suppose we used a decision tree 
+tree_model <- 
+  decision_tree(min_n = 2) %>% 
+  set_engine("rpart") %>% 
+  set_mode("regression")
+
+tree_fit <- 
+  tree_model %>% 
+  fit(Sale_Price ~ Longitude + Latitude, data = ames_train)
+
+ames_test_small %>% 
+  select(Sale_Price) %>% 
+  bind_cols(predict(tree_fit, ames_test_small))
+
+```
+
+#### Model workflows with `workflow`
+
+The workflow is important in two ways. 
+
+1. using a workflow object encourages good methodology since it is a single point of entry to the estimation components of a data analysis. 
+
+2. it enables the user to better organize their projects. 
+
+The tidymodels package that holds the code for this is the `workflows` package. 
+
+```{r}
+lm_model <- 
+  linear_reg() %>% 
+  set_engine("lm")
+
+# Workflow function always requires a parsnip object 
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model)%>% 
+  # Simple preprocessor 
+  add_formula(Sale_Price ~ Longitude + Latitude)%>%
+  fit(ames_train)
+
+## Alternatively we can pass data with the add_variables() function 
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model)%>% 
+  # Simple preprocessor 
+  add_variables(outcome = Sale_Price, predictors = c(Longitude, 
+                                                     Latitude))%>%
+  fit(ames_train)
+
+## We can specify predictors with tidyselect methods 
+## predictors = c(ends_with("tude")) or predictors = everything()
+
+
+prediction <- lm_wflow %>%
+  # we can predict on this 
+  predict(newdata = ames_test %>% slice(1:3))
+
+# and we can update formulas 
+lm_wflow %>% 
+  update_formula(Sale_Price ~ Longitude)
+```
+
+#### Model evaluation with `yardstick` 
+
+Judging Model Effectiveness 
+
+Once we have a model, we need to know how well it works. A quantitative approach for estimating effectiveness allows us to understand the model, to compare different models, or to tweak the model to improve performance. `tidymodels` focuses on empirical validation, which means using data that was not used to create the model to measure the models' effectiveness. 
+
+The `tidymodels` package for this is the `yardstick` package. 
+
+General syntax for `yardstick` is
+
+```{r, eval = F}
+function(data, truth, ...)
+  
+# where data is a data frame or tibble and truth is the column with the observed outcome values. The ellipses or other arguments are used to specify the column(s) containing the predictions.
+```
+
+#### Resampling with `rsample` 
+
+Cross Validation 
+
+The column named splits contains the information on how to split the data (similar to the object used to create the initial training/test partition).
+
+Packages for this are `rsample` and estimating performance with `tune`
+
+```{r}
+set.seed(55)
+ames_folds <- vfold_cv(ames_train, v = 10)
+ames_folds
+
+## Manually retrieve partitioned data 
+# For the first fold:
+ames_folds$splits[[1]] %>% 
+  analysis() 
+
+```
+
+To create a validation set object that uses 3/4 of the data for model fitting:
+```{r}
+set.seed(12)
+val_set <- validation_split(ames_train, prop = 3/4)
+val_set
+```
+
+Bootstrapping methods using rsample:
+
+```{r}
+bootstraps(ames_train, times = 5)
+
+```
+
+
+Any of these resampling methods can be used to evaluate the modeling process (including preprocessing, model fitting, etc). These methods are effective because different groups of data are used to train the model and assess the model. To reiterate the process:
+
+1. During resampling, the analysis set is used to preprocess the data, apply the preprocessing to itself, and use these processed data to fit the model.
+
+2. The preprocessing statistics produced by the analysis set are applied to the assessment set. The predictions from the assessment set estimate performance.
+
+This sequence repeats for every resample. If there are B resamples, there are B replicates of each of the performance metrics. The final resampling estimate is the average of these B statistics. If B = 1, as with a validation set, the individual statistics represent overall performance.
+
+Parallel Processing 
+
+The models created during resampling are independent of one another. Computations of this kind are sometimes called “embarrassingly parallel”; each model could be fit simultaneously without issues. The tune package uses the foreach package to facilitate parallel computations. These computations could be split across processors on the same computer or across different computers, depending on the chosen technology.
+
+For computations conducted on a single computer, the number of possible “worker processes” is determined by the parallel package:
+
+```{r}
+# The number of physical cores in the hardware:
+parallel::detectCores(logical = FALSE)
+
+
+# The number of possible independent processes that can 
+# be simultaneously used:  
+parallel::detectCores(logical = TRUE)
+
+# All operating systems
+library(doParallel)
+
+# Create a cluster object and then register: 
+cl <- makePSOCKcluster(2)
+registerDoParallel(cl)
+
+# Now run fit_resamples()`...
+
+stopCluster(cl)
+
+```
+
+General Code through Resampling 
+
+```{r}
+data(ames)
+ames <- mutate(ames, Sale_Price = log10(Sale_Price))
+
+set.seed(123)
+ames_split <- initial_split(ames, prop = 0.80, strata = Sale_Price)
+ames_train <- training(ames_split)
+ames_test  <-  testing(ames_split)
+
+ames_rec <- 
+  recipe(Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type + 
+           Latitude + Longitude, data = ames_train) %>%
+  step_log(Gr_Liv_Area, base = 10) %>% 
+  step_other(Neighborhood, threshold = 0.01) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_interact( ~ Gr_Liv_Area:starts_with("Bldg_Type_") ) %>% 
+  step_ns(Latitude, Longitude, deg_free = 20)
+
+lm_model <- linear_reg() %>% set_engine("lm")
+
+lm_wflow <- 
+  workflow() %>% 
+  add_model(lm_model) %>% 
+  add_recipe(ames_rec)
+
+lm_fit <- fit(lm_wflow, ames_train)
+
+rf_model <- 
+  rand_forest(trees = 1000) %>% 
+  set_engine("ranger") %>% 
+  set_mode("regression")
+
+rf_wflow <- 
+  workflow() %>% 
+  add_formula(
+    Sale_Price ~ Neighborhood + Gr_Liv_Area + Year_Built + Bldg_Type + 
+      Latitude + Longitude) %>% 
+  add_model(rf_model) 
+
+set.seed(55)
+ames_folds <- vfold_cv(ames_train, v = 10)
+
+keep_pred <- control_resamples(save_pred = TRUE, save_workflow = TRUE)
+
+set.seed(130)
+rf_res <- rf_wflow %>% fit_resamples(resamples = ames_folds, control = keep_pred)
+
+```
+
+#### Model optimization with `tune`
+
+Tuning parameters or hyperparameters are often found in machine learning models:
+
+Boosting is an ensemble method that combines a series of base models, each of which is created sequentially and depends on the previous models. The number of boosting iterations is an important parameter that usually requires optimization.
+
+In the classic single-layer artificial neural network (a.k.a. the multilayer perceptron), the predictors are combined using two or more hidden units. The hidden units are linear combinations of the predictors that are captured in an activation function (typically a nonlinear function, such as a sigmoid). The hidden units are then connected to the outcome units; one outcome unit is used for regression models and multiple outcome units are required for classification. The number of hidden units and the type of activation function are important structural tuning parameters.
+
+Modern gradient descent methods are improved by finding the right optimization parameters. Examples are learning rates, momentum, and the number of optimization iterations/epochs (Goodfellow, Bengio, and Courville 2016). Neural networks and some ensemble models use gradient descent to estimate the model parameters. While the tuning parameters associated with gradient descent are not structural parameters, they often require tuning.
+
+In some cases, preprocessing techniques require tuning:
+
+In principal component analysis, or its supervised cousin called partial least squares, the predictors are replaced with new, artificial features that have better properties related to collinearity. The number of extracted components can be tuned.
+
+Imputation methods estimate missing predictor values using the complete values of one or more predictors. One effective imputation tool uses K-nearest neighbors of the complete columns to predict the missing value. The number of neighbors modulates the amount of averaging and can be tuned.
+
+Some classical statistical models also have structural parameters:
+
+In binary regression, the logit link is commonly used (i.e., logistic regression). Other link functions, such as the probit and complementary log-log, are also available (Dobson 1999). This example is described in more detail in the Section 12.2.
+
+Non-Bayesian longitudinal and repeated measures models require a specification for the covariance or correlation structure of the data. Options include compound symmetric (a.k.a. exchangeable), autoregressive, Toeplitz, and others (Littell, Pendergast, and Natarajan 2000).
+
+Tuning parameter optimization usually falls into one of two categories:
+  - pre-define a set of parameter values to evaluate or
+  - sequentially discover new parameter combinations based on previous results.
+
+The use of pre-defined sets is commonly called grid search. The main choices involved in grid search are how to make the grid and how many parameter combinations to evaluate. Grid search is often judged as inefficient since the number of grid points required to cover the parameter space can grow unmanageable with the curse of dimensionality. There is truth to this concern, but it is most true when the process is not optimized. 
+
+For sequential or iterative search methods, almost any nonlinear optimization method is appropriate, although some are more efficient than others. 
+
+How can we signal to tidymodels functions which arguments should be optimized? Parameters are marked for tuning by assigning them a value of tune()

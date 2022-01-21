@@ -8,3 +8,27 @@ output:
     fig_width: 12
     fig_height: 7
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(rio)
+  library(vip)
+}))
+# prefer tidymodels function in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+## Tidymodels with supervised learning 
+
+## Linear Regression
+
+## Regularization and the Lasso
+
+## Classification 
+
+## Random Forests 
+
+## Ensembles
