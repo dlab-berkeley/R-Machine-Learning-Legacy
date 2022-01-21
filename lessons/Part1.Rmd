@@ -15,9 +15,8 @@ suppressMessages(suppressWarnings({
   library(tidymodels)
   library(here)
   library(rio)
-  library(vip)
 }))
-# prefer tidymodels function in any case of name conflict
+# prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
 ```
 
@@ -46,9 +45,8 @@ suppressMessages(suppressWarnings({
   library(tidymodels)
   library(here)
   library(rio)
-  library(vip)
 }))
-# prefer tidymodels function in any case of name conflict
+# prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
 ```
 
