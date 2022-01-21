@@ -267,6 +267,8 @@ penguins_metrics <- metric_set(rmse, rsq, mae)
 penguins_metrics(penguins_test_results, truth = bill_length_mm, estimate = .pred)
 ```
 
+When comparing between models, we tend to prefer models with lower error rates and higher explanatory power. 
+
 #### Resampling with `rsample` 
 
 Cross Validation 

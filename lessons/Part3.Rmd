@@ -21,7 +21,19 @@ suppressMessages(suppressWarnings({
 tidymodels::tidymodels_prefer() 
 ```
 
-## Tidymodels with supervised learning 
+## What we have covered so far 
+
+Through the first two parts of this workshop we gave an overview of machine learning and the tools to fit machine learning workflows with `tidymodels`. We discussed how machine learning works best when we are interested in *prediction*. We also covered the basics of a machine learning workflow which were:
+
+- How to appropriately spending our data into training and test sets
+- Preprocess features when necessary to ensure the best model fit 
+- build and fit models 
+- Judge model effectiveness using appropriate metrics
+- Resampling and cross validation to more effectively train and compare models
+
+Each one of these steps is common no matter what language or structure you choose to implement your machine learning models. 
+
+In this final part, we will explore some common supervised learning algorithms using `tidymodels`. The goal of this final part is to provide a high level overview of what common algorithms do.  
 
 ## Linear Regression
 
