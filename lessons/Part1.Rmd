@@ -52,9 +52,7 @@ suppressMessages(suppressWarnings({
 tidymodels::tidymodels_prefer() 
 ```
 
-## Conceptualizing Machine Learning 
-
-### What is Machine Learning? 
+## What is Machine Learning? 
 
 ### What kind of problems does it work well on? 
 
