@@ -141,7 +141,7 @@ lm_model %>%
 
 ### Challenge 5 
 
-Write and fit a logistic regression specification to classify penguin species based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. Since this is for practice, do not worry about any warning messages that may appear. 
+Write and fit a logistic regression specification to classify penguin sex based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. 
 
 ```{r}
 

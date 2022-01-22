@@ -59,13 +59,13 @@ challenge4_recipe <- recipe(bill_length_mm ~ ., data = penguins_train)%>%
 
 ### Challenge 5 
 
-Write and fit a logistic regression specification to classify penguin species based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. 
+Write and fit a logistic regression specification to classify penguin sex based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. 
 
 ```{r}
 class_model <- logistic_reg()%>%
   set_engine("glm")%>%
   set_mode("classification")%>%
-  fit(species ~ ., data = penguins_train)
+  fit(sex ~ ., data = penguins_train)
 ```
 
 ### Challenge 6 

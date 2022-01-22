@@ -45,4 +45,6 @@ In this final part, we will explore some common supervised learning algorithms u
 
 ## Random Forests 
 
+## Support Vector Machines
+
 ## Ensembles
