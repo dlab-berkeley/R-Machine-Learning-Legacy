@@ -325,36 +325,57 @@ penguins_cv_res %>%
 ## Get the assessment set predictions 
 penguins_cv_res %>% 
   collect_predictions()
+
+
+### Run this function afterwards to confirm that computing connections close correctly 
+unregister_dopar <- function() {
+  env <- foreach:::.foreachGlobals
+  rm(list=ls(name=env), pos=env)
+}
+unregister_dopar()
 ```
 
 #### Model optimization with `tune`
 
 Tuning parameters or hyperparameters are often found in machine learning models:
 
-Boosting is an ensemble method that combines a series of base models, each of which is created sequentially and depends on the previous models. The number of boosting iterations is an important parameter that usually requires optimization.
-
-In the classic single-layer artificial neural network (a.k.a. the multilayer perceptron), the predictors are combined using two or more hidden units. The hidden units are linear combinations of the predictors that are captured in an activation function (typically a nonlinear function, such as a sigmoid). The hidden units are then connected to the outcome units; one outcome unit is used for regression models and multiple outcome units are required for classification. The number of hidden units and the type of activation function are important structural tuning parameters.
-
-Modern gradient descent methods are improved by finding the right optimization parameters. Examples are learning rates, momentum, and the number of optimization iterations/epochs (Goodfellow, Bengio, and Courville 2016). Neural networks and some ensemble models use gradient descent to estimate the model parameters. While the tuning parameters associated with gradient descent are not structural parameters, they often require tuning.
-
-In some cases, preprocessing techniques require tuning:
-
-In principal component analysis, or its supervised cousin called partial least squares, the predictors are replaced with new, artificial features that have better properties related to collinearity. The number of extracted components can be tuned.
-
-Imputation methods estimate missing predictor values using the complete values of one or more predictors. One effective imputation tool uses K-nearest neighbors of the complete columns to predict the missing value. The number of neighbors modulates the amount of averaging and can be tuned.
-
-Some classical statistical models also have structural parameters:
-
-In binary regression, the logit link is commonly used (i.e., logistic regression). Other link functions, such as the probit and complementary log-log, are also available (Dobson 1999). This example is described in more detail in the Section 12.2.
-
-Non-Bayesian longitudinal and repeated measures models require a specification for the covariance or correlation structure of the data. Options include compound symmetric (a.k.a. exchangeable), autoregressive, Toeplitz, and others (Littell, Pendergast, and Natarajan 2000).
-
 Tuning parameter optimization usually falls into one of two categories:
   - pre-define a set of parameter values to evaluate or
   - sequentially discover new parameter combinations based on previous results.
 
-The use of pre-defined sets is commonly called grid search. The main choices involved in grid search are how to make the grid and how many parameter combinations to evaluate. Grid search is often judged as inefficient since the number of grid points required to cover the parameter space can grow unmanageable with the curse of dimensionality. There is truth to this concern, but it is most true when the process is not optimized. 
 
-For sequential or iterative search methods, almost any nonlinear optimization method is appropriate, although some are more efficient than others. 
+How can we signal to tidymodels functions which arguments should be optimized? Parameters are marked for tuning by assigning them a value of tune(). Let's demonstrate by considering whether our model would be improved by creating polynomials for a parameter. We will try this with the body mass variable. 
 
-How can we signal to tidymodels functions which arguments should be optimized? Parameters are marked for tuning by assigning them a value of tune()
+Since tuning changes the model type, this requires we add a preprocessing step, so we build a new recipe first. Following that we can build a workflow, and then use cross-validation to tune our parameters.
+
+```{r}
+## First update our recipe 
+penguins_poly_recipe <- challenge4_recipe %>%
+  # Step to omit nas. Set skip to true to avoid
+  # skipping at assessment phase unnecessarily
+  step_naomit(body_mass_g, skip = TRUE)%>%
+  step_poly(body_mass_g, degree = tune())
+
+tuned_wflow <- workflow()%>%
+  add_recipe(penguins_poly_recipe)%>%
+  add_model(lm_model)
+
+cv_splits <- vfold_cv(penguins_train, v = 10)
+degree_grid <- grid_regular(degree(range =c(1,5)), levels = 5)
+## resampling specification 
+tune_res <- tune_grid(
+  object = tuned_wflow,
+  resamples = cv_splits,
+  grid = degree_grid
+)
+
+# We can get the average metric value for each parameter combination 
+tune_res %>% 
+  collect_metrics()
+
+## We can show the best model 
+tune_res %>%
+  show_best(metric = "rmse")
+```
+
+The results here show that the best performing model is a polynomial of degree 2, though it's functionally identical to a model with no polynomial. Here, that's in part because we have no reason to believe that adding a polynomial on body mass should greatly improve our ability to predict bill length. We will see in the next section how tuning can matter a lot for model accuracy with different data and algorithms. 
