@@ -97,5 +97,25 @@ challenge6_fit %>%
 predict(challenge6_fit, new_data = penguins_test %>% slice(1:5))
 ```
 
+### Challenge 7 
 
+Using the `challenge7` dataset, evaluate the relationship between *Y* and the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
+
+
+```{r}
+# seed for this challenge 
+set.seed(3811212514757)
+
+challenge7 <- read_csv(here("data/challenge7.csv"))
+
+## Data spend 
+## Set up train and test set 
+c7_split <- initial_split(challenge7, prop = .75)
+
+c7_train <- training(c7_split)
+c7_test <- testing(c7_split)
+
+## specify cross validation split with 10 folds 
+c7_kfolds <- vfold_cv(c7_train, v = 10)
+```
 
