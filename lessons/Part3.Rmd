@@ -134,7 +134,7 @@ ridge_best <- select_best(ridge_res, metric = "rmse")
 ## We can now fit our model on the full training dataset 
 ridge_spec <- ridge_wflow %>%
   finalize_workflow(parameters = ridge_best)%>%
-  fit(data = data_train)
+  fit(data = data_test)
 
 ## We can now test it against our test set and see performance
 augment(ridge_spec, new_data = data_test)%>%
@@ -187,7 +187,7 @@ autoplot(lasso_res)
 ## Select best value and refit to whole training set 
 lasso_fit <- lasso_wflow %>% 
   finalize_workflow(lasso_best)%>%
-  fit(data = data_train)
+  fit(data = data_test)
 
 ## See how it performs on our test data set 
 augment(lasso_fit, new_data = data_test)%>%
@@ -218,8 +218,103 @@ c7_kfolds <- vfold_cv(c7_train, v = 10)
 
 ## Classification 
 
+EXPLANATION 
+
+Here's how to fit classification problems in `tidymodels` using logistic regression. 
+
+```{r}
+## Set model specification 
+class_spec <- logistic_reg()%>%
+  set_mode("classification")%>%
+  set_engine("glm")
+
+## Make recipe 
+class_recipe <- recipe()%>%
+  step_normalize(all_predictors())
+
+## Create workflow 
+class_wflow <- workflow()%>%
+  add_recipe(class_recipe)%>%
+  add_model(class_spec)
+
+## fit a model and see prediction metrics 
+class_fit <- class_wflow %>% 
+  fit(data = class_train)
+
+
+```
+
 ## Random Forests 
+
+INSERT INTRODUCTION 
+
+Here's how to fit tree-based methods in `tidymodels` 
+
+```{r}
+
+
+```
 
 ## Support Vector Machines
 
+INSERT INTRODUCTION 
+
 ## Ensembles
+
+INSERT INTRODUCTION 
+
+## Running many different specifications at once 
+
+Finally, let's return to a situation in which we have many models and want to compare all of them at once. A great feature of `tidymodels` are workflow sets. These allow us to compare and fit many model specifications and multiple recipes at once within a workflow (See Kuhn and Silge 2021). 
+
+
+For this example, we will focus on a classification problem.
+
+INSERT PROBLEM DESCRIPTION
+
+We can use `last_fit()` to select the best model and final tuning parameters and fit on the entire training set. We then verify performance on our test data. Here is the pseudo code structure in `tidymodels`.
+
+```{r, eval = F}
+best_fit <- last_fit(
+  WORKFLOW, 
+  split = DATA_SPLIT, 
+  metrics = metrics_set(
+    f_meas, recall, precision, 
+    accuracy, roc_auc, sens, spec
+  )
+)
+
+# Show performance metrics 
+best_fit %>%
+  collect_metrics()
+
+## See the confusion matrix for our predictions
+best_fit %>% 
+  collect_predictions() %>% 
+  conf_mat(OUTCOME, .pred_class) %>% 
+  autoplot(type = "heatmap")
+
+```
+
+### Challenge 11: Putting everything together 
+
+Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
+
+```{r}
+set.seed(1234)
+
+## Read in data 
+
+## Data spend 
+
+## Create Model specifications 
+
+## Create Recipes 
+
+## Fit and tune model specifications 
+
+## Choose the best one 
+
+## Evaluate the model
+
+```

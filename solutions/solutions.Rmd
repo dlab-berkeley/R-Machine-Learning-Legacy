@@ -37,7 +37,7 @@ Think about your own interests. Come up and write down an example problem that i
 
 *Answers will obviously vary. The key point is that supervised learning problems should be able to describe the dataset in terms of labels.*
 
-### Challenge 3 
+## Challenge 3 
 
 Explain whether the following are classification or regression problems 
 
@@ -47,7 +47,7 @@ Explain whether the following are classification or regression problems
 
 3. A researcher is interested in the effect of an education intervention on students' test scores. *regression. test scores is quantitative. However, we can imagine this problem being categorical if the test scores were not ordered. For example, someone's "learning style"*
 
-### Challenge 4 
+## Challenge 4 
 
 Sometimes features on different scales can lead to strange predictions and poor test fit. Therefore, one step that analysts may take is to center and normalize their data. Using the reference link, identify the function that normalizes data and add it to the recipe to apply it all numeric predictors in the data. 
 
@@ -57,7 +57,7 @@ challenge4_recipe <- recipe(bill_length_mm ~ ., data = penguins_train)%>%
 ```
 
 
-### Challenge 5 
+## Challenge 5 
 
 Write and fit a logistic regression specification to classify penguin sex based on all other features. You will have to make three changes from the linear specification. Use `glm` as your engine. 
 
@@ -68,7 +68,7 @@ class_model <- logistic_reg()%>%
   fit(sex ~ ., data = penguins_train)
 ```
 
-### Challenge 6 
+## Challenge 6 
 
 Write a new recipe that predicts bill length from bill depth, flipper length, and body mass only. Normalize all variables. Write a workflow that uses your new recipe to fit a linear model. 
 
@@ -97,7 +97,7 @@ challenge6_fit %>%
 predict(challenge6_fit, new_data = penguins_test %>% slice(1:5))
 ```
 
-### Challenge 7 
+## Challenge 7 
 
 Using the `challenge7` dataset, evaluate the relationship between *Y* and the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
 
@@ -119,3 +119,31 @@ c7_test <- testing(c7_split)
 c7_kfolds <- vfold_cv(c7_train, v = 10)
 ```
 
+## Challenge 8 
+
+## Challenge 9 
+
+## Challenge 10 
+
+## Challenge 11: Putting everything together 
+
+Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
+
+```{r}
+set.seed(1234)
+
+## Read in data 
+
+## Data spend 
+
+## Create Model specifications 
+
+## Create Recipes 
+
+## Fit and tune model specifications 
+
+## Choose the best one 
+
+## Evaluate the model
+
+```
