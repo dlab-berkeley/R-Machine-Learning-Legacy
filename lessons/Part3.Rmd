@@ -71,7 +71,7 @@ Let's cover two common methods for regularizing coefficients: *Ridge regression*
 
 Ridge regression is a method that solves the following minimization problem. 
 
-$$\sum_{i=1}^n(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij})^2 + \lambda\sum_{j=1}^{p}\beta_j^2$$
+$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}\beta_j^2$$
 In words, we want to find a coefficient estimate $\hat{\beta_j}$ that minimizes the total value of the residual sum of squares. Unlike linear regression, we have an additional term which is the shrinkage penalty. This term is small when the estimated coefficients are close to zero, and so *shrinks* the estimates of $\beta_j$ towards zero (James *et al.* 2021). 
 
 The tuning parameter $\lambda \geq 0$ controls the relative impact of these two terms on the model estimates. In the extreme case when $\lambda = 0$, the model is identical to linear regression. In the other extreme case when $\lambda = \infty$ the regression coefficients will all be zero. Therefore, selecting the best $\lambda$ is critical for model fit and prediction. 
@@ -143,8 +143,57 @@ augment(ridge_spec, new_data = data_test)%>%
 
 Ridge regression will include all of our features in the final model, though it may set many of the coefficients close to zero. This raises a question about model interpretation when the number of features is large. An alternative algorithm is the *lasso*. The goal of the lasso is to minimize the following equation. 
 
-$\sum_{i = 1}^{}
-The lasso also shrinks the coefficient estimates towards zero, but it's penalty term forces some of the coefficient estimates to be exactly equal to zero if the tuning parameter is large. As a result, the lasso is a type of variable selection algorithm. 
+$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}|\beta_j|$$
+The lasso also shrinks the coefficient estimates towards zero, but it's penalty term forces some of the coefficient estimates to be exactly equal to zero if the tuning parameter is large. As a result, the lasso is a type of variable selection algorithm. A way to think about the lasso is that we are trying to find a set of coefficient estimates that give the smallest RSS, subject to a budget constraint for how large the second part of the equation can be. If the budget is large enough, the lasso will reproduce the linear regression estimate.
+
+A weakness of the lasso compared to linear and ridge regression is that the lasso implicitly assumes that at least one of the coefficients is equal to zero if the penalty term is high enough. In situations where this is actually true, the lasso will outperform linear regression and ridge regression. In situations where it is not, the lasso will be sub-optimal. 
+
+Here is how to fit the lasso in `tidymodels`
+
+```{r}
+## Lasso specification 
+lasso_model <- linear_reg(
+  penalty = tune(), 
+  mixture = 1 
+)%>%
+  set_mode("regression")%>%
+  set_engine("glmnet")
+
+# Note that for this problem our recipes are the same as ridge regression. We could reuse the ridge recipe in our lasso workflow
+lasso_recipe <- recipe(formula = Y ~ ., data = data_train)%>%
+  step_dummy(all_nominal_predictors())%>%
+  step_normalize(all_predictors())
+
+lasso_wflow <- workflow()%>%
+  add_recipe(lasso_recipe)%>%
+  add_model(lasso_model)
+
+## We can reuse the same penalty grid and same cross-validation resamples. In practice, we would want to cast a wide initial net and then narrow down on a range. This is part of iteration steps in a machine learning analysis
+
+## Tune model 
+lasso_res <- tune_grid(
+  lasso_wflow,
+  resamples = data_kfolds,
+  grid = penalty_grid
+)
+
+## select best penalty 
+lasso_best <- lasso_res %>% 
+  select_best(metric = "rmse")
+
+## visualize fit 
+autoplot(lasso_res)
+
+## Select best value and refit to whole training set 
+lasso_fit <- lasso_wflow %>% 
+  finalize_workflow(lasso_best)%>%
+  fit(data = data_train)
+
+## See how it performs on our test data set 
+augment(lasso_fit, new_data = data_test)%>%
+  rmse(truth = Y, estimate = .pred)
+```
+
 ## Classification 
 
 ## Random Forests 
