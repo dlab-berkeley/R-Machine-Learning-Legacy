@@ -102,11 +102,17 @@ predict(challenge6_fit, new_data = penguins_test %>% slice(1:5))
 Using the `challenge7` dataset, evaluate the relationship between *Y* and the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
 
 
+### Challenge 7 
+
+Using the `challenge7` dataset, predict whether a penguin is a Gentoo using the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
+
+
 ```{r}
 # seed for this challenge 
 set.seed(3811212514757)
 
-challenge7 <- read_csv(here("data/challenge7.csv"))
+challenge7 <- penguins %>% 
+  mutate(isChinstrap = if_else(species == "Gentoo", TRUE, FALSE))
 
 ## Data spend 
 ## Set up train and test set 
@@ -119,9 +125,9 @@ c7_test <- testing(c7_split)
 c7_kfolds <- vfold_cv(c7_train, v = 10)
 ```
 
-## Challenge 8: Putting everything together 
+### Challenge 8: Putting everything together 
 
-Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
+Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. The goal for this problem is to correctly classify penguins into "Gentoo" or "Not Gentoo" types. 
 
 ```{r}
 set.seed(1234)

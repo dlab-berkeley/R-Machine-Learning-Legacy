@@ -37,6 +37,26 @@ Each one of these steps is common no matter what language or structure you choos
 
 In this final part, we will explore some common supervised learning algorithms using `tidymodels`. The goal of this final part is to provide a high level overview of what common algorithms do.  
 
+## Dataset 
+
+For these exercises, we will use the Credit dataset from the `ISLR2` package.  
+
+```{r}
+credit <- ISLR2::Credit
+
+glimpse(credit)
+
+## Set up train and test set 
+data_split <- initial_split(credit, prop = .75)
+
+data_train <- training(data_split)
+data_test <- testing(data_split)
+
+## specify cross validation split with 10 folds 
+data_kfolds <- vfold_cv(data_train, v = 10)
+```
+
+
 ## Linear Regression
 
 We have already worked with linear regression, so let's jump straight into setting up the details in `tidymodels`. 
@@ -90,23 +110,15 @@ ridge_model <- linear_reg(
   # to make use of this engine
   set_engine("glmnet")
 
-ridge_recipe <-recipe(formula = Y ~ ., data = data)%>%
+ridge_recipe <-recipe(formula = Rating ~ ., data = data_train)%>%
   step_dummy(all_nominal_predictors())%>%
   # Standardize our features 
-  step_normalize(all_predictors())
+  step_normalize(all_numeric_predictors())%>%
+  step_zv(all_predictors())
 
 ridge_wflow <- workflow()%>%
   add_recipe(ridge_recipe)%>%
-  add_model(ridge_spec)
-
-## Set up train and test set 
-data_split <- initial_split(data, prop = .75)
-
-data_train <- training(data_split)
-data_test <- testing(data_split)
-
-## specify cross validation split with 10 folds 
-data_kfolds <- vfold_cv(data_train, v = 10)
+  add_model(ridge_model)
 
 ## Tuning parameter set up. 
 # Set up grid for lambda penalty 
@@ -138,7 +150,7 @@ ridge_spec <- ridge_wflow %>%
 
 ## We can now test it against our test set and see performance
 augment(ridge_spec, new_data = data_test)%>%
-  rmse(truth = Y, estimate = .pred)
+  rmse(truth = Rating, estimate = .pred)
 ```
 
 Ridge regression will include all of our features in the final model, though it may set many of the coefficients close to zero. This raises a question about model interpretation when the number of features is large. An alternative algorithm is the *lasso*. The goal of the lasso is to minimize the following equation. 
@@ -160,7 +172,7 @@ lasso_model <- linear_reg(
   set_engine("glmnet")
 
 # Note that for this problem our recipes are the same as ridge regression. We could reuse the ridge recipe in our lasso workflow
-lasso_recipe <- recipe(formula = Y ~ ., data = data_train)%>%
+lasso_recipe <- recipe(formula = Rating ~ ., data = data_train)%>%
   step_dummy(all_nominal_predictors())%>%
   step_normalize(all_predictors())
 
@@ -174,7 +186,7 @@ lasso_wflow <- workflow()%>%
 lasso_res <- tune_grid(
   lasso_wflow,
   resamples = data_kfolds,
-  grid = penalty_grid
+  grid = lambda_grid
 )
 
 ## select best penalty 
@@ -191,19 +203,20 @@ lasso_fit <- lasso_wflow %>%
 
 ## See how it performs on our test data set 
 augment(lasso_fit, new_data = data_test)%>%
-  rmse(truth = Y, estimate = .pred)
+  rmse(truth = Rating, estimate = .pred)
 ```
 
 ### Challenge 7 
 
-Using the `challenge7` dataset, evaluate the relationship between *Y* and the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
+Using the `challenge7` dataset, predict whether a penguin is a Gentoo using the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
 
 
 ```{r}
 # seed for this challenge 
 set.seed(3811212514757)
 
-challenge7 <- read_csv(here("data/challenge7.csv"))
+challenge7 <- penguins %>% 
+  mutate(isChinstrap = if_else(species == "Gentoo", TRUE, FALSE))
 
 ## Data spend 
 ## Set up train and test set 
@@ -241,6 +254,16 @@ R will fit this via maximum likelihood. For more discussion on the mathematical 
 
 Here's how to fit classification problems in `tidymodels` using logistic regression. 
 
+For these classification problems, we will use the default dataset. 
+
+```{r}
+default <- ISLR2::Default
+
+class_split <- initial_split(default, prop = 3/4)
+class_train <- training(class_split)
+class_test <- testing(class_split)
+```
+
 ```{r}
 ## Set model specification 
 class_spec <- logistic_reg()%>%
@@ -248,7 +271,8 @@ class_spec <- logistic_reg()%>%
   set_engine("glm")
 
 ## Make recipe 
-class_recipe <- recipe()%>%
+class_recipe <- recipe(default ~ . ,data = class_train)%>%
+  step_dummy(all_nominal_predictors())%>%
   step_normalize(all_predictors())
 
 ## Create workflow 
@@ -260,7 +284,8 @@ class_wflow <- workflow()%>%
 class_fit <- class_wflow %>% 
   fit(data = class_train)
 
-
+augment(class_fit, new_data = class_test)%>%
+  accuracy(truth = default, estimate = .pred_class)
 ```
 
 ### Naive Bayes 
@@ -279,7 +304,7 @@ naive_bayes <- naive_Bayes()%>%
   # assume predictors come from normal distributions 
   set_args(usekernel = FALSE)
 
-bayes_recipe <- recipe(Y ~ ., data = data_train)
+bayes_recipe <- recipe(default ~ ., data = class_train)
 
 bayes_wflow <- workflow()%>%
   add_recipe(bayes_recipe)%>%
@@ -292,7 +317,18 @@ bayes_fit <- bayes_wflow %>%
 
 ## Random Forests 
 
-INSERT INTRODUCTION 
+A decision tree is a method of stratifying the feature space into a number of simple regions. Usually, trees use the mean or mode dependent variable value for the training data in the region to which it belongs (James *et al.* 2021). Trees can be applied to both regression or classification problems. To build a single tree, we:
+
+1. Divide the feature space into distinct regions. 
+2. For every observation that falls into a distinct region ($R_j$) we make the same prediction. 
+
+Trees by themselves turn out to not be very good at prediction compared to other supervised learning model. However, combine them into a *random forest* and they become very useful, especially if the relationship is nonlinear and complex. 
+
+A random forest (Breiman 2001) is an example of an ensemble method, which is an approach that combines many simple models in order to get a single powerful prediction model. 
+
+In a random forest, we build a number of decision trees on bootstrapped training samples. Each tree is grown independently on random samples of the observations, a process known as *bagging.*
+
+When building the trees, each time a split occurs, we take a random sample of features to be split candidates instead of the full set of features. By choosing a random subset each time, a random forest decorrelates the individual decision trees. This makes the resulting average less variable. 
 
 Here's how to fit tree-based methods in `tidymodels` 
 
@@ -306,7 +342,7 @@ rf_model <- rand_forest(
   set_engine("ranger")%>%
   set_mode("classification")
 
-rf_recipe <- recipe(Y~., data = data_train)%>%
+rf_recipe <- ecipe(default ~ ., data = class_train)%>%
   step_normalize(all_predictors())
 
 rf_wflow <- workflow()%>%
@@ -328,32 +364,9 @@ rf_fit <- tune_grid(
 
 ```
 
-## Support Vector Machines
-
-INSERT INTRODUCTION 
-
-Here's how to fit SVMs in `tidymodels`
-
-```{r}
-svm_model <- svm_rbf()%>%
-  set_engine("kernlab")%>%
-  set_mode("classification")
-
-svm_recipe <- recipe(Y~., data = data_train)%>%
-  step_normalize(all_predictors())
-
-svm_wflow <- workflow()%>%
-  add_recipe(svm_recipe)%>%
-  add_model(svm_model)
-
-svm_fit <- svm_wflow %>% 
-  fit(data = data_train)
-
-```
-
 ## Ensembles
 
-INSERT INTRODUCTION 
+A Random Forest is an example of an ensemble method, but we can also create our own models and put them together into an ensemble.
 
 To put together an ensemble in `tidymodels` we need to: 
 
@@ -370,7 +383,6 @@ ensemble_model <- stacks() %>%
   add_candidates(rf_fit)%>%
   add_candidates(bayes_fit)%>%
   add_candidate(class_fit)%>%
-  add_candidate(svm_fit)%>%
   ## Combine the predictions 
   blend_predictions()%>%
   ## Fit candidates with nonzero stacking coefficients 
@@ -384,42 +396,9 @@ ensemble_model %>%
   collect_parameters()
 ```
 
-## Running many different specifications at once 
-
-Finally, let's return to a situation in which we have many models and want to compare all of them at once. A great feature of `tidymodels` are workflow sets. These allow us to compare and fit many model specifications and multiple recipes at once within a workflow (See Kuhn and Silge 2021). 
-
-
-For this example, we will focus on a classification problem.
-
-INSERT PROBLEM DESCRIPTION
-
-We can use `last_fit()` to select the best model and final tuning parameters and fit on the entire training set. We then verify performance on our test data. Here is the pseudo code structure in `tidymodels`.
-
-```{r, eval = F}
-best_fit <- last_fit(
-  WORKFLOW, 
-  split = DATA_SPLIT, 
-  metrics = metrics_set(
-    f_meas, recall, precision, 
-    accuracy, roc_auc, sens, spec
-  )
-)
-
-# Show performance metrics 
-best_fit %>%
-  collect_metrics()
-
-## See the confusion matrix for our predictions
-best_fit %>% 
-  collect_predictions() %>% 
-  conf_mat(OUTCOME, .pred_class) %>% 
-  autoplot(type = "heatmap")
-
-```
-
 ### Challenge 8: Putting everything together 
 
-Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
+Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. The goal for this problem is to correctly classify penguins into "Gentoo" or "Not Gentoo" types. 
 
 ```{r}
 set.seed(1234)

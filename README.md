@@ -27,11 +27,7 @@ We will use RStudio to go through the workshop materials, which requires the ins
 5. Make sure the following packages are installed on your computer 
 
 ```
-tidyverse, tidymodels, here,pROC
-glmnet, ranger, rpart, xgboost,
-rpart.plot, vip, corrr, GGally,
-glue, patchwork, doParallel, rio,
-palmerpenguins
+install.packages(c("tidyverse", "tidymodels", "here","pROC","glmnet", "ranger", "rpart", "xgboost","rpart.plot", "doParallel", "palmerpenguins", "ISLR2"
 ```
 
 ## Run the Code

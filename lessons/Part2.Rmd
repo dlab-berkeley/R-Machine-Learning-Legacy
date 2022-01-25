@@ -90,7 +90,7 @@ The function all_nominal_predictors() captures the names of any predictor column
 
 Sometimes features on different scales can lead to strange predictions and poor test fit. Therefore, one step that analysts may take is to center and normalize their data. Using the reference link, identify the function that normalizes data and add it to the recipe to apply it to all numeric predictors in the data. Call your new recipe "challenge4_recipe"
 
-"`{r}
+```{r}
 
 ```
 
@@ -147,7 +147,7 @@ lm_model %>%
 
 Write and fit a logistic regression specification to classify penguin sex based on all other features. You will have to make three changes to the linear specification. Use `glm` as your engine. 
 
-"`{r}
+```{r}
 
 ```
 
