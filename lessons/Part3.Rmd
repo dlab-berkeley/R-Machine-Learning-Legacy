@@ -218,7 +218,26 @@ c7_kfolds <- vfold_cv(c7_train, v = 10)
 
 ## Classification 
 
-EXPLANATION 
+Machine learning breaks down the type of algorithm by whether we are interesting in predicting a quantitative or qualitative response variable. In this section, we will discuss classification. Predicting a qualitatative response is considered classification because we assign the observation to a category (or class). 
+
+Classification is also a supervised learning technique because we have a set of labeled training data that we can use to build a classifier. 
+
+A note before we move on to our next algorithm. Many machine learning textbooks suggest that linear regression is not an appropriate algorithm for classification. When interested in multi-class problems, this makes a lot of sense because linear regression will assume an ordering scheme that does not actually exist. The result will be poor out of sample fit. 
+
+In the binary dependent variable case, we can use linear regression. Such a model is often referred to as a linear probability model. The results of this model are interpretable (each coefficient represents the change in probability of success holding all other constants equal) and will give similar classifications as other classification algorithms. 
+
+### Logistic Regression 
+
+Machine learning practitioners often recommend logistic regression as a starting model when we have a problem of predicting a binary outcome or probability. For example, if we are estimating the relationship between mortality and income we can estimate the probability of mortality given a change in income. 
+
+We write this as $P[M|I]$ and the values will range between 0 and 1. We can make a prediction for any given value of income on the mortality outcome. Normally, we establish a threshold for prediction. For example, we might predict death where $P[M|i] > 0.5$. 
+
+Logistic regression is a generalized linear model where we model the probability function using the logistic function. Define the general function as $p(Y= 1|X)$. Then the model of interest is: 
+
+$$p(Y = 1|\textbf{X}) = \frac{e^{\textbf{X}\beta}}{1 + e^{\textbf{X}\beta}}$$
+Here the bold X indicates a vector of features and the $\beta$ coefficient represents a vector of coefficients. 
+
+R will fit this via maximum likelihood. For more discussion on the mathematical principles behind logistic regression, see p.135 of James *et al.*. 
 
 Here's how to fit classification problems in `tidymodels` using logistic regression. 
 
@@ -244,6 +263,33 @@ class_fit <- class_wflow %>%
 
 ```
 
+### Naive Bayes 
+
+Like linear regression, logistic regression is a rock solid initial model. However, when there is substantial differences between classes the parameter estimates for logistic regression become unstable. We may also have more than two classes, which becomes a bit more awkward to extent to the logistic case. 
+
+Naive Bayes is an alternative algorithm that uses some results that follows Bayes' Theorem to provide accurate classification predictions. When the number of features is large or the number of training units is small, Naive Bayes's relative reduction in variance improves on predictions.
+
+The classifier makes one assumption: within the $k^th$ class, the $p$ features are independent of each other. This assumption reduces the complexity of estimating the joint distribution of the features which is often difficult to estimate. While this is a modeling convenience and almost certainly false in general, having this assumption allows Naive Bayes to be surprisingly good at prediction. It will do less well than other algorithms in problems where interactions among features are important for classification. 
+The structure of implementing Naive Bayes in `tidymodels` should look familiar. 
+
+```{r}
+naive_bayes <- naive_Bayes()%>%
+  set_engline("klaR")%>%
+  set_mode("classifcation")%>%
+  # assume predictors come from normal distributions 
+  set_args(usekernel = FALSE)
+
+bayes_recipe <- recipe(Y ~ ., data = data_train)
+
+bayes_wflow <- workflow()%>%
+  add_recipe(bayes_recipe)%>%
+  add_model(naive_bayes)
+
+bayes_fit <- bayes_wflow %>% 
+  fit(data = data_train)
+```
+
+
 ## Random Forests 
 
 INSERT INTRODUCTION 
@@ -251,7 +297,34 @@ INSERT INTRODUCTION
 Here's how to fit tree-based methods in `tidymodels` 
 
 ```{r}
+## model specification 
+rf_model <- rand_forest(
+  mtry = tune(),
+  min_n = tune(),
+  trees = 500
+  )%>%
+  set_engine("ranger")%>%
+  set_mode("classification")
 
+rf_recipe <- recipe(Y~., data = data_train)%>%
+  step_normalize(all_predictors())
+
+rf_wflow <- workflow()%>%
+  add_recipe(rf_recipe)%>%
+  add_model(rf_model)
+
+### Use cross-validation to tune our model appropriately 
+
+## First make a grid 
+rf_grid <- control_grid()
+
+## Now fine appropriate tuning parameters
+rf_fit <- tune_grid(
+  object = rf_wflow, 
+  resamples = data_kfolds, 
+  grid = 10,
+  control = rf_grid
+)
 
 ```
 
@@ -259,9 +332,57 @@ Here's how to fit tree-based methods in `tidymodels`
 
 INSERT INTRODUCTION 
 
+Here's how to fit SVMs in `tidymodels`
+
+```{r}
+svm_model <- svm_rbf()%>%
+  set_engine("kernlab")%>%
+  set_mode("classification")
+
+svm_recipe <- recipe(Y~., data = data_train)%>%
+  step_normalize(all_predictors())
+
+svm_wflow <- workflow()%>%
+  add_recipe(svm_recipe)%>%
+  add_model(svm_model)
+
+svm_fit <- svm_wflow %>% 
+  fit(data = data_train)
+
+```
+
 ## Ensembles
 
 INSERT INTRODUCTION 
+
+To put together an ensemble in `tidymodels` we need to: 
+
+1. Define our candidate models. 
+2. Assemble a stack. 
+3. Determine how to combine the model predictions 
+4. Fit the models 
+
+We will take advantage of the models that we have already created. 
+
+```{r}
+ensemble_model <- stacks() %>% 
+  ## Add candidate models 
+  add_candidates(rf_fit)%>%
+  add_candidates(bayes_fit)%>%
+  add_candidate(class_fit)%>%
+  add_candidate(svm_fit)%>%
+  ## Combine the predictions 
+  blend_predictions()%>%
+  ## Fit candidates with nonzero stacking coefficients 
+  fit_members()
+
+## See our model 
+ensemble_model
+
+## See which model configurations were used 
+ensemble_model %>% 
+  collect_parameters()
+```
 
 ## Running many different specifications at once 
 
@@ -296,7 +417,7 @@ best_fit %>%
 
 ```
 
-### Challenge 11: Putting everything together 
+### Challenge 8: Putting everything together 
 
 Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
 

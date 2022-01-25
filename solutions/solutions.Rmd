@@ -119,13 +119,7 @@ c7_test <- testing(c7_split)
 c7_kfolds <- vfold_cv(c7_train, v = 10)
 ```
 
-## Challenge 8 
-
-## Challenge 9 
-
-## Challenge 10 
-
-## Challenge 11: Putting everything together 
+## Challenge 8: Putting everything together 
 
 Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. 
 
