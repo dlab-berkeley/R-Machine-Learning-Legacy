@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning with `tidymodels`: Part 3" 
+title: "R-Machine-Learning: Part 3" 
 theme: readable
 output:
   html_document:
