@@ -1,61 +1,102 @@
-# Machine Learning with Tidymodels 
+# D-Lab's Introduction to Machine Learning with tidymodels 
 
-This is [Jae Yeon Kim](https://jaeyk.github.io/)'s remix version of the [D-Lab’s Introduction to Machine Learning in R workshop](https://github.com/dlab-berkeley/Machine-Learning-in-R) designed by [Chris Kennedy](https://ck37.com/) and [Evan Muzzall](https://dlab.berkeley.edu/people/evan-muzzall). This version of the workshop focuses on [the tidymodels framework](https://www.tidymodels.org/) and its applications.
+This repository contains the materials for D-Lab's Introduction to Machine Learning with tidymodels. Prior experience with the concepts in [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) and [Data Wrangling and Manipulation in R](https://github.com/dlab-berkeley/R-Data-Wrangling) is assumed. 
 
-[View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-with-tidymodels/slides#1).
+## Workshop Goals 
 
-RStudio Binder:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-with-tidymodels/master?urlpath=rstudio)
+In this workshop, we provide an introduction to machine learning algorithms by making use of the `tidymodels` package. First, we discuss what machine learning is, what problems it works well for, and what problems it might work less well for. Then, we'll explore the `tidymodels` framework to learn how to fit machine learning models in R. Finally, we will apply the `tidymodels` framework to explore multiple machine learning algorithms in R. 
 
-## Content outline
+By the end of the workshop, learners should feel prepared to explore machine learning approaches for their data problems. 
 
-  - Background on machine learning
-      - Classification vs regression
-      - Performance metrics
-  - Data preprocessing 
-      - Missing data
-      - Train/test splits
-  - Algorithm walkthroughs 
-      - Lasso
-      - Decision trees
-      - Random forests
-      - Gradient boosted machines
-      - SuperLearner ensembling 
-      - Principal component analysis  
-      - Hierarchical agglomerative clustering
-  - Challenge questions (**TBD**)
-  
-## Getting started
+Familiarity with R programming and data wrangling is assumed. If you are not familiar with the materials in [Data Wrangling and Manipulation in R](https://github.com/dlab-berkeley/R-Data-Wrangling), we recommend attending that workshop first. In addition, this workshop focuses on how to implement machine learning approaches. Learners will likely benefit from previous exposure to statistics. 
 
-Please follow the notes in [participant-instructions.md](participant-instructions.md).  
+## Installation Instructions
 
-#### HAVE FUN! :^)
+We will use RStudio to go through the workshop materials, which requires the installation of both the R language and the RStudio software. Complete the following steps:
 
-The seven algorithm R Markdown files (lasso, decision tree, random forest, xgboost, SuperLearner, PCA, and clustering) are designed to function in a standalone manner.  
+1. [Download R](https://cloud.r-project.org/): Follow the links according to the operating system that you are running. Download the package, and install R onto your computer. You should install the most recent version (at least version 4.0).
+2. [Download RStudio](https://rstudio.com/products/rstudio/download/#download): Install RStudio Desktop. This should be free. Do this after you have already installed R.
+3. [Download these workshop materials](https://github.com/dlab-berkeley/R-Fundamentals): 
 
-After installing and librarying the packages in 01-overview.Rmd, run all the code in 02-preprocessing.Rmd to preprocess the data. Then, open any one of the seven algorithm R Markdown files and "Run All" code to see the results and visualizations! 
+* Click the green "Code" button in the top right of the repository information.
+* Click "Download Zip".
+* Extract this file to a folder on your computer where you can easily access it (we recommend Desktop).
 
-## Assumed participant background
+4. Optional: if you're familiar with `git`, you can instead clone this repository by opening a terminal and entering `git clone git@github.com:dlab-berkeley/Machine-Learning-with-tidymodels.git`.
 
-We assume that participants have familiarity with:
+5. Make sure the following packages are installed on your computer 
 
-* Basic R syntax
-* Statistical concepts such as mean and standard deviation
+```
+install.packages(c("tidyverse", "tidymodels", "here","pROC","glmnet", "ranger", "rpart", "xgboost","rpart.plot", "doParallel", "palmerpenguins", "ISLR2"
+```
 
-## Technology requirements
+## Run the Code
 
-Please bring a laptop with the following:
+Now that you have all the required software and materials, you need to run the code:
 
-* [R version](https://cloud.r-project.org/)
-3.6 or greater
-* [RStudio integrated development environment (IDE)](https://www.rstudio.com/products/rstudio/download/#download) is
-highly recommended but not required.
+1. Launch the RStudio software.
 
-## Resources
+2. Use the file navigator to find the `Machine-Learning-with-tidymodels` folder you downloaded from Github.
 
-Browse resources listed on the [D-Lab Machine Learning Working Group repository](https://github.com/dlab-berkeley/MachineLearningWG). Scroll down to see code examples in R and Python, books, courses at UC Berkeley, online classes, and other resources and groups to help you along your machine learning journey!  
+3. Open up the file corresponding to the part of the workshop you're attending.
 
-## Slideshow
+4. Place your cursor on a given line and press "Command + Enter" (Mac) or "Control + Enter" (PC) to run an individual line of code. 
 
-The slides were made using [xaringan](https://github.com/yihui/xaringan), which is a wrapper for [remark.js](https://remarkjs.com/#1). Check out Chapter 7 if you are interested in making your own! The theme borrows from Brad Boehmke's presentation on [Decision Trees, Bagging, and Random Forests - with an example implementation in R](https://bradleyboehmke.github.io/random-forest-training/slides-source.html#1).  
+5. The `solutions` folder contains the solutions to the challenge problems.
 
+## Is R not working on your laptop?
+
+If you do not have R installed and the materials loaded on your workshop by the time it starts, we *strongly* recommend using the UC Berkeley Datahub to run the materials for these lessons. You can access the DataHub by clicking [this link](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FMachine-Learning-with-tidymodels&urlpath=rstudio%2F&branch=main). Some users may find that they have to click the link twice if the materials do not load initially. 
+
+The DataHub downloads this repository, along with any necessary packages, and allows you to run the materials in an RStudio instance on UC Berkeley's servers. No installation is needed from your end - you only need an internet browser and a CalNet ID to log in. By using the DataHub, you can save your work and come back to it at any time. When you want to return to your saved work, go straight to [DataHub](https://datahub.berkeley.edu), sign in, and click on the `Machine-Learning-with-tidymodels` folder.
+
+If you don't have a Berkeley CalNet ID, you can still run these lessons in the cloud by clicking this button:
+
+[![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-with-tidymodels/HEAD)
+
+By using this button, however, you cannot save your work.
+
+## Additional Resources 
+
+This workshop draws heavily on the following resources: 
+
+[*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/).
+
+[*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/)
+
+["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075)
+
+[*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html)
+
+[*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5)
+
+[*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
+
+## Other D-Lab R Workshops
+
+### Basic Competency 
+
+- [R Data Wrangling](https://github.com/dlab-berkeley/R-Data-Wrangling)
+- [R Graphics with ggplot2](https://github.com/dlab-berkeley/R-graphics)
+- [R Functional Programming](https://github.com/dlab-berkeley/R-functional-programming)
+- [Project Management in R](https://github.com/dlab-berkeley/efficient-reproducible-project-management-in-R)
+- [Geospatial Fundamentals in R with sf](https://github.com/dlab-berkeley/Geospatial-Fundamentals-in-R-with-sf)
+- [Census Data in R](https://github.com/dlab-berkeley/Census-Data-in-R)
+
+### Intermediate/Advanced Competency
+
+- [Unsupervised Learning in R](https://github.com/dlab-berkeley/Unsupervised-Learning-in-R)
+- [Introduction to Deep Learning in R](https://github.com/dlab-berkeley/Deep-Learning-in-R)
+- [Fairness and Bias in Machine Learning](https://github.com/dlab-berkeley/fairML)
+- [R Package Development](https://github.com/dlab-berkeley/R-package-development)
+
+## Contributors 
+
+[Alex Stephenson](https://github.com/asteves/)
+
+Previous iterations of D-Lab's Machine Learning with R were created by: 
+
+- [Chris Kennedy](https://ck37.com/)
+- [Evan Muzzall](https://github.com/EastBayEv)
+- [Jae Yeon Kim](https://jaeyk.github.io/)
+- [Christopher Hench](https://github.com/henchc)

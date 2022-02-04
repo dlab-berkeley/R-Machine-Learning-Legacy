@@ -1,0 +1,170 @@
+---
+title: "R-Machine-Learning: Part 1" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(palmerpenguins)
+  library(tidyverse)
+}))
+# prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+## Introduction 
+
+Welcome to Machine Learning with `tidymodels`. 
+
+This workshop has three sections: 
+
+1. We will discuss what machine learning is, what problems it works well for, and what problems it might work less well for. 
+2. We will learn about the `tidymodels` framework to fit machine learning models in R. 
+3. We will apply the `tidymodels` framework to explore multiple machine learning algorithms in R. 
+
+## Resources 
+
+The concepts here draw on several fantastic resources that we highly recommend that you read and work through after the workshop. First, we are indebted to [*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/). Second, much of the mathematical description comes from [*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/) as well as ["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075). 
+
+Other helpful free resources at varying levels of complexity are [*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html), [*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5), and [*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
+
+## Required Packages
+
+If you have not already done so, please run the following chunk to load all the packages needed for the course. 
+
+```{r}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(palmerpenguins)
+  library(tidyverse)
+}))
+# prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+## What is Machine Learning? 
+
+Machine learning refers to the automated detection of meaningful patterns in data (Shalev-Schwartz and Ben-David 2014). Authors often use the term "statistical learning" to reference the same concept (James *et al.* 2021). 
+
+In a machine learning problem, we have a dependent variable. This variable is often called an output variable or a response variable. Mathematically, it is almost always denoted *Y*. In addition, we also have a set of input variables denoted **X**. The inputs are also referred to as independent variables, predictors, or features in the literature.
+
+For this workshop, we will follow the convention that the output variable is always called the *dependent* variable, and the inputs will be known as *features*
+
+Mathematically, we assume there is a relationship between the dependent variable and the features, which we can write in a general model form as: 
+
+$Y = f(\textbf{X})+ \epsilon$ 
+
+where *f* is a fixed but unknown function of our feature vector $\textbf{X} = (X_1, X_2,...,X_n)$ and $\epsilon$ is a random error term that is independent of the **X** vector. In general, the function that connects the dependent variable and the features is unknown, so the algorithms we use are ways to *estimate* the relationship. 
+
+**Example 1: The Palmer Penguins Dataset** 
+
+To ground symbols in code, let's explore our base dataset for the workshop: the Palmer Penguins dataset. 
+
+Load the data with the following 
+
+```{r}
+penguins <- palmerpenguins::penguins
+glimpse(penguins)
+```
+
+We can plot variables to see the relationship with `ggplot2` and add a best fit line.
+
+```{r}
+penguins %>%
+  filter(!is.na(bill_length_mm))%>%
+  ggplot(aes(x = bill_length_mm, y = flipper_length_mm))+
+  geom_point()+
+  geom_smooth(method = "lm", se = F)
+```
+
+While it may not seem obvious, we have just implemented a machine learning algorithm (linear regression) on a data set with a dependent variable (flipper_length_mm) and an independent variable (bill_length_mm). 
+
+Here the learning function *f* can be written $flipper\_length\_mm = f(bill\_length\_mm) + \epsilon$
+
+### Challenge 1
+
+The function we seek to learn often has more than one variable. Write the equivalent mathematical function to illustrate the relationship between flipper length, bill depth, body mass, and island. Choose any feature and graph the relationship with a machine learning smoother. 
+
+```{r}
+
+
+```
+
+### Supervised v. Unsupervised Learning 
+
+Machine learning problems fall into two categories: *supervised* learning problems or *unsupervised* learning problems. Predicting flipper length from bill length via the `palmerpenguins` dataset is an example of a supervised learning problem. We have a dataset that measures each feature and a measure of each associated dependent variable. The data is *labeled*, and our goal is to fit a model that relates the dependent variable to the features to accurately predict the dependent variable for a future observation that our model has not yet seen. 
+
+Unsupervised learning refers to problems where we observe a vector of features for every unit but no vector of dependent variables for the units. In this setting, we do not have any labels for the data. The most common type of analysis for unsupervised data is cluster analysis, the goal of which is to combine our data points into groups or clusters. 
+
+This workshop focuses on supervised learning. This is because most research problems tend to have labeled data. Public health scholars interested in estimating the relationship between environmental pollutants and health may have access to patient health and housing records. Political scientists trying to estimate the relationship between income and voting may have access to voting and tax records. Data scientists in a firm trying to estimate the relationship between fashion and customer satisfaction may have access to customer records.
+
+It is comparatively rare that scholars infer patterns from datasets without reference to known outcomes. However, the same concepts for model development, evaluation, and testing travel over into the unsupervised learning problem domain as well. 
+
+### Challenge 2: Your own problem 
+
+Think about your interests. Come up and write down an example problem that is either a supervised or unsupervised learning problem. What kind of data would you want to have on hand to estimate the relationship of interest? 
+
+*Write your answer between these lines*
+
+*Write your answer between these lines* 
+
+### Regression vs. Classification 
+
+In the machine learning literature, problems with a quantitative dependent variable are often referred to as *regression* problems. Our penguins example was a regression problem because flipper length is measured in millimeters. 
+
+Problems with a qualitative dependent variable are often referred to as *classification* problems. We would have a classification problem if we wanted to estimate the relationship between bill_length and species because species does not have ordered information. 
+
+```{r}
+penguins %>% 
+  select(species)%>%
+  unique()
+```
+
+While some people may have a favorite kind of penguin, there is no inherent order between Adelie, Gentoo, and Chinstrap penguins. That makes species a qualitative variable. We use machine learning algorithms that work well for a given problem domain for a regression or a classification problem. 
+
+### Challenge 3 
+
+Explain whether the following are classification or regression problems 
+
+1. An advertiser is interested in the relationship between age and the number of hours of YouTube consumed. 
+
+2. A medical testing company conducts a procedure to determine whether a person has a cancer diagnosis. 
+
+3. A researcher is interested in the effect of an education intervention on students' test scores. 
+
+A note: Regression and Classification may mean different things to you depending on your statistical background and methods training. 
+
+### What kind of problems does it work well on? 
+
+Machine learning problems work well when the problem interest is on *prediction*. Because machine learning algorithms can be highly flexible, they can fit complex functional forms to the data while avoiding overfitting: we can train machine learning algorithms to fit a model that works well on data we have not yet seen. The methods of evaluation that we will introduce are geared towards finding a model that will do a good job predicting the dependent variable. In short, if your question of interest is a question of prediction, machine learning methods are ideal. 
+
+Some examples of prediction problems include using [luminosity](https://blogs.worldbank.org/opendata/light-every-night-new-nighttime-light-data-set-and-tools-development) to predict economic or agricultural activity, determining whether a picture is of [a cat or a dog](https://ieeexplore.ieee.org/abstract/document/6248092), and predicting [hospital readmission](https://www.nature.com/articles/s42256-021-00373-4#Sec4)
+
+While an active area of research (Athey and Imbens 2019), machine learning methods have not focused as much on the right-hand side of the equation. As a result, if the problem of interest is the learning an estimate of a parameter, machine learning approaches do less well. As Efron and Hastie wrote (2016, p. 209)
+
+>
+"Prediction, perhaps because of its model-free nature, is an area where algorithmic developments have run far ahead of their inferential justification." 
+>
+
+The concern of making a causal claim (*X* caused *Y*) with machine learning methods is not merely a statistical concern. Much of the field concerning ethics in machine learning and bias in algorithms due to the datasets used by algorithms are about the inappropriate use of causal claims from algorithms not built for that purpose. In short, if your question of interest relates to the value of a parameter, you should approach machine learning tools with caution. 
+
+## The `tidymodels` package
+
+The `tidymodels` meta package and framework is a collection of R packages for modeling that use tidyverse principles. `tidymodels` is designed like the [`tidyverse`](https://www.tidyverse.org/) as a set of modular packages, each with a narrow scope. We will highlight where `tidymodels` functions come from throughout the workshop. A downside of a modular design is that there are many packages to keep track of as a user. Fortunately, the `tidymodels` meta-package loads a core set of `tidymodels` and `tidyverse` packages. 
+
+The natural question is, why does "tidiness" matter for machine learning? A strength of the R language is that developers can create any user interface that fits their needs. Often, this leads to design for developers and not design for end-users. Inconsistencies between naming conventions and arguments crop up between packages, which increases the time it takes to write code and adds an unnecessary barrier to data analyses. 
+
+In contrast, `tidymodels` follows a consistent set of design principles (dubbed [Design for Humans](https://design.tidyverse.org/unifying-principles.html)) applied for modeling code. For a new user, the main takeaways are that the defaults in `tidymodels` code are sensible, functions take the data structures that users have instead of the data structure that developers necessarily want, and there is a common syntax and structure to functions and arguments. 
+
+As you advance in your machine learning journey, you may find that your needs are more specific than those provided in `tidymodels`. We hope that this introduction also gives you the appropriate terminology to reason through different packages and approaches. Throughout, we will highlight when a term is `tidymodels` specific or an application of a general concept. 
+
