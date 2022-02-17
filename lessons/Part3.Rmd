@@ -17,8 +17,8 @@ suppressMessages(suppressWarnings({
   library(palmerpenguins)
   library(tidyverse)
   library(doParallel)
-  library(discrim)
-  library(stacks)
+  library(discrim) # for naive_Bayes()
+  library(stacks) # For ensembles 
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
