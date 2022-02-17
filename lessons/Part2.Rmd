@@ -119,7 +119,7 @@ linear_reg()%>%
   set_engine("glmnet")
 
 # Using stan 
-linear_reg %>% 
+linear_reg() %>% 
   set_engine("stan")
 ```
 
