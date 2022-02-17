@@ -17,6 +17,8 @@ suppressMessages(suppressWarnings({
   library(palmerpenguins)
   library(tidyverse)
   library(doParallel)
+  library(discrim) # for naive_Bayes()
+  library(stacks) # For ensembles 
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
@@ -213,7 +215,7 @@ Using the `challenge7` dataset, predict whether a penguin is a Gentoo using the 
 
 ```{r}
 # seed for this challenge 
-set.seed(3811212514757)
+set.seed(3811)
 
 challenge7 <- penguins %>% 
   mutate(isChinstrap = if_else(species == "Gentoo", TRUE, FALSE))
@@ -262,6 +264,8 @@ default <- ISLR2::Default
 class_split <- initial_split(default, prop = 3/4)
 class_train <- training(class_split)
 class_test <- testing(class_split)
+
+class_kfolds <- vfold_cv(class_train, v = 10)
 ```
 
 ```{r}
@@ -299,8 +303,7 @@ The structure of implementing Naive Bayes in `tidymodels` should look familiar.
 
 ```{r}
 naive_bayes <- naive_Bayes()%>%
-  set_engline("klaR")%>%
-  set_mode("classifcation")%>%
+  set_engine("klaR")%>%
   # assume predictors come from normal distributions 
   set_args(usekernel = FALSE)
 
@@ -311,7 +314,7 @@ bayes_wflow <- workflow()%>%
   add_model(naive_bayes)
 
 bayes_fit <- bayes_wflow %>% 
-  fit(data = data_train)
+  fit(data = class_train)
 ```
 
 
@@ -342,8 +345,10 @@ rf_model <- rand_forest(
   set_engine("ranger")%>%
   set_mode("classification")
 
-rf_recipe <- ecipe(default ~ ., data = class_train)%>%
+rf_recipe <- recipe(default ~ ., data = class_train)%>%
+  step_dummy(all_nominal_predictors())%>%
   step_normalize(all_predictors())
+  
 
 rf_wflow <- workflow()%>%
   add_recipe(rf_recipe)%>%
@@ -357,7 +362,7 @@ rf_grid <- control_grid()
 ## Now fine appropriate tuning parameters
 rf_fit <- tune_grid(
   object = rf_wflow, 
-  resamples = data_kfolds, 
+  resamples = class_kfolds, 
   grid = 10,
   control = rf_grid
 )
@@ -379,10 +384,9 @@ We will take advantage of the models that we have already created.
 
 ```{r}
 ensemble_model <- stacks() %>% 
-  ## Add candidate models 
   add_candidates(rf_fit)%>%
   add_candidates(bayes_fit)%>%
-  add_candidate(class_fit)%>%
+  add_candidates(class_fit)%>%
   ## Combine the predictions 
   blend_predictions()%>%
   ## Fit candidates with nonzero stacking coefficients 
