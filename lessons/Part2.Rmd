@@ -229,7 +229,7 @@ Write a new recipe that only predicts bill length from bill depth, flipper lengt
 
 
 
-"`{r}
+```{r}
 
 ```
 
@@ -312,7 +312,7 @@ From a computation perspective, each of these fits are "embarrassingly parallel"
 
 For computations conducted on a single computer, the number of possible "worker processes" is determined by the `doParallel` package:
 
-"`{r}
+```{r}
 # Create a cluster object and then register: 
 cl <- makePSOCKcluster(2)
 registerDoParallel(cl)
