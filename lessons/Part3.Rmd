@@ -65,8 +65,8 @@ We have already worked with linear regression, so let's jump straight into setti
 
 ```{r}
 ### Linear Regression Workflow 
-lm_model <- linear_reg()%>%
-  set_engine("lm")%>%
+lm_model <- linear_reg() %>%
+  set_engine("lm") %>%
   set_model("regression")
 
 ## Note that we can put all of these in one argument
@@ -106,20 +106,20 @@ Here is how we set up ridge regression in `tidymodels`
 ridge_model <- linear_reg(
   mixture = 0, # this specifies only ridge regression
   penalty = tune() # this specifies the penalty to apply. Tuning parameter
-)%>%
-  set_mode("regression")%>%
+) %>%
+  set_mode("regression") %>%
   # Using glmnet for fitting. Also necessary to set penalty
   # to make use of this engine
   set_engine("glmnet")
 
-ridge_recipe <-recipe(formula = Rating ~ ., data = data_train)%>%
-  step_dummy(all_nominal_predictors())%>%
+ridge_recipe <-recipe(formula = Rating ~ ., data = data_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
   # Standardize our features 
-  step_normalize(all_numeric_predictors())%>%
+  step_normalize(all_numeric_predictors()) %>%
   step_zv(all_predictors())
 
-ridge_wflow <- workflow()%>%
-  add_recipe(ridge_recipe)%>%
+ridge_wflow <- workflow() %>%
+  add_recipe(ridge_recipe) %>%
   add_model(ridge_model)
 
 ## Tuning parameter set up. 
@@ -147,11 +147,11 @@ ridge_best <- select_best(ridge_res, metric = "rmse")
 ## Get our final model and finalize workflow
 ## We can now fit our model on the full training dataset 
 ridge_spec <- ridge_wflow %>%
-  finalize_workflow(parameters = ridge_best)%>%
+  finalize_workflow(parameters = ridge_best) %>%
   fit(data = data_test)
 
 ## We can now test it against our test set and see performance
-augment(ridge_spec, new_data = data_test)%>%
+augment(ridge_spec, new_data = data_test) %>%
   rmse(truth = Rating, estimate = .pred)
 ```
 
@@ -169,17 +169,17 @@ Here is how to fit the lasso in `tidymodels`
 lasso_model <- linear_reg(
   penalty = tune(), 
   mixture = 1 
-)%>%
-  set_mode("regression")%>%
+) %>%
+  set_mode("regression") %>%
   set_engine("glmnet")
 
 # Note that for this problem our recipes are the same as ridge regression. We could reuse the ridge recipe in our lasso workflow
-lasso_recipe <- recipe(formula = Rating ~ ., data = data_train)%>%
-  step_dummy(all_nominal_predictors())%>%
+lasso_recipe <- recipe(formula = Rating ~ ., data = data_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
   step_normalize(all_predictors())
 
-lasso_wflow <- workflow()%>%
-  add_recipe(lasso_recipe)%>%
+lasso_wflow <- workflow() %>%
+  add_recipe(lasso_recipe) %>%
   add_model(lasso_model)
 
 ## We can reuse the same penalty grid and same cross-validation resamples. In practice, we would want to cast a wide initial net and then narrow down on a range. This is part of iteration steps in a machine learning analysis
@@ -200,11 +200,11 @@ autoplot(lasso_res)
 
 ## Select best value and refit to whole training set 
 lasso_fit <- lasso_wflow %>% 
-  finalize_workflow(lasso_best)%>%
+  finalize_workflow(lasso_best) %>%
   fit(data = data_test)
 
 ## See how it performs on our test data set 
-augment(lasso_fit, new_data = data_test)%>%
+augment(lasso_fit, new_data = data_test) %>%
   rmse(truth = Rating, estimate = .pred)
 ```
 
@@ -270,25 +270,25 @@ class_kfolds <- vfold_cv(class_train, v = 10)
 
 ```{r}
 ## Set model specification 
-class_spec <- logistic_reg()%>%
-  set_mode("classification")%>%
+class_spec <- logistic_reg() %>%
+  set_mode("classification") %>%
   set_engine("glm")
 
 ## Make recipe 
-class_recipe <- recipe(default ~ . ,data = class_train)%>%
-  step_dummy(all_nominal_predictors())%>%
+class_recipe <- recipe(default ~ . ,data = class_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
   step_normalize(all_predictors())
 
 ## Create workflow 
-class_wflow <- workflow()%>%
-  add_recipe(class_recipe)%>%
+class_wflow <- workflow() %>%
+  add_recipe(class_recipe) %>%
   add_model(class_spec)
 
 ## fit a model and see prediction metrics 
 class_fit <- class_wflow %>% 
   fit(data = class_train)
 
-augment(class_fit, new_data = class_test)%>%
+augment(class_fit, new_data = class_test) %>%
   accuracy(truth = default, estimate = .pred_class)
 ```
 
@@ -302,15 +302,15 @@ The classifier makes one assumption: within the $k^th$ class, the $p$ features a
 The structure of implementing Naive Bayes in `tidymodels` should look familiar. 
 
 ```{r}
-naive_bayes <- naive_Bayes()%>%
-  set_engine("klaR")%>%
+naive_bayes <- naive_Bayes() %>%
+  set_engine("klaR") %>%
   # assume predictors come from normal distributions 
   set_args(usekernel = FALSE)
 
 bayes_recipe <- recipe(default ~ ., data = class_train)
 
-bayes_wflow <- workflow()%>%
-  add_recipe(bayes_recipe)%>%
+bayes_wflow <- workflow() %>%
+  add_recipe(bayes_recipe) %>%
   add_model(naive_bayes)
 
 bayes_fit <- bayes_wflow %>% 
@@ -341,17 +341,17 @@ rf_model <- rand_forest(
   mtry = tune(),
   min_n = tune(),
   trees = 500
-  )%>%
-  set_engine("ranger")%>%
+  ) %>%
+  set_engine("ranger") %>%
   set_mode("classification")
 
-rf_recipe <- recipe(default ~ ., data = class_train)%>%
-  step_dummy(all_nominal_predictors())%>%
+rf_recipe <- recipe(default ~ ., data = class_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
   step_normalize(all_predictors())
   
 
-rf_wflow <- workflow()%>%
-  add_recipe(rf_recipe)%>%
+rf_wflow <- workflow() %>%
+  add_recipe(rf_recipe) %>%
   add_model(rf_model)
 
 ### Use cross-validation to tune our model appropriately 
@@ -384,11 +384,11 @@ We will take advantage of the models that we have already created.
 
 ```{r}
 ensemble_model <- stacks() %>% 
-  add_candidates(rf_fit)%>%
-  add_candidates(bayes_fit)%>%
-  add_candidates(class_fit)%>%
+  add_candidates(rf_fit) %>%
+  add_candidates(bayes_fit) %>%
+  add_candidates(class_fit) %>%
   ## Combine the predictions 
-  blend_predictions()%>%
+  blend_predictions() %>%
   ## Fit candidates with nonzero stacking coefficients 
   fit_members()
 
