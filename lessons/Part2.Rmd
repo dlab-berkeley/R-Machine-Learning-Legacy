@@ -78,7 +78,7 @@ A recipe is also an object that defines a series of steps for data processing. U
 
 Here is an example recipe for a machine learning model to predict bill length from other features. 
 ```{r}
-penguins_recipe <- recipe(bill_length_mm ~ ., data = penguins_train)%>%
+penguins_recipe <- recipe(bill_length_mm ~ ., data = penguins_train) %>%
   step_dummy(all_nominal_predictors())
 ```
 
@@ -111,11 +111,11 @@ Recall that we want to fit a linear regression. In R, multiple packages fit a li
 
 ```{r}
 # default R 
-linear_reg()%>%
+linear_reg() %>%
   set_engine("lm")
 
 # glmnet 
-linear_reg()%>%
+linear_reg() %>%
   set_engine("glmnet")
 
 # Using stan 
@@ -128,16 +128,16 @@ Finally, if required, we declare the *mode* of the model. This means that we spe
 Here is a full initialization of our model. To demonstrate the fitting, we hold off for now on combining the model fit with a recipe. We will do that in the next section on workflows. 
 
 ```{r}
-lm_model <- linear_reg()%>%
-  set_engine("lm")%>%
-  set_mode("regression")%>%
+lm_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression") %>%
   # fit a model by hand as an example 
   fit(bill_length_mm ~ . , data = penguins_train)
 
 # We can see the model that we created with the summary() method 
 lm_model %>% 
-  pluck('fit')%>%
-  summary()%>%
+  pluck('fit') %>%
+  summary() %>%
   # and we can tidy the output with tidy()
   tidy()
 
@@ -187,14 +187,14 @@ A problem with our previous regression is that we did not do any preprocessing t
 Here's an example that fits our linear regression model using the recipe from Challenge 4. 
 
 ```{r}
-challenge4_recipe <- recipe(bill_length_mm ~ ., data = penguins_train)%>%
+challenge4_recipe <- recipe(bill_length_mm ~ ., data = penguins_train) %>%
   step_normalize(all_numeric_predictors())
 
-linear_reg()%>%
-  set_engine("lm")%>%
-  set_mode("regression")%>%
+linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression") %>%
   # fit a model by hand as an example 
-  fit(bill_length_mm ~ . , data = bake(prep(challenge4_recipe),penguins_train))%>%
+  fit(bill_length_mm ~ . , data = bake(prep(challenge4_recipe),penguins_train)) %>%
   tidy()
 ```
 
@@ -208,7 +208,7 @@ lm_model <-
   set_engine("lm")
 
 penguins_lm_wflow <- workflow() %>% 
-  add_recipe(challenge4_recipe)%>%
+  add_recipe(challenge4_recipe) %>%
   add_model(lm_model)
 
 penguins_lm_fit <- fit(penguins_lm_wflow, penguins_train)
@@ -252,7 +252,7 @@ where the data argument is a data frame or tibble, and the truth argument is the
 As we have seen, the `predict()` method returns a tibble with the predictions from our model on new data. We can match these values with the corresponding observed outcome values. 
 
 ```{r}
-penguins_test_results <- predict(penguins_lm_fit, new_data = penguins_test)%>%
+penguins_test_results <- predict(penguins_lm_fit, new_data = penguins_test) %>%
   bind_cols(penguins_test %>% select(bill_length_mm))
 
 # We can plot the data prior to computing metrics for a visual inspection of fit
@@ -357,11 +357,11 @@ Since tuning changes the model type, we must add a preprocessing step, so we bui
 penguins_poly_recipe <- challenge4_recipe %>%
   # Step to omit nas. Set skip to true to avoid
   # skipping at assessment phase unnecessarily
-  step_naomit(body_mass_g, skip = TRUE)%>%
+  step_naomit(body_mass_g, skip = TRUE) %>%
   step_poly(body_mass_g, degree = tune())
 
-tuned_wflow <- workflow()%>%
-  add_recipe(penguins_poly_recipe)%>%
+tuned_wflow <- workflow() %>%
+  add_recipe(penguins_poly_recipe) %>%
   add_model(lm_model)
 
 cv_splits <- vfold_cv(penguins_train, v = 10)

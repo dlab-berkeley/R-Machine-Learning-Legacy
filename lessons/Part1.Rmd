@@ -81,7 +81,7 @@ We can plot variables to see the relationship with `ggplot2` and add a best fit 
 
 ```{r}
 penguins %>%
-  filter(!is.na(bill_length_mm))%>%
+  filter(!is.na(bill_length_mm)) %>%
   ggplot(aes(x = bill_length_mm, y = flipper_length_mm))+
   geom_point()+
   geom_smooth(method = "lm", se = F)
@@ -126,7 +126,7 @@ Problems with a qualitative dependent variable are often referred to as *classif
 
 ```{r}
 penguins %>% 
-  select(species)%>%
+  select(species) %>%
   unique()
 ```
 
