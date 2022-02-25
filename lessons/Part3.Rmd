@@ -342,8 +342,8 @@ rf_model <- rand_forest(
   min_n = tune(),
   trees = 500
   ) %>%
-  set_engine("ranger") %>%
-  set_mode("classification")
+  set_mode("classification") %>%
+  set_engine("ranger") 
 
 rf_recipe <- recipe(default ~ ., data = class_train) %>%
   step_dummy(all_nominal_predictors()) %>%
@@ -356,17 +356,38 @@ rf_wflow <- workflow() %>%
 
 ### Use cross-validation to tune our model appropriately 
 
-## First make a grid 
-rf_grid <- control_grid()
+# ## First make a grid 
+# rf_grid <- control_grid()
+trees_folds <- vfold_cv(class_train)
+
+
+## Since this is running multiple times we can take advantage of parallelization 
+cl <- makePSOCKcluster(2)
+registerDoParallel(cl)
+
 
 ## Now fine appropriate tuning parameters
+set.seed(345)
 rf_fit <- tune_grid(
   object = rf_wflow, 
-  resamples = class_kfolds, 
-  grid = 10,
-  control = rf_grid
+  resamples = trees_folds, 
+  grid = 10
 )
+stopCluster(cl)
+unregister_dopar()
 
+## View the ROC metric across models 
+rf_fit %>% 
+  collect_metrics() %>%
+  filter(.metric == "roc_auc") %>%
+  select(mean, min_n, mtry) %>%
+  pivot_longer(min_n:mtry, 
+               values_to = "value", 
+               names_to = "parameter") %>%
+  ggplot(aes(value, mean, color = parameter))+
+  geom_point(show.legend = FALSE)+
+  facet_wrap(~parameter, scales = "free_x")+
+  labs(x = NULL, y = "AUC")
 ```
 
 ## Ensembles
