@@ -388,6 +388,14 @@ rf_fit %>%
   geom_point(show.legend = FALSE)+
   facet_wrap(~parameter, scales = "free_x")+
   labs(x = NULL, y = "AUC")
+
+## Select the best RF model 
+best_rf_auc <- select_best(rf_fit, "roc_auc")
+
+final_rf <- finalize_model(
+  rf_model, 
+  best_rf_auc
+)
 ```
 
 ## Ensembles
