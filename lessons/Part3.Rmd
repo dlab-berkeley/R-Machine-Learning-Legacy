@@ -67,7 +67,7 @@ We have already worked with linear regression, so let's jump straight into setti
 ### Linear Regression Workflow 
 lm_model <- linear_reg() %>%
   set_engine("lm") %>%
-  set_model("regression")
+  set_mode("regression")
 
 ## Note that we can put all of these in one argument
 ## But for readability it's reasonable to pipe. 
