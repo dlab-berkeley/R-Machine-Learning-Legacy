@@ -9,14 +9,6 @@ output:
     fig_height: 7
 ---
 
-Before starting the lecture, please run 
-
-```{r}
-renv::init()
-```
-
-Doing this will automatically install the packages needed for the workshop into the project library. By doing this, you will be able to work within the project using the exact same R packages that were used to create the workshop. 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(suppressWarnings({ 
