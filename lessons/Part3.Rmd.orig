@@ -404,12 +404,22 @@ To put together an ensemble in `tidymodels` we need to:
 Let's demonstrate stacks by taking a dataset from the [`#TidyTuesday`](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-01-28/readme.md) datasets. This data set is about San Francisco trees and comes from the City's [Open Data Portal](https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq). Our data has been adapted from a presentation by [Julia Silge](https://juliasilge.com/blog/sf-trees-random-tuning/)
 
 ```{r}
+<<<<<<< HEAD
 set.seed(12)
 stacks_data <- read_csv(here("data/trees.csv"), show_col_types = F)
+=======
+stacks_data <- read_csv(here("data/trees.csv"))%>%
+  select(!tree_id)
+>>>>>>> 41942e490b2b21b6cc3efd99082958720e681b52
 ```
 
 (Interesting side note, almost none of the trees in San Francisco are native to San Francisco). 
 
+<<<<<<< HEAD
+We can, and in a real problem would, run our models on the entire dataset. However, doing so would be computationally expensive and take a lot of time. Thus for the purpose of the workshop, we sample to just 1/50 of the total data to demonstrate the ideas.
+
+=======
+>>>>>>> 41942e490b2b21b6cc3efd99082958720e681b52
 We also want to set a seed for reproducibility and set up our data spend. 
 
 ```{r}
@@ -451,7 +461,11 @@ stacks_grid <- control_stack_grid()
 stacks_res <- control_stack_resamples()
 ```
 
+<<<<<<< HEAD
+Now we define two different models, a random forest and a logistic regression model. 
+=======
 Now we define two different models, a random forest and a boosted random forest. When boosting, we use the data and grow trees in succession, using a slow learning approach. Each new tree is fitted to the signal left over from the previous trees, and then "shrunken" before it is used. For more information, see chapter 8 of James *et al.* (2021).
+>>>>>>> 41942e490b2b21b6cc3efd99082958720e681b52
 
 ```{r}
 ## Random Forest Model 
@@ -473,6 +487,65 @@ stacks_rf_res <- tune_grid(
   control = stacks_grid
 )
 
+<<<<<<< HEAD
+## Simple logistic model 
+stacks_log_spec <- logistic_reg()
+
+stacks_log_fit <- stacks_wf %>%
+  add_model(stacks_log_spec)%>%
+  fit_resamples(
+    resamples = stacks_folds, 
+    control = stacks_res
+  )
+```
+
+It is also important to note that in production the grid process would be iterative. You may want to fit and evaluate more parts of the grid. 
+
+Once we have our candidates, we can make a meta-learning model. 
+
+```{r}
+stacks_model <- stacks() %>% 
+  add_candidates(stacks_rf_res) %>%
+  add_candidates(stacks_log_fit) %>%
+  blend_predictions() 
+
+## See our model 
+stacks_model
+```
+
+Once we have a meta-model, we call `fit_members()` to train and return the model predictions. 
+
+```{r}
+stacks_out <- stacks_model %>% 
+  fit_members()
+```
+
+In this model, the random forest coefficients take up most of the weight.
+
+```{r}
+## See the contributions 
+autoplot(stacks_out, type ="members") 
+autoplot(stacks_out, type = "weights")
+
+## See which model configurations were used
+stacks_out %>% 
+  collect_parameters("stacks_rf_res")
+
+stacks_out %>% 
+  collect_parameters("stacks_log_fit")
+```
+
+Now that we have a working model, we can predict with it like before. 
+
+```{r}
+## Predict with new data 
+stacks_predict <- stacks_test %>% 
+  bind_cols(predict(stacks_out, ., type = "class"))
+```
+
+
+Finally, let's compute the accuracy for the model using the F-Score. The F-Score or F-measure is calculated from the precision and recall. We will also evaluate accuracy.  
+=======
 ## Boosted tree 
 xgb_spec <- boost_tree(
   tree_depth = tune(),
@@ -558,6 +631,7 @@ stacks_predict <- stacks_test %>%
 
 
 Finally, let's compute the accuracy for the model using the F-Score. The F-Score or F-measure is calculated from the precision and recall. 
+>>>>>>> 41942e490b2b21b6cc3efd99082958720e681b52
 
 $$F_{meas} = (1 + \beta^2)\frac{precision*recall}{\beta^2*precision+ recall}$$
 
@@ -568,5 +642,13 @@ f_meas(
   estimate = .pred_class
 )
 
+<<<<<<< HEAD
+accuracy(
+  stacks_predict, 
+  truth = as.factor(legal_status), 
+  estimate = .pred_class
+)
+=======
+>>>>>>> 41942e490b2b21b6cc3efd99082958720e681b52
 ```
 
