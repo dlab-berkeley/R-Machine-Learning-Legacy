@@ -24,24 +24,24 @@ suppressMessages(suppressWarnings({
 tidymodels::tidymodels_prefer() 
 ```
 
-## What we have covered so far 
+## What we have covered so far
 
 Through the first two parts of this workshop we gave an overview of machine learning and the tools to fit machine learning workflows with `tidymodels`. We discussed how machine learning works best when we are interested in *prediction*. We also covered the basics of a machine learning workflow which were:
 
-- How to appropriately spending our data into training and test sets
-- Preprocess features when necessary to ensure the best model fit 
-- build and fit models 
-- Judge model effectiveness using appropriate metrics
-- Resampling and cross validation to more effectively train and compare models
-- How to tune our models appropriately to increase predictive accuracy
+-   How to appropriately spending our data into training and test sets
+-   Preprocess features when necessary to ensure the best model fit
+-   build and fit models
+-   Judge model effectiveness using appropriate metrics
+-   Resampling and cross validation to more effectively train and compare models
+-   How to tune our models appropriately to increase predictive accuracy
 
-Each one of these steps is common no matter what language or structure you choose to implement your machine learning models. 
+Each one of these steps is common no matter what language or structure you choose to implement your machine learning models.
 
-In this final part, we will explore some common supervised learning algorithms using `tidymodels`. The goal of this final part is to provide a high level overview of what common algorithms do.  
+In this final part, we will explore some common supervised learning algorithms using `tidymodels`. The goal of this final part is to provide a high level overview of what common algorithms do.
 
-## Dataset 
+## Dataset
 
-For these exercises, we will use the Credit dataset from the `ISLR2` package.  
+For these exercises, we will use the Credit dataset from the `ISLR2` package.
 
 ```{r}
 credit <- ISLR2::Credit
@@ -58,10 +58,9 @@ data_test <- testing(data_split)
 data_kfolds <- vfold_cv(data_train, v = 10)
 ```
 
-
 ## Linear Regression
 
-We have already worked with linear regression, so let's jump straight into setting up the details in `tidymodels`. 
+We have already worked with linear regression, so let's jump straight into setting up the details in `tidymodels`.
 
 ```{r}
 ### Linear Regression Workflow 
@@ -78,29 +77,27 @@ alt_lm_model <- linear_reg(
 )
 ```
 
-Linear Regression is a supervised learning problem. We are looking for a function that predicts the value of our dependent variable based on a set of observed features from a sample of *n* units. Each algorithm has an associated *loss function*, and determines the optimal fit based on the function that has the lowest predicted loss. For linear regression, the loss function is the sum of the squared residuals. The function that minimizes this is the solution to a linear regression problem. 
-
+Linear Regression is a supervised learning problem. We are looking for a function that predicts the value of our dependent variable based on a set of observed features from a sample of *n* units. Each algorithm has an associated *loss function*, and determines the optimal fit based on the function that has the lowest predicted loss. For linear regression, the loss function is the sum of the squared residuals. The function that minimizes this is the solution to a linear regression problem.
 
 ## Regularization and the Lasso
 
-Linear regressions are surprisingly good at prediction compared to alternative model specifications. None the less, alternative fitting procedures can yield better prediction accuracy and sometimes better model interpretability. 
+Linear regressions are surprisingly good at prediction compared to alternative model specifications. None the less, alternative fitting procedures can yield better prediction accuracy and sometimes better model interpretability.
 
-If the true relationship between our dependent variable and features is approximately linear, linear regression (fit with ordinary least squares or OLS) will have low bias. In fact, given some assumptions about the nature of the error term an OLS fit is the *best linear unbiased estimator* possible. However, if our sample size is not much larger than the number of features linear regression can have a lot of variability in its fit, which leads to overfitting and poor predictions on the test set. Furthermore, if the reverse is true and the number of features is greater than the number of data points, linear regression does not have a solution at all. The variance is infinite! 
+If the true relationship between our dependent variable and features is approximately linear, linear regression (fit with ordinary least squares or OLS) will have low bias. In fact, given some assumptions about the nature of the error term an OLS fit is the *best linear unbiased estimator* possible. However, if our sample size is not much larger than the number of features linear regression can have a lot of variability in its fit, which leads to overfitting and poor predictions on the test set. Furthermore, if the reverse is true and the number of features is greater than the number of data points, linear regression does not have a solution at all. The variance is infinite!
 
-Regularizing or shrinking coefficients can substantially reduce the variance of estimates, which leads to an improvement in accuracy for out of sample prediction. There is no free lunch here though. Recall the bias-variance trade-off. Regularization and shrinking methods will increase the bias of an estimate, but such bias is often negligible in large samples. 
+Regularizing or shrinking coefficients can substantially reduce the variance of estimates, which leads to an improvement in accuracy for out of sample prediction. There is no free lunch here though. Recall the bias-variance trade-off. Regularization and shrinking methods will increase the bias of an estimate, but such bias is often negligible in large samples.
 
-Let's cover two common methods for regularizing coefficients: *Ridge regression* and the *lasso*. 
+Let's cover two common methods for regularizing coefficients: *Ridge regression* and the *lasso*.
 
-Ridge regression is a method that solves the following minimization problem. 
+Ridge regression is a method that solves the following minimization problem.
 
-$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}\beta_j^2$$
-In words, we want to find a coefficient estimate $\hat{\beta_j}$ that minimizes the total value of the residual sum of squares. Unlike linear regression, we have an additional term which is the shrinkage penalty. This term is small when the estimated coefficients are close to zero, and so *shrinks* the estimates of $\beta_j$ towards zero (James *et al.* 2021). 
+$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}\beta_j^2$$ In words, we want to find a coefficient estimate $\hat{\beta_j}$ that minimizes the total value of the residual sum of squares. Unlike linear regression, we have an additional term which is the shrinkage penalty. This term is small when the estimated coefficients are close to zero, and so *shrinks* the estimates of $\beta_j$ towards zero (James *et al.* 2021).
 
-The tuning parameter $\lambda \geq 0$ controls the relative impact of these two terms on the model estimates. In the extreme case when $\lambda = 0$, the model is identical to linear regression. In the other extreme case when $\lambda = \infty$ the regression coefficients will all be zero. Therefore, selecting the best $\lambda$ is critical for model fit and prediction. 
+The tuning parameter $\lambda \geq 0$ controls the relative impact of these two terms on the model estimates. In the extreme case when $\lambda = 0$, the model is identical to linear regression. In the other extreme case when $\lambda = \infty$ the regression coefficients will all be zero. Therefore, selecting the best $\lambda$ is critical for model fit and prediction.
 
-A note on fitting ridge regression models. Unlike linear regression, which is scale equivariant, ridge regression coefficient estimates will change substantially when multiplying a given feature by a constant. As an example, if we were interested in 1000s of dollars instead of dollars, multiplying our data point by $\frac{1}{1000}$ would not lead ridge regression to change the coefficient estimate by a factor of 1000. It may even change depending on the scaling of other predictor. For this reason, we should always apply ridge regression after standardizing our feature set. 
+A note on fitting ridge regression models. Unlike linear regression, which is scale equivariant, ridge regression coefficient estimates will change substantially when multiplying a given feature by a constant. As an example, if we were interested in 1000s of dollars instead of dollars, multiplying our data point by $\frac{1}{1000}$ would not lead ridge regression to change the coefficient estimate by a factor of 1000. It may even change depending on the scaling of other predictor. For this reason, we should always apply ridge regression after standardizing our feature set.
 
-Here is how we set up ridge regression in `tidymodels` 
+Here is how we set up ridge regression in `tidymodels`
 
 ```{r}
 ridge_model <- linear_reg(
@@ -155,12 +152,11 @@ augment(ridge_spec, new_data = data_test) %>%
   rmse(truth = Rating, estimate = .pred)
 ```
 
-Ridge regression will include all of our features in the final model, though it may set many of the coefficients close to zero. This raises a question about model interpretation when the number of features is large. An alternative algorithm is the *lasso*. The goal of the lasso is to minimize the following equation. 
+Ridge regression will include all of our features in the final model, though it may set many of the coefficients close to zero. This raises a question about model interpretation when the number of features is large. An alternative algorithm is the *lasso*. The goal of the lasso is to minimize the following equation.
 
-$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}|\beta_j|$$
-The lasso also shrinks the coefficient estimates towards zero, but it's penalty term forces some of the coefficient estimates to be exactly equal to zero if the tuning parameter is large. As a result, the lasso is a type of variable selection algorithm. A way to think about the lasso is that we are trying to find a set of coefficient estimates that give the smallest RSS, subject to a budget constraint for how large the second part of the equation can be. If the budget is large enough, the lasso will reproduce the linear regression estimate.
+$$\sum_{i=1}^n\left(y_i - \beta_0 - \sum_{j=1}^p\beta_jx_{ij}\right)^2 + \lambda\sum_{j=1}^{p}|\beta_j|$$ The lasso also shrinks the coefficient estimates towards zero, but it's penalty term forces some of the coefficient estimates to be exactly equal to zero if the tuning parameter is large. As a result, the lasso is a type of variable selection algorithm. A way to think about the lasso is that we are trying to find a set of coefficient estimates that give the smallest RSS, subject to a budget constraint for how large the second part of the equation can be. If the budget is large enough, the lasso will reproduce the linear regression estimate.
 
-A weakness of the lasso compared to linear and ridge regression is that the lasso implicitly assumes that at least one of the coefficients is equal to zero if the penalty term is high enough. In situations where this is actually true, the lasso will outperform linear regression and ridge regression. In situations where it is not, the lasso will be sub-optimal. 
+A weakness of the lasso compared to linear and ridge regression is that the lasso implicitly assumes that at least one of the coefficients is equal to zero if the penalty term is high enough. In situations where this is actually true, the lasso will outperform linear regression and ridge regression. In situations where it is not, the lasso will be sub-optimal.
 
 Here is how to fit the lasso in `tidymodels`
 
@@ -208,10 +204,9 @@ augment(lasso_fit, new_data = data_test) %>%
   rmse(truth = Rating, estimate = .pred)
 ```
 
-### Challenge 7 
+### Challenge 7
 
-Using the `challenge7` dataset, predict whether a penguin is a Gentoo using the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set? 
-
+Using the `challenge7` dataset, predict whether a penguin is a Gentoo using the remaining set of features with all three kinds of linear regression models we have seen so far. Which model performs the best on the test set?
 
 ```{r}
 # seed for this challenge 
@@ -231,32 +226,31 @@ c7_test <- testing(c7_split)
 c7_kfolds <- vfold_cv(c7_train, v = 10)
 ```
 
-## Classification 
+## Classification
 
-Machine learning breaks down the type of algorithm by whether we are interesting in predicting a quantitative or qualitative response variable. In this section, we will discuss classification. Predicting a qualitatative response is considered classification because we assign the observation to a category (or class). 
+Machine learning breaks down the type of algorithm by whether we are interesting in predicting a quantitative or qualitative response variable. In this section, we will discuss classification. Predicting a qualitatative response is considered classification because we assign the observation to a category (or class).
 
-Classification is also a supervised learning technique because we have a set of labeled training data that we can use to build a classifier. 
+Classification is also a supervised learning technique because we have a set of labeled training data that we can use to build a classifier.
 
-A note before we move on to our next algorithm. Many machine learning textbooks suggest that linear regression is not an appropriate algorithm for classification. When interested in multi-class problems, this makes a lot of sense because linear regression will assume an ordering scheme that does not actually exist. The result will be poor out of sample fit. 
+A note before we move on to our next algorithm. Many machine learning textbooks suggest that linear regression is not an appropriate algorithm for classification. When interested in multi-class problems, this makes a lot of sense because linear regression will assume an ordering scheme that does not actually exist. The result will be poor out of sample fit.
 
-In the binary dependent variable case, we can use linear regression. Such a model is often referred to as a linear probability model. The results of this model are interpretable (each coefficient represents the change in probability of success holding all other constants equal) and will give similar classifications as other classification algorithms. 
+In the binary dependent variable case, we can use linear regression. Such a model is often referred to as a linear probability model. The results of this model are interpretable (each coefficient represents the change in probability of success holding all other constants equal) and will give similar classifications as other classification algorithms.
 
-### Logistic Regression 
+### Logistic Regression
 
-Machine learning practitioners often recommend logistic regression as a starting model when we have a problem of predicting a binary outcome or probability. For example, if we are estimating the relationship between mortality and income we can estimate the probability of mortality given a change in income. 
+Machine learning practitioners often recommend logistic regression as a starting model when we have a problem of predicting a binary outcome or probability. For example, if we are estimating the relationship between mortality and income we can estimate the probability of mortality given a change in income.
 
-We write this as $P[M|I]$ and the values will range between 0 and 1. We can make a prediction for any given value of income on the mortality outcome. Normally, we establish a threshold for prediction. For example, we might predict death where $P[M|i] > 0.5$. 
+We write this as $P[M|I]$ and the values will range between 0 and 1. We can make a prediction for any given value of income on the mortality outcome. Normally, we establish a threshold for prediction. For example, we might predict death where $P[M|i] > 0.5$.
 
-Logistic regression is a generalized linear model where we model the probability function using the logistic function. Define the general function as $p(Y= 1|X)$. Then the model of interest is: 
+Logistic regression is a generalized linear model where we model the probability function using the logistic function. Define the general function as $p(Y= 1|X)$. Then the model of interest is:
 
-$$p(Y = 1|\textbf{X}) = \frac{e^{\textbf{X}\beta}}{1 + e^{\textbf{X}\beta}}$$
-Here the bold X indicates a vector of features and the $\beta$ coefficient represents a vector of coefficients. 
+$$p(Y = 1|\textbf{X}) = \frac{e^{\textbf{X}\beta}}{1 + e^{\textbf{X}\beta}}$$ Here the bold X indicates a vector of features and the $\beta$ coefficient represents a vector of coefficients.
 
-R will fit this via maximum likelihood. For more discussion on the mathematical principles behind logistic regression, see p.135 of James *et al.*. 
+R will fit this via maximum likelihood. For more discussion on the mathematical principles behind logistic regression, see p.135 of James *et al.*.
 
-Here's how to fit classification problems in `tidymodels` using logistic regression. 
+Here's how to fit classification problems in `tidymodels` using logistic regression.
 
-For these classification problems, we will use the default dataset. 
+For these classification problems, we will use the default dataset.
 
 ```{r}
 default <- ISLR2::Default
@@ -265,7 +259,7 @@ class_split <- initial_split(default, prop = 3/4)
 class_train <- training(class_split)
 class_test <- testing(class_split)
 
-class_kfolds <- vfold_cv(class_train, v = 10)
+class_kfolds <- vfold_cv(class_train)
 ```
 
 ```{r}
@@ -292,14 +286,13 @@ augment(class_fit, new_data = class_test) %>%
   accuracy(truth = default, estimate = .pred_class)
 ```
 
-### Naive Bayes 
+### Naive Bayes
 
-Like linear regression, logistic regression is a rock solid initial model. However, when there is substantial differences between classes the parameter estimates for logistic regression become unstable. We may also have more than two classes, which becomes a bit more awkward to extent to the logistic case. 
+Like linear regression, logistic regression is a rock solid initial model. However, when there is substantial differences between classes the parameter estimates for logistic regression become unstable. We may also have more than two classes, which becomes a bit more awkward to extent to the logistic case.
 
 Naive Bayes is an alternative algorithm that uses some results that follows Bayes' Theorem to provide accurate classification predictions. When the number of features is large or the number of training units is small, Naive Bayes's relative reduction in variance improves on predictions.
 
-The classifier makes one assumption: within the $k^th$ class, the $p$ features are independent of each other. This assumption reduces the complexity of estimating the joint distribution of the features which is often difficult to estimate. While this is a modeling convenience and almost certainly false in general, having this assumption allows Naive Bayes to be surprisingly good at prediction. It will do less well than other algorithms in problems where interactions among features are important for classification. 
-The structure of implementing Naive Bayes in `tidymodels` should look familiar. 
+The classifier makes one assumption: within the $k^th$ class, the $p$ features are independent of each other. This assumption reduces the complexity of estimating the joint distribution of the features which is often difficult to estimate. While this is a modeling convenience and almost certainly false in general, having this assumption allows Naive Bayes to be surprisingly good at prediction. It will do less well than other algorithms in problems where interactions among features are important for classification. The structure of implementing Naive Bayes in `tidymodels` should look familiar.
 
 ```{r}
 naive_bayes <- naive_Bayes() %>%
@@ -317,23 +310,22 @@ bayes_fit <- bayes_wflow %>%
   fit(data = class_train)
 ```
 
-
-## Random Forests 
+## Random Forests
 
 A decision tree is a method of stratifying the feature space into a number of simple regions. Usually, trees use the mean or mode dependent variable value for the training data in the region to which it belongs (James *et al.* 2021). Trees can be applied to both regression or classification problems. To build a single tree, we:
 
-1. Divide the feature space into distinct regions. 
-2. For every observation that falls into a distinct region ($R_j$) we make the same prediction. 
+1.  Divide the feature space into distinct regions.
+2.  For every observation that falls into a distinct region ($R_j$) we make the same prediction.
 
-Trees by themselves turn out to not be very good at prediction compared to other supervised learning model. However, combine them into a *random forest* and they become very useful, especially if the relationship is nonlinear and complex. 
+Trees by themselves turn out to not be very good at prediction compared to other supervised learning model. However, combine them into a *random forest* and they become very useful, especially if the relationship is nonlinear and complex.
 
-A random forest (Breiman 2001) is an example of an ensemble method, which is an approach that combines many simple models in order to get a single powerful prediction model. 
+A random forest (Breiman 2001) is an example of an ensemble method, which is an approach that combines many simple models in order to get a single powerful prediction model.
 
 In a random forest, we build a number of decision trees on bootstrapped training samples. Each tree is grown independently on random samples of the observations, a process known as *bagging.*
 
-When building the trees, each time a split occurs, we take a random sample of features to be split candidates instead of the full set of features. By choosing a random subset each time, a random forest decorrelates the individual decision trees. This makes the resulting average less variable. 
+When building the trees, each time a split occurs, we take a random sample of features to be split candidates instead of the full set of features. By choosing a random subset each time, a random forest decorrelates the individual decision trees. This makes the resulting average less variable.
 
-Here's how to fit tree-based methods in `tidymodels` 
+Here's how to fit tree-based methods in `tidymodels`
 
 ```{r}
 ## model specification 
@@ -402,52 +394,179 @@ final_rf <- finalize_model(
 
 A Random Forest is an example of an ensemble method, but we can also create our own models and put them together into an ensemble.
 
-To put together an ensemble in `tidymodels` we need to: 
+To put together an ensemble in `tidymodels` we need to:
 
-1. Define our candidate models. 
-2. Assemble a stack. 
-3. Determine how to combine the model predictions 
-4. Fit the models 
+1.  Define our candidate models.
+2.  Assemble a stack.
+3.  Determine how to combine the model predictions
+4.  Fit the models
 
-We will take advantage of the models that we have already created. 
+Let's demonstrate stacks by taking a dataset from the [`#TidyTuesday`](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-01-28/readme.md) datasets. This data set is about San Francisco trees and comes from the City's [Open Data Portal](https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq). Our data has been adapted from a presentation by [Julia Silge](https://juliasilge.com/blog/sf-trees-random-tuning/)
 
 ```{r}
-ensemble_model <- stacks() %>% 
-  add_candidates(rf_fit) %>%
-  add_candidates(bayes_fit) %>%
-  add_candidates(class_fit) %>%
-  ## Combine the predictions 
-  blend_predictions() %>%
-  ## Fit candidates with nonzero stacking coefficients 
-  fit_members()
-
-## See our model 
-ensemble_model
-
-## See which model configurations were used 
-ensemble_model %>% 
-  collect_parameters()
+stacks_data <- read_csv(here("data/trees.csv"))%>%
+  select(!tree_id)
 ```
 
-### Challenge 8: Putting everything together 
+(Interesting side note, almost none of the trees in San Francisco are native to San Francisco). 
 
-Using the same dataset as Challenge 7, fit at least three different models working through the process we have covered in this workshop. The goal for this problem is to correctly classify penguins into "Gentoo" or "Not Gentoo" types. 
+We also want to set a seed for reproducibility and set up our data spend. 
 
 ```{r}
 set.seed(1234)
 
-## Read in data 
+stacks_split <- initial_split(stacks_data)
+stacks_train <- training(stacks_split)
+stacks_test <- testing(stacks_split)
 
-## Data spend 
+## Get a consistent cross-validation fold
+## Only using five for presentation 
+stacks_folds <- vfold_cv(stacks_train , v = 5)
 
-## Create Model specifications 
-
-## Create Recipes 
-
-## Fit and tune model specifications 
-
-## Choose the best one 
-
-## Evaluate the model
 
 ```
+
+
+We want a consistent model recipe and workflow. Our goal will be to predict the legal status of a tree. 
+
+```{r}
+stacks_recipe <- recipe(legal_status ~ ., data = stacks_train) %>%
+  ## Pool infrequent trees into an other category 
+  step_other(species, caretaker, threshold = 0.05)%>%
+  step_other(site_info, threshold = 0.01)%>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  ## Pull out the year of plant only 
+  step_date(date, features = c("year")) %>%
+  ## Remove the date column 
+  step_rm(date)
+
+stacks_wf <- workflow() %>% 
+  add_recipe(stacks_recipe)
+```
+
+There's one slight tweak between the models we've created before and a stacks ensemble model. We have to specify the control grid differently. We use the wrappers in stacks for this. 
+
+```{r}
+stacks_grid <- control_stack_grid()
+stacks_res <- control_stack_resamples()
+```
+
+Now we define two different models, a random forest and a boosted random forest. When boosting, we use the data and grow trees in succession, using a slow learning approach. Each new tree is fitted to the signal left over from the previous trees, and then "shrunken" before it is used. For more information, see chapter 8 of James *et al.* (2021).
+
+```{r}
+## Random Forest Model 
+stacks_rf_spec <- rand_forest(
+  mtry = tune(),
+  min_n = tune(), 
+  trees = 500
+) %>%
+  set_mode("classification") %>%
+  set_engine("ranger")
+
+stacks_rf_wf <- stacks_wf %>%
+  add_model(stacks_rf_spec)
+
+stacks_rf_res <- tune_grid(
+  stacks_rf_wf, 
+  resamples = stacks_folds, 
+  grid = 10, 
+  control = stacks_grid
+)
+
+## Boosted tree 
+xgb_spec <- boost_tree(
+  tree_depth = tune(),
+  learn_rate = tune(),
+  loss_reduction = tune(),
+  min_n = tune(),
+  sample_size = tune(),
+  trees = tune(),
+  mtry = tune()
+) %>%
+  set_engine("xgboost") %>%
+  set_mode("classification")
+
+stacks_boost_wf <- stacks_wf %>%
+  add_model(xgb_spec)
+
+stacks_xgb_res <- stacks_boost_wf %>%
+  tune_grid(
+  resamples = stacks_folds, 
+  grid = 10, 
+  control = stacks_grid
+)
+
+## Simple logistic model 
+stacks_log_spec <- logistic_reg()
+
+stacks_log_fit <- stacks_wf %>%
+  add_model(stacks_log_spec)%>%
+  fit_resamples(
+    resamples = stacks_folds, 
+    control = stacks_res
+  )
+```
+
+These will take a long time to run, longer still depending on your machine. We could speed this up with parallel processing. It is also important to note that in production the grid process would be iterative. You may want to fit and evaluate more parts of the grid. 
+
+Once we have our candidates, we can make a meta-learning model. 
+
+```{r}
+stacks_model <- stacks() %>% 
+  add_candidates(stacks_rf_res) %>%
+  add_candidates(stacks_xgb_res) %>%
+  add_candidates(stacks_log_fit) %>%
+  blend_predictions() 
+
+## See our model 
+stacks_model
+```
+
+Once we have a meta-model, we call `fit_members()` to train and return the model predictions. 
+
+```{r}
+## You might see warnings here. They're fine
+stacks_out <- stacks_model %>% 
+  fit_members()
+```
+
+Perhaps unsurprisingly, the boosted trees models take up all the importance here. It turns out that boosted trees have great success in machine learning prediction competitions as well. 
+
+```{r}
+## See the contributions 
+autoplot(stacks_out, type ="members") 
+autoplot(stacks_out, type = "weights")
+
+## See which model configurations were used
+stacks_out %>% 
+  collect_parameters("stacks_rf_res")
+
+stacks_out %>% 
+  collect_parameters("stacks_xgb_res")
+
+stacks_out %>% 
+  collect_parameters("stacks_log_fit")
+```
+
+Now that we have a working model, we can predict with it like before. 
+
+```{r}
+## Predict with new data 
+stacks_predict <- stacks_test %>% 
+  bind_cols(predict(stacks_out, ., type = "class"))
+```
+
+
+Finally, let's compute the accuracy for the model using the F-Score. The F-Score or F-measure is calculated from the precision and recall. 
+
+$$F_{meas} = (1 + \beta^2)\frac{precision*recall}{\beta^2*precision+ recall}$$
+
+```{r}
+f_meas(
+  stacks_predict, 
+  truth = as.factor(legal_status), 
+  estimate = .pred_class
+)
+
+```
+
