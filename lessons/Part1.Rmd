@@ -9,6 +9,14 @@ output:
     fig_height: 7
 ---
 
+Before starting the lecture, please run 
+
+```{r}
+renv::init()
+```
+
+Doing this will automatically install the packages needed for the workshop into the project library. By doing this, you will be able to work within the project using the exact same R packages that were used to create the workshop. 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(suppressWarnings({ 
@@ -81,7 +89,7 @@ We can plot variables to see the relationship with `ggplot2` and add a best fit 
 
 ```{r}
 penguins %>%
-  filter(!is.na(bill_length_mm))%>%
+  filter(!is.na(bill_length_mm)) %>%
   ggplot(aes(x = bill_length_mm, y = flipper_length_mm))+
   geom_point()+
   geom_smooth(method = "lm", se = F)
@@ -126,7 +134,7 @@ Problems with a qualitative dependent variable are often referred to as *classif
 
 ```{r}
 penguins %>% 
-  select(species)%>%
+  select(species) %>%
   unique()
 ```
 
