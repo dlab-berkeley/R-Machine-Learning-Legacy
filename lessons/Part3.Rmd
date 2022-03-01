@@ -19,6 +19,9 @@ suppressMessages(suppressWarnings({
   library(doParallel)
   library(discrim) # for naive_Bayes()
   library(stacks) # For ensembles 
+  library(klaR)
+  library(ranger)
+  library(xgboost)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
