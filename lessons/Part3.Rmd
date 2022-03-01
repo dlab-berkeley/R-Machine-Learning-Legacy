@@ -22,6 +22,7 @@ suppressMessages(suppressWarnings({
   library(klaR)
   library(ranger)
   library(xgboost)
+  library(knitr)
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
