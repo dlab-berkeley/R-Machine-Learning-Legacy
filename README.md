@@ -58,12 +58,6 @@ If you do not have R installed and the materials loaded on your workshop by the 
 
 The DataHub downloads this repository, along with any necessary packages, and allows you to run the materials in an RStudio instance on UC Berkeley's servers. No installation is needed from your end - you only need an internet browser and a CalNet ID to log in. By using the DataHub, you can save your work and come back to it at any time. When you want to return to your saved work, go straight to [DataHub](https://datahub.berkeley.edu), sign in, and click on the `Machine-Learning-with-tidymodels` folder.
 
-If you don't have a Berkeley CalNet ID, you can still run these lessons in the cloud by clicking this button:
-
-[![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-with-tidymodels/HEAD)
-
-By using this button, however, you cannot save your work.
-
 ## Additional Resources 
 
 This workshop draws heavily on the following resources: 
