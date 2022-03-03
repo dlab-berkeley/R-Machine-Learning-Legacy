@@ -26,6 +26,12 @@ suppressMessages(suppressWarnings({
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
+
+## load the unregister_dopar function from Part2
+unregister_dopar <- function() {
+  env <- foreach:::.foreachGlobals
+  rm(list=ls(name=env), pos=env)
+}
 ```
 
 ## What we have covered so far
