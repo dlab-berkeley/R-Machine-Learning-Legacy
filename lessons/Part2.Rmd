@@ -332,6 +332,7 @@ penguins_cv_res %>%
 
 
 ### Run this function afterwards to confirm that computing connections close correctly 
+### Function originally from https://stackoverflow.com/questions/25097729/un-register-a-doparallel-cluster
 unregister_dopar <- function() {
   env <- foreach:::.foreachGlobals
   rm(list=ls(name=env), pos=env)
