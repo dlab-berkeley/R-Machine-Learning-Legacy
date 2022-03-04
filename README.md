@@ -48,11 +48,15 @@ Now that you have all the required software and materials, you need to run the c
 
 3. Open up the file corresponding to the part of the workshop you're attending.
 
+4. If necessary run the initial line of code `renv::init()`. You may see an error and a message "The project library is out of sync with the lockfile." If so, run renv::restore(). 
+
 4. Place your cursor on a given line and press "Command + Enter" (Mac) or "Control + Enter" (PC) to run an individual line of code. 
 
 5. The `solutions` folder contains the solutions to the challenge problems.
 
 ## Is R not working on your laptop?
+
+This workshop makes use of many packages within the R ecosystem. For that reason, we have found it to be easier to use R on your local machine. 
 
 If you do not have R installed and the materials loaded on your workshop by the time it starts, we *strongly* recommend using the UC Berkeley Datahub to run the materials for these lessons. You can access the DataHub by clicking [this link](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FMachine-Learning-with-tidymodels&urlpath=rstudio%2F&branch=main). Some users may find that they have to click the link twice if the materials do not load initially. 
 
