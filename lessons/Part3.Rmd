@@ -155,7 +155,7 @@ ridge_best <- select_best(ridge_res, metric = "rmse")
 ## We can now fit our model on the full training dataset 
 ridge_spec <- ridge_wflow %>%
   finalize_workflow(parameters = ridge_best) %>%
-  fit(data = data_test)
+  fit(data = data_train)
 
 ## We can now test it against our test set and see performance
 augment(ridge_spec, new_data = data_test) %>%
