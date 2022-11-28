@@ -1,0 +1,357 @@
+---
+title: "R Machine Learning: Building a Regression" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(palmerpenguins)
+  library(tidyverse)
+}))
+# Prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+## Machine Learning Analysis: A Template
+
+Most machine learning analyses follow a similar set of steps. We will
+build our discussion of `tidymodels` around this structure. In any
+analysis, we expect to do the following, often over multiple iterations.
+
+!["The Modeling Process. Taken from Kuhn and Silge
+2021](https://www.tmwr.org/premade/modeling-process.svg) The figure
+shows the primary modeling steps. Common steps include:
+
+-   Conducting exploratory data analysis
+
+-   Building a training and test set
+
+-   Deciding if and how to preprocess data to be appropriate for
+    modeling
+
+-   Building and fitting models on a training set
+
+-   Evaluating models according to selected metrics
+
+-   Refining the models
+
+-   Evaluating the chosen model against the test set
+
+We will build up to most of this pipeline, but let's take one step at
+time. First, we'll do what was shown in the introduction: we'll perform
+a linear regression, but we'll do it using `tidymodels`. In later parts
+of the workshop, we will see that the same structure of the `tidymodels`
+code applies to a host of different modeling approaches.
+
+Before we do any modeling, let's go ahead and import our dataset.
+
+```{r}
+penguins <- palmerpenguins::penguins
+penguins
+```
+
+We've already done some exploratory data analysis in the previous
+section. Let's move to the next step: performing the training and test
+splits.
+
+## Building Training and Test Sets
+
+Next, we'll want to split our dataset into training and test data. When
+creating the model, we need to make sure it only sees the training data.
+Then, we can examine how well it **generalizes** to data it hasn't seen
+before. The train and test split is a foundational concept in machine
+learning. Be sure you're confident you understand why we do this before
+moving forward!
+
+The functions necessary for splitting the data are located in the
+`rsample` package loaded with `tidymodels`. To make a train/test split,
+we use the `initial_split()` function. The `prop` argument indicates
+what proportion of the data we use for training. It is common to perform
+an 80/20 or 70/30 train/test split, where most of the data is used for
+training.
+
+We typically split the data randomly. However, sometimes we want this
+random split to occur in a *reproducible* fashion. This might be when
+we're testing our code, and want the same random split every time. Or,
+during a workshop, when we want all participants to get the same split,
+so that the results look the same for everyone. A reproducible random
+split can be performed by setting the seed with the `set.seed` function:
+
+```{r initial_split}
+# Perform train/test split
+set.seed(12345)
+penguin_split <- penguins %>% initial_split(prop = 0.80)
+```
+
+The resulting object is a `rsplit` object which contains the
+partitioning information for the data. To get the training and test
+data, we apply two additional functions. The resulting datasets have the
+same columns as the original data but only the appropriately sampled
+rows.
+
+```{r train_test_sets}
+penguins_train <- training(penguin_split)
+penguins_test <- testing(penguin_split)
+print(dim(penguins_train))
+print(dim(penguins_test))
+```
+
+------------------------------------------------------------------------
+
+### Challenge 1: Stratifying a Split
+
+In the above example, we performed the split randomly across samples.
+However, we might not always want to do this. For example, maybe we know
+that certain species of penguins have different kinds of bill lengths,
+and we want to predict bill lengths.
+
+1.  Discuss: What happens if, by chance, all the samples corresponding
+    to species A end up in the training set, and all the samples
+    corresponding to species B end up in the test set? Will this impact
+    performance?
+
+What we'd like to do is ensure that, for some variable (e.g., species),
+equal proportions of samples for each value appear in the training set
+and test set. This ensures that species A samples are present in both
+the training and test sets. This process is called **stratifying**.
+
+2.  Use the `strata` argument in `initial_split` to stratify according
+    to `species`. Perform the split to obtain training and test sets.
+
+------------------------------------------------------------------------
+
+Now, time to perform the modeling!
+
+## Linear Regression
+
+Before we actually proceed with modeling in R, it's helpful to reflect
+on what exactly the *learning* part in *machine learning* is. The
+learning is figuring out *some* kind of values, but what are they? This
+will depend on the specification of the model, which in this case, is a
+linear regression. Let's review a linear regression.
+
+At a high level, linear regression is nothing more than finding the best
+straight line, or line of best fit through a set of data points that
+most accurately captures the pattern that exists within those data
+points.
+
+The most common picture people have of OLS is in the univariate case
+(2-D), which looks something like this:
+
+![](../images/linear_regression_line.png)
+
+Specifically, we have *one* feature trying to predict an output. There
+are many points pertaining to the training samples, and we try and
+choose the right line that is as close to all the points as possible.
+
+However, we rarely predict with only a single feature! We're mostly in
+the multivariate case. In this scenario, where have many "independent
+variable" axes, but still one dependent variable axis. The "line" in
+this case turns into a **hyperplane** which tries to capture as much of
+the information about the multi-dimensional data points as possible:
+
+![](../images/linear_regression_hyperplane.jpeg)
+
+In the above example, we have two features trying to predict a third
+dependent variable. This is as far as we can go with visualizing OLS,
+because humans have a hard time visualizations higher dimensions. But
+the intuition is basically the same: we're trying to pick a hyperplane
+that minimizes the distances to the data samples.
+
+When we *learn* an OLS model, we effectively are trying to choose the
+slope values (also called the weights). These are often depicted
+mathematically as the $\beta$ values. There is additionally an intercept
+term (also called the bias term), which is really just a special case of
+a weight, generally denoted as $\beta_0$. The univariate equation is
+probably familiar to a lot of you:
+
+$$
+\begin{align}
+y &= mx + b \\
+  &= \beta_0 + \beta_1 X_1
+\end{align}$$
+
+You may be more familiar with the $y=mx+b$ formulation, in which $m$ is
+the slope, and $b$ is the intercept. This is how we specify a line. All
+we're doing in the second line is rewriting the notation: we're calling
+the intercept $\beta_0$, and the slope $\beta_1$. We also call the
+feature $X_1$. We're doing this because, when we have $P$ features
+(i.e., the multivariate case), this can be written as:
+
+$$Y = \beta_0 + \beta_1 X_1 + \ldots + \beta_P X_P$$
+
+The goal of linear regression, then, is to find a combination of these
+$\beta_i$ values such that we pass through or as close to as many data
+points as possible. In other words, we are trying to find the values of
+$\beta$ that reduce or minimize the aggregate distance between our
+linear model and the data points.
+
+We can formalize this into an optimization problem and pursue a strategy
+that is known in machine learning as minimizing the **cost function** or
+**objective function** or **loss**. In the case of linear regression,
+the cost function we are trying to minimize is the **mean squared error
+(MSE)** function:
+
+$$\text{MSE} = \frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2$$
+
+where:
+
+-   $i$ refers to the data sample,
+-   $N$ is the number of samples,
+-   $y_i$ is the real value of the $i$th data samples,
+-   $\hat{y}_i$ is the predicted value of the $i$th data sample,
+    obtained from the linear model.
+
+This is where the name OLS comes from: we're trying to find the "least
+squares" solution. It's "ordinary" because we're making pretty simple
+assumptions on the model (there are variants of OLS, in which case they
+are no longer "ordinary").
+
+So, to summarize:
+
+-   We're trying to find the best linear model for the data;
+-   Finding the best linear model means finding the right $\beta_i$
+    values;
+-   We go about choosing these values by minimizing the mean squared
+    error. The hope is, then, that these $\beta_i$ values are good for
+    **generalization performance**.
+
+## OLS in Practice with `tidymodels`
+
+Within the `tidymodels` package, the `parsnip` package provides a fluent
+and standardized interface for various models (Kuhn and Silge, 2021).
+This modeling approach follows the design paradigm of the package.
+
+There are a variety of models you can fit using `parsnip` (take a look
+at the documentation
+[here](https://parsnip.tidymodels.org/reference/index.html)). We're
+going to use the `linear_reg` function from `parsnip` to create a linear
+regression model. Check out the documentation
+[here](https://parsnip.tidymodels.org/reference/linear_reg.html).
+
+You'll notice that `linear_reg` has several input arguments we can
+specify, including `engine` and `mode`. These two arguments respectively
+indicate what software package will be used for learning the parameters,
+and what type of problem we're solving (in this case, a regression).
+
+For now, we should be fine using the default arguments. So, we start by
+creating a model.
+
+```{r}
+model <- linear_reg()
+model
+```
+
+Next, we fit the model using an R formula:
+
+```{r fit_model}
+fitted_model <- model %>% 
+  fit(bill_length_mm ~ bill_depth_mm + flipper_length_mm + body_mass_g,
+      data = penguins_train)
+fitted_model
+```
+
+## Evaluating the Model
+
+Now we have a model. It's a basic model, and the next reasonable
+question is how well it works to solve the problem of estimating the
+relationship. We prefer to have a quantitative approach to estimate
+effectiveness to compare different models or tweak our model to improve
+performance. In `tidymodels` this approach is empirically data-driven.
+That means that we use the test data to measure the model's
+effectiveness.
+
+It is important to note that we keep the training and test dataset
+apart. We can run any tweaks that we want to our training set, but we
+should leave the test set alone until we are ready to evaluate our
+models. Methods for evaluation within the `tidymodels` universe are from
+the `yardstick` package.
+
+The general syntax for a metrics function in `tidymodels` is as follows:
+
+```{r, eval = F}
+function(data, truth, ...)
+
+```
+
+where the data argument is a data frame or tibble, and the truth
+argument is the column with observed outcome values. Additional
+arguments (...) can be used to specify columns containing features.
+
+To use this function, we need predictions from the model. The
+`predict()` method can be used to obtain a tibble with the predictions
+from our model on new data. We can match these values with the
+corresponding observed outcome values.
+
+```{r predictions}
+results <- predict(fitted_model, new_data = penguins_test) %>%
+  bind_cols(penguins_test %>% select(bill_length_mm))
+results
+```
+
+```{r plot_predictions}
+# We can plot the data prior to computing metrics for a visual inspection of fit
+results %>%
+  ggplot(aes(x = bill_length_mm, y = .pred)) +
+  geom_abline(lty = 2) +
+  geom_point(alpha = 0.7) +
+  labs(x = "Bill Length (mm)", y = "Predicted Values") +
+  coord_obs_pred()
+```
+
+Now, we can perform the evaluation. The full suite of metrics functions
+is available
+[here](https://yardstick.tidymodels.org/reference/index.html). Since our
+running example is a linear regression, let's start with $R^2$, since
+that's among the easiest metrics to interpret:
+
+```{r}
+rsq_trad(results, truth = bill_length_mm, estimate = .pred)
+```
+
+We can do multiple metrics at once, though. Let's pick three common
+metrics for linear regression models - $R^2$, Root Mean Square Error
+(RMSE), and Mean Absolute Error (MAE) - and evaluate them at the same
+time using `yardstick`.
+
+```{r evaluate_metrics}
+# Make a set of metrics
+penguins_metrics <- metric_set(rmse, rsq, mae)
+penguins_metrics(results, truth = bill_length_mm, estimate = .pred)
+```
+
+## Interpreting the Model
+
+We saw above that we could examine the coefficients of the fitted model.
+We can view a tidy version of these results to better analyze them:
+
+```{r}
+tidy(fitted_model)
+```
+
+The nice thing about this function is that it provides the estimates,
+standard errors, p-values, etc.
+
+An important aspect of machine learning is being able to interpret what
+our model is telling us. What can we say about how each of the features
+corresponds with the output, according to the linear model?
+
+For example, the bill depth coefficient tells us that bill length
+increases by roughly 0.57 mm for every mm increase of bill depth.
+
+------------------------------------------------------------------------
+
+Congratulations, you've trained your first machine learning model in
+`tidymodels`! We'll now start to further develop our pipelines.

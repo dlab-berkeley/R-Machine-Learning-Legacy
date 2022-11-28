@@ -1,0 +1,300 @@
+---
+title: "R Machine Learning: Preprocessing and Workflows" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(here)
+  library(palmerpenguins)
+  library(tidyverse)
+}))
+# Prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+```{r data_preparation}
+# Import data
+penguins <- palmerpenguins::penguins
+# Set seed
+set.seed(12345)
+# Perform split
+penguin_split <- penguins %>% initial_split(prop = 0.80)
+penguins_train <- training(penguin_split)
+penguins_test <- testing(penguin_split)
+```
+
+# Data Preprocessing with `recipes`
+
+Sometimes, our features are not in the best format for our model to use
+effectively. Data is messy, and often needs to be transformed in order
+for a machine learning model to be able to be fit.
+
+**Feature Engineering** refers to any steps taken to reformat features
+to improve the modeling process. Within the `tidymodels` framework, the
+functions to implement feature engineering are housed in the `recipes`
+package.
+
+A recipe is an object that defines the series of steps needed for any
+data processing for the model. A recipe is also an object that defines a
+series of steps for data processing. Unlike the formula method inside a
+modeling function, the recipe defines the steps without immediately
+executing them; it is only a specification of what should be done.
+
+Let's start by taking a look at a recipe used to predict bill length
+from other features:
+
+```{r create_recipe}
+penguins_recipe <- 
+  recipe(bill_length_mm ~ ., data = penguins_train) %>%
+  step_naomit(all_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+penguins_recipe
+```
+
+This recipe provides the model that we eventually want to run and a step
+to convert nominal features into dummy variables. Let's break this down
+one component at a time:
+
+-   The call to `recipe()` with a formula tells R the roles of the
+    variables. Here, our dependent variable is `bill_length_mm`.
+
+-   In addition, the data argument tells `tidymodels` to only fit values
+    in the training set.
+
+-   What follows the `recipe` call is a series of `steps`. The first one
+    is a step called `step_naomit()`, which omits any samples with
+    missing data. Each step function accepts the columns that it
+    operates on. In this case, we apply `step_naomit` to every column,
+    using the `all_predictors()` function.
+
+-   Next, `step_dummy()` is used to specify which variables should be
+    converted from a qualitative format to a quantitative format, in
+    this case, using dummy or indicator variables.
+
+-   The function `all_nominal_predictors()` captures the names of any
+    predictor columns that are currently factor or character.
+
+`tidymodels` has a variety of data preprocessing step functions
+[available](https://recipes.tidymodels.org/reference/index.html). While
+we will not cover how to do so, it is also possible to write custom
+preprocessing functions.
+
+### Imputation as a Preprocessing Step
+
+Let's try another example, in which we don't *omit* samples that have
+missing values, but instead perform *imputation*, in which we replace
+those missing values according to certain criteria. There are various
+kinds of imputation:
+
+-   For example, whenever we have a missing value for the `species`, we
+    can replace that missing value with the most common species. This is
+    called *mode imputation*.
+
+-   Or, we could replace a missing numerical predictor (e.g., bill
+    depth) using the median across all the samples. This is called
+    *median imputation*.
+
+There are other ways to impute, but these are good starting points. The
+way to perform imputation in a `recipe` is via the `step_impute_*`
+functions. For example, let's use `step_impute_median` and
+`step_impute_mode`:
+
+```{r imputation}
+penguins_recipe <- 
+  recipe(bill_length_mm ~ ., data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+```
+
+Above, we did the following in the recipe:
+
+1.  Instantiated the recipe with a formula indicating that we're
+    predicting `bill_length_mm` using all available features (`~ .`). We
+    pass in the training data at this point.
+2.  Next, we impute `all_numeric_predictors()` using the median.
+3.  Then, we impute `all_nominal_predictors()` using the mode.
+4.  Finally, we create dummy variables for the nominal features.
+
+This preprocessing will allow us to take advantage of samples with
+missing data, even if it comes at a little cost to accuracy. Imputation
+is often a necessary step, since it's common to have missing data.
+
+------------------------------------------------------------------------
+
+### Challenge 1: Creating a New Recipe
+
+Sometimes features on different scales can lead to strange predictions
+and poor test fit. Therefore, one step that analysts may take is to
+center and normalize their data. Using the
+[reference](https://recipes.tidymodels.org/reference/index.html),
+identify the function that normalizes data and add it to the recipe to
+apply it to all numeric predictors in the data. Call your new recipe
+`challenge4_recipe`.
+
+------------------------------------------------------------------------
+
+## Applying a `recipe` to Data
+
+Thus far, we have created a recipe:
+
+```{r}
+penguins_recipe
+```
+
+However, we have not applied it to data. To do so, we need to use two
+functions: `prep()` and `bake()`.
+
+First, we `prep()` any recipe with at least one preprocessing operation.
+`prep()` applies the recipe to the training data, and returns an updated
+recipe with the appropriate estimates. We can think of prep in the
+baking analogy as getting all your ingredients ready to go on the
+counter. After we `prep()` the recipe, we have to `bake()` the recipe by
+taking the preprocessing steps and applying them to a data set.
+
+```{r}
+prepped_recipe <- prep(penguins_recipe)
+prepped_recipe
+```
+
+Now, let's bake:
+
+```{r}
+baked_penguins <- bake(prepped_recipe, new_data = penguins_train)
+baked_penguins
+```
+
+Take a look at the columns in the `baked_penguins` data. What has
+changed?
+
+Now, we can preprocess this data, and use it within the model fitting
+procedure we covered in the previous notebook:
+
+```{r}
+model <- linear_reg() %>%
+  # Fit a model by hand as an example 
+  fit(bill_length_mm ~ . , data = baked_penguins)
+model %>% tidy()
+```
+
+To apply it to the test data, we need to be sure to bake that data as
+well:
+
+```{r bake_test}
+# Bake test data
+baked_test <- bake(prepped_recipe, new_data = penguins_test)
+```
+
+Instead of having to run predictions on our own and bind the columns
+together, we can use the `augment` function to do this automatically:
+
+```{r}
+# This is what we did before:
+# results <- predict(model, new_data = baked_test) %>%
+#  bind_cols(baked_test %>% select(bill_length_mm))
+# With augment, it's easier:
+results <- augment(model, baked_test)
+# Obtain R-squared
+rsq_trad(results, truth = bill_length_mm, estimate = .pred)
+```
+
+Our $R^2$ performance jumped to around $0.80$, so we got a pretty big
+performance boost by using all the features!
+
+## Using `workflows` to Operationalize `recipes`
+
+While that certainly worked, the code looks clunky and can be difficult
+to organize. Furthermore, if we want to change aspects of this call, we
+have to make several changes. It took a series of steps to perform what
+should be a streamlined process.
+
+Enter the `workflows` package. A workflow is the set of steps that
+`tidymodels` should run to execute an analysis. A workflow is
+initialized by the function `workflow()` and always requires a `parsnip`
+(e.g., `linear_reg`) object. Let's take a look at what we just did, but
+in a workflow:
+
+```{r}
+# Step 1: Create model
+linear_model <- linear_reg()
+# Step 2: Create workflow
+penguins_linear_wflow <- workflow() %>% 
+  add_recipe(penguins_recipe) %>%
+  add_model(linear_model)
+# Step 3: Run fit
+penguins_lm_fit <- fit(penguins_linear_wflow, penguins_train)
+penguins_lm_fit %>% tidy()
+```
+
+Pretty smooth! How about getting predictions? We can once again use
+`augment`, but with the workflow, we don't need to actually `bake` the
+test data on our own:
+
+```{r}
+# Predict new observations of our model fit with predict()
+results <- augment(penguins_lm_fit, penguins_test)
+# Obtain R-squared
+rsq_trad(results, truth = bill_length_mm, estimate = .pred)
+```
+
+------------------------------------------------------------------------
+
+### Challenge 6: Workflow from Scratch
+
+Let's tackle a new problem: predicting bill depth from the other
+features. Do the following:
+
+1.  Step 1: Create a linear regression model.
+2.  Step 2: Create a recipe predicting bill depth from all other
+    features. Be sure to pass in the training data. Include the
+    following steps in your recipe:
+    -   Impute all numeric predictors with the median.
+
+    -   Impute all nominal predictors with the mode.
+
+    -   Normalize all numeric predictors.
+
+    -   Create dummy variables for all nominal predictors.
+3.  Step 3: Create a workflow using the model and recipe you created
+    above.
+4.  Step 4: Run the fit on the training data.
+5.  Step 5: Obtain predictions, and augment them to the original test
+    set.
+6.  Step 6: Calculate an $R^2$ using those predictions. How does the
+    model perform?
+
+------------------------------------------------------------------------
+
+```{r}
+# Step 1: Create model
+linear_model <- linear_reg()
+# Step 2: Create recipe
+penguins_recipe <- 
+  recipe(bill_depth_mm ~ ., data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+# Step 3: Create workflow
+penguins_linear_wflow <- workflow() %>% 
+  add_recipe(penguins_recipe) %>%
+  add_model(linear_model)
+# Step 4: Run fit
+penguins_lm_fit <- fit(penguins_linear_wflow, penguins_train)
+# Step 5: Predictions
+results <- augment(penguins_lm_fit, penguins_test)
+# Step 6: Analyze metrics
+rsq_trad(results, truth = bill_depth_mm, estimate = .pred)
+```
