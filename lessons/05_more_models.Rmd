@@ -1,0 +1,313 @@
+---
+title: "R Machine Learning: More Models" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# What Else Can We Do?
+
+Believe it or not, you've learned enough of the foundation in
+`tidymodels` to start exploring a variety of other techniques! In this
+final notebook, we're going to run through several new models using a
+new dataset.
+
+Specifically, we will use data from the `ISLR2` package, which has
+multiple datasets related to credit available. Let's start with a
+dataset called `default`:
+
+```{r import_credit}
+default <- ISLR2::Default
+default
+```
+
+------------------------------------------------------------------------
+
+### Challenge 1: Getting to Know Our Data
+
+Take a look at the columns in the dataset.
+
+1.  Discuss: What is an example of a machine learning task we could
+    approach with this data?
+2.  Plot the relationship between a feature and the output variable you
+    chose above.
+
+------------------------------------------------------------------------
+
+## Classification
+
+We've spent most of our time working through regression problems. To
+explore more models, let's switch to a new task: classification. In
+classification, we aim to predict one of two labels. For example,
+predicting a qualitative response is considered classification because
+we assign the observation to a category (or class).
+
+Classification is also a supervised learning technique because we have a
+set of labeled training data that we can use to build a classifier.
+
+### Logistic Regression
+
+Machine learning practitioners often recommend logistic regression as a
+starting model when we have a problem of predicting a binary outcome or
+probability. For example, if we are estimating the relationship between
+mortality and income we can estimate the probability of mortality given
+a change in income.
+
+We write this as $P[M|I]$ and the values will range between 0 and 1. We
+can make a prediction for any given value of income on the mortality
+outcome. Normally, we establish a threshold for prediction. For example,
+we might predict death where $P[M|i] > 0.5$.
+
+Logistic regression is a generalized linear model where we model the
+probability function using the logistic function. Define the general
+function as $p(Y= 1|X)$. Then the model of interest is:
+
+$$p(Y = 1|\textbf{X}) = \frac{e^{\textbf{X}\beta}}{1 + e^{\textbf{X}\beta}}$$
+Here the bold X indicates a vector of features and the $\beta$
+coefficient represents a vector of coefficients.
+
+Here's how to fit classification problems in `tidymodels` using logistic
+regression.
+
+Let's go ahead and perform the training and test splits for the
+`default` dataset:
+
+```{r}
+# Perform splits
+class_split <- initial_split(default, prop = 0.75)
+class_train <- training(class_split)
+class_test <- testing(class_split)
+```
+
+In `tidymodels`, creating a logistic regression follows the exact same
+procedure as a linear regression. This time, however, we will use the
+`logistic_reg` function. Let's create the model:
+
+```{r}
+# Create model
+logistic_model <- logistic_reg(mode = "classification")
+```
+
+Next, let's create a `recipe` for preprocessing:
+
+```{r}
+# Recipe for classifying defaults
+class_recipe <- recipe(default ~ ., data = class_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+
+Now, we create our workflow, and fit the model:
+
+```{r}
+# Create workflow 
+class_wflow <- workflow() %>%
+  add_recipe(class_recipe) %>%
+  add_model(logistic_model)
+
+# Fit the workflow
+class_fit <- class_wflow %>% 
+  fit(data = class_train)
+```
+
+Finally, let's use augment to obtain the predictions, and take a look at
+them:
+
+```{r}
+predictions <- augment(class_fit, new_data = class_test)
+predictions
+```
+
+Notice how there are two columns for the predictions. What do these
+values mean? What are they telling us?
+
+To evaluate the model, we'll use the `accuracy` function:
+
+```{r}
+accuracy(predictions, truth = default, estimate = .pred_class)
+```
+
+That looks like pretty good accuracy, but we need to appropriately
+benchmark it:
+
+```{r}
+mean(predictions$default == 'No')
+```
+
+Most of the defaults are "No". So, if we had naively just said nobody
+defaulted, we would have obtained an accuracy of 97%! We did better than
+this - 97.76% - but this shows us the importance of properly
+benchmarking our data.
+
+### Naive Bayes
+
+Like linear regression, logistic regression is a rock solid initial
+model. However, when there is substantial differences between classes,
+the parameter estimates for logistic regression become unstable. We may
+also have more than two classes, which becomes a bit more awkward to
+extent to the logistic case.
+
+Naive Bayes is an alternative algorithm that uses some results that
+follows Bayes' Theorem to provide accurate classification predictions.
+When the number of features is large or the number of training units is
+small, Naive Bayes's relative reduction in variance improves on
+predictions.
+
+The classifier makes one assumption: within the $k^{\text{th}}$ class,
+the $p$ features are independent of each other. This assumption reduces
+the complexity of estimating the joint distribution of the features
+which is often difficult to estimate. While this is a modeling
+convenience and almost certainly false in general, having this
+assumption allows Naive Bayes to be surprisingly good at prediction. It
+will do less well than other algorithms in problems where interactions
+among features are important for classification. The structure of
+implementing Naive Bayes in `tidymodels` should look familiar.
+
+```{r}
+# Create Naive Bayes
+naive_bayes <- naive_Bayes(mode = "classification") %>%
+  set_engine("naivebayes")
+# Create recipe
+bayes_recipe <- recipe(default ~ ., data = class_train) %>%
+  step_dummy(all_nominal_predictors())
+# Create workflow
+bayes_wflow <- workflow() %>%
+  add_recipe(bayes_recipe) %>%
+  add_model(naive_bayes)
+# Perform fit
+bayes_fit <- bayes_wflow %>% fit(data = class_train)
+```
+
+Let's compare the performance against logistic regression:
+
+```{r}
+augment(bayes_fit, new_data = class_test) %>%
+  accuracy(truth = default, estimate = .pred_class)
+```
+
+Almost the same performance!
+
+## Random Forests
+
+The last algorithm we'll look at is the random forest, which is an
+**ensemble** of decision trees. Ensembling is a common machine learning
+approach in which we combine many smaller models into one final
+predictions.
+
+A decision tree is a method of stratifying the feature space into a
+number of simple regions. Usually, trees use the mean or mode dependent
+variable value for the training data in the region to which it belongs
+(James *et al.* 2021). Trees can be applied to both regression or
+classification problems. To build a single tree, we:
+
+1.  Divide the feature space into distinct regions.
+2.  For every observation that falls into a distinct region ($R_j$) we
+    make the same prediction.
+
+Trees by themselves turn out to not be very good at prediction compared
+to other supervised learning model. However, combine them into a *random
+forest* and they become very useful, especially if the relationship is
+nonlinear and complex. A random forest (Breiman 2001) is an example of
+an ensemble method, which is an approach that combines many simple
+models in order to get a single powerful prediction model.
+
+In a random forest, we build a number of decision trees on bootstrapped
+training samples. Each tree is grown independently on random samples of
+the observations, a process known as *bagging.*
+
+When building the trees, each time a split occurs, we take a random
+sample of features to be split candidates instead of the full set of
+features. By choosing a random subset each time, a random forest
+decorrelates the individual decision trees. This makes the resulting
+average less variable.
+
+Let's try fitting a random forest using the `rand_forest` model:
+
+```{r}
+# Create model specification 
+rf_model <- rand_forest(
+  mtry = tune(),
+  min_n = tune(),
+  trees = 50) %>%
+  set_mode("classification") %>%
+  set_engine("ranger") 
+# Create recipe
+rf_recipe <- recipe(default ~ ., data = class_train) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_normalize(all_predictors())
+# Create workflow
+rf_wflow <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_model)
+```
+
+Random forests are known for having many hyperparameters than need
+tuning. In this case, we need to tune two: `mtry` and `min_n`. Let's
+create the `rsample` object for using 3 folds. Then, we'll tune the
+grid. This time, we'll just specify `grid = 10` to indicate we want 10
+hyperparameter configurations. The `dials` package, in this case, will
+automatically choose those values for us.
+
+```{r}
+# Use cross-validation to tune our model appropriately 
+trees_folds <- vfold_cv(class_train, v = 3)
+
+# Find appropriate tuning parameters
+set.seed(345)
+rf_fit <- tune_grid(
+  object = rf_wflow, 
+  resamples = trees_folds, 
+  grid = 10)
+```
+
+We're going to use a new metric this time called the ROC-AUC. This is
+the Area Under the Curve for the Receiver-Operator Characteristic. The
+main takeaway for this metric is that it tells us how good our
+probability predictions are, rather than just the predictions. In
+classification settings, it's often preferable to the accuracy. It
+varies from 0 to 1, where larger is better:
+
+```{r}
+# View the ROC metric across models 
+rf_fit %>% 
+  collect_metrics() %>%
+  filter(.metric == "roc_auc") %>%
+  select(mean, min_n, mtry)
+```
+
+Now, let's finalize the workflow:
+
+```{r}
+# Select the best RF model 
+best_rf_auc <- select_best(rf_fit, "roc_auc")
+
+final_rf_wflow <- rf_wflow %>%
+  finalize_workflow(parameters = best_rf_auc) %>%
+  fit(data = class_train)
+```
+
+And evaluate the ROC AUC:
+
+```{r}
+final_rf_wflow %>%
+  augment(new_data = class_test) %>%
+  roc_auc(truth = default, estimate = .pred_No)
+```
+
+That's rather good ROC performance!
+
+# Overview
+
+Congratulations, you've made it! We covered the basics of supervised
+machine learning in `tidymodels` in this workshop. However, there's much
+more to explore. The best way to keep pushing forward is to choose a
+problem to study, and refer to the documentation when you need help. The
+website Kaggle has an abundance of good data science problems to work on
+if you need help choosing a task!
