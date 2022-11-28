@@ -1,10 +1,21 @@
-# D-Lab's Introduction to Machine Learning with tidymodels 
+# D-Lab R Machine Learning with tidymodels 
 
-This repository contains the materials for D-Lab's Introduction to Machine Learning with tidymodels. Prior experience with the concepts in [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) and [Data Wrangling and Manipulation in R](https://github.com/dlab-berkeley/R-Data-Wrangling) is assumed. 
+[![Datauhb](https://img.shields.io/badge/launch-datahub-blue)](https://dlab.datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Machine-Learning&urlpath=rstudio%2F&branch=main)
+
+This repository contains the materials for D-Lab's R Machine Learning with
+tidymodels. Prior experience with the concepts in [R
+Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) and [Data
+Wrangling and Manipulation in
+R](https://github.com/dlab-berkeley/R-Data-Wrangling) is assumed. 
 
 ## Workshop Goals 
 
-In this workshop, we provide an introduction to machine learning algorithms by making use of the `tidymodels` package. First, we discuss what machine learning is, what problems it works well for, and what problems it might work less well for. Then, we'll explore the `tidymodels` framework to learn how to fit machine learning models in R. Finally, we will apply the `tidymodels` framework to explore multiple machine learning algorithms in R. 
+In this workshop, we provide an introduction to machine learning algorithms by
+making use of the `tidymodels` package. First, we discuss what machine learning
+is, what problems it works well for, and what problems it might work less well
+for. Then, we'll explore the `tidymodels` framework to learn how to fit machine
+learning models in R. Finally, we will apply the `tidymodels` framework to
+explore multiple machine learning algorithms in R. 
 
 By the end of the workshop, learners should feel prepared to explore machine learning approaches for their data problems. 
 
@@ -18,21 +29,34 @@ We will use RStudio to go through the workshop materials, which requires the ins
 
 2. [Download RStudio](https://rstudio.com/products/rstudio/download/#download): Install RStudio Desktop. This should be free. Do this after you have already installed R. The D-Lab strongly recommends an RStudio edition of 2022.02.0+443 "Prairie Trillium" or higher. 
  
-3. [Download these workshop materials](https://github.com/dlab-berkeley/R-Fundamentals): 
+3. [Download these workshop materials](https://github.com/dlab-berkeley/R-Machine-Learning): 
 
 * Click the green "Code" button in the top right of the repository information.
 * Click "Download Zip".
 * Extract this file to a folder on your computer where you can easily access it (we recommend Desktop).
 
-4. Optional: if you're familiar with `git`, you can instead clone this repository by opening a terminal and entering `git clone git@github.com:dlab-berkeley/Machine-Learning-with-tidymodels.git`.
+4. Optional: if you're familiar with `git`, you can instead clone this repository by opening a terminal and entering `git clone git@github.com:dlab-berkeley/R-Machine-Learning.git`.
 
 5. Make sure the following packages are installed on your computer 
 
 ```
-install.packages(c("tidyverse", "tidymodels", "here","pROC","glmnet", "ranger", "rpart", "xgboost","rpart.plot", "doParallel", "palmerpenguins", "ISLR2", "klaR", "stacks"))
+install.packages(c("tidyverse",
+                   "tidymodels",
+                   "here",
+                   "pROC",
+                   "glmnet",
+                   "ranger",
+                   "rpart",
+                   "xgboost",
+                   "rpart.plot",
+                   "doParallel",
+                   "palmerpenguins",
+                   "ISLR2",
+                   "klaR",
+                   "stacks"))
 ```
 
-In addition you'll need to install the following package from github 
+In addition you'll need to install the following package from GitHub:
 
 ```
 remotes::install_github("tidymodels/discrim")
@@ -44,7 +68,7 @@ Now that you have all the required software and materials, you need to run the c
 
 1. Launch the RStudio software.
 
-2. Use the file navigator to find the `Machine-Learning-with-tidymodels` folder you downloaded from Github.
+2. Use the file navigator to find the `R-Machine-Learning` folder you downloaded from Github.
 
 3. Open up the file corresponding to the part of the workshop you're attending.
 
@@ -66,17 +90,17 @@ The DataHub downloads this repository, along with any necessary packages, and al
 
 This workshop draws heavily on the following resources: 
 
-[*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/).
+* [*Tidy Modeling with R* by Max Kuhn and Julia Silge](https://www.tmwr.org/).
 
-[*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/)
+* [*An Introduction to Statistical Learning* by James, Witten, Hastie, and Tibshirani](https://www.statlearning.com/)
 
-["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075)
+* ["Machine Learning Methods Economists Should Know About" by Athey and Imbens](https://arxiv.org/abs/1903.10075)
 
-[*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html)
+* [*Feature Engineering and Selection: A Practical Approach for Predictive Models* by Kuhn and Johnson (2019)](http://www.feat.engineering/data-splitting.html)
 
-[*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5)
+* [*The Elements of Statistical Learning* by Hastie, Friedman, and Tibshirani](https://link.springer.com/book/10.1007/978-0-387-21606-5)
 
-[*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
+* [*Deep Learning* by Goodfellow, Bengio, and Courville](https://www.deeplearningbook.org/)
 
 ## Other D-Lab R Workshops
 
@@ -98,7 +122,8 @@ This workshop draws heavily on the following resources:
 
 ## Contributors 
 
-[Alex Stephenson](https://github.com/asteves/)
+* [Alex Stephenson](https://github.com/asteves/)
+* Pratik Sachdeva
 
 Previous iterations of D-Lab's Machine Learning with R were created by: 
 
