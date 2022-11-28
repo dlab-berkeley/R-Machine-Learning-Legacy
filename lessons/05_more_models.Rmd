@@ -12,6 +12,19 @@ editor_options:
     wrap: 72
 ---
 
+```{r setup, include=FALSE}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(palmerpenguins)
+  library(ggplot2)
+  library(ISLR2)
+  library(naivebayes)
+  library(discrim)
+}))
+# Prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
 # What Else Can We Do?
 
 Believe it or not, you've learned enough of the foundation in

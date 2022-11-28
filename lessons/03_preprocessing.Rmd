@@ -13,14 +13,12 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(suppressWarnings({ 
   library(tidymodels)
-  library(here)
   library(palmerpenguins)
-  library(tidyverse)
+  library(ggplot2)
 }))
-# Prefer tidymodels functions in any case of name conflict
+# prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
 ```
 
@@ -142,7 +140,7 @@ center and normalize their data. Using the
 [reference](https://recipes.tidymodels.org/reference/index.html),
 identify the function that normalizes data and add it to the recipe to
 apply it to all numeric predictors in the data. Call your new recipe
-`challenge4_recipe`.
+`challenge`_recipe`.
 
 ------------------------------------------------------------------------
 
@@ -251,7 +249,7 @@ rsq_trad(results, truth = bill_length_mm, estimate = .pred)
 
 ------------------------------------------------------------------------
 
-### Challenge 6: Workflow from Scratch
+### Challenge 2: Workflow from Scratch
 
 Let's tackle a new problem: predicting bill depth from the other
 features. Do the following:
@@ -276,25 +274,3 @@ features. Do the following:
     model perform?
 
 ------------------------------------------------------------------------
-
-```{r}
-# Step 1: Create model
-linear_model <- linear_reg()
-# Step 2: Create recipe
-penguins_recipe <- 
-  recipe(bill_depth_mm ~ ., data = penguins_train) %>%
-  step_impute_median(all_numeric_predictors()) %>%
-  step_impute_mode(all_nominal_predictors()) %>%
-  step_normalize(all_numeric_predictors()) %>%
-  step_dummy(all_nominal_predictors())
-# Step 3: Create workflow
-penguins_linear_wflow <- workflow() %>% 
-  add_recipe(penguins_recipe) %>%
-  add_model(linear_model)
-# Step 4: Run fit
-penguins_lm_fit <- fit(penguins_linear_wflow, penguins_train)
-# Step 5: Predictions
-results <- augment(penguins_lm_fit, penguins_test)
-# Step 6: Analyze metrics
-rsq_trad(results, truth = bill_depth_mm, estimate = .pred)
-```

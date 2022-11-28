@@ -83,27 +83,13 @@ you. Go ahead and split the data into train/test sets using an 80/20
 split, and a random state of 23.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(suppressWarnings({ 
   library(tidymodels)
-  library(here)
   library(palmerpenguins)
-  library(tidyverse)
+  library(ggplot2)
 }))
 # Prefer tidymodels functions in any case of name conflict
-tidymodels::tidymodels_prefer() 
-```
-
-```{r}
-# Import data
-penguins <- palmerpenguins::penguins
-penguins <- penguins %>% filter(!is.na(bill_length_mm))
-# Set seed
-set.seed(23)
-# Perform split
-penguin_split <- penguins %>% initial_split(prop = 0.80)
-penguins_train <- training(penguin_split)
-penguins_test <- testing(penguin_split)
+tidymodels::tidymodels_prefer()
 ```
 
 ------------------------------------------------------------------------
