@@ -1,0 +1,62 @@
+---
+title: "R Machine Learning: Regression, Solutions"
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(palmerpenguins)
+  library(ggplot2)
+}))
+# prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+```{r}
+penguins <- palmerpenguins::penguins
+set.seed(12345)
+penguin_split <- penguins %>% initial_split(prop = 0.80)
+penguins_train <- training(penguin_split)
+penguins_test <- testing(penguin_split)
+```
+
+------------------------------------------------------------------------
+
+### Challenge 1: Stratifying a Split
+
+In the above example, we performed the split randomly across samples.
+However, we might not always want to do this. For example, maybe we know
+that certain species of penguins have different kinds of bill lengths,
+and we want to predict bill lengths.
+
+1.  Discuss: What happens if, by chance, all the samples corresponding
+    to species A end up in the training set, and all the samples
+    corresponding to species B end up in the test set? Will this impact
+    performance? *We might never train on samples from species A, and
+    end up overfitting to those samples.*
+
+What we'd like to do is ensure that, for some variable (e.g., species),
+equal proportions of samples for each value appear in the training set
+and test set. This ensures that species A samples are present in both
+the training and test sets. This process is called **stratifying**.
+
+2.  Use the `strata` argument in `initial_split` to stratify according
+    to `species`. Perform the split to obtain training and test sets.
+
+```{r challenge_1}
+penguin_split_strata <- penguins %>% initial_split(prop = 0.80, strata = species)
+penguins_train_strata <- training(penguin_split_strata)
+penguins_test_strata <- testing(penguin_split_strata)
+```
+
+------------------------------------------------------------------------

@@ -1,0 +1,110 @@
+---
+title: "R Machine Learning: Regularization and Cross-Validation, Solutions" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(palmerpenguins)
+  library(ggplot2)
+}))
+# Prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer()
+```
+
+------------------------------------------------------------------------
+
+### Challenge 1: Warm-Up
+
+Before we get started, let's warm up by importing our data and
+performing a train test split. We've providing the importing code for
+you. Go ahead and split the data into train/test sets using an 80/20
+split, and a random state of 23.
+
+```{r setup, include=FALSE}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(palmerpenguins)
+  library(ggplot2)
+}))
+# Prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer()
+```
+
+```{r challenge_1}
+# Import data
+penguins <- palmerpenguins::penguins
+penguins <- penguins %>% filter(!is.na(bill_length_mm))
+# Set seed
+set.seed(23)
+# Perform split
+penguin_split <- penguins %>% initial_split(prop = 0.80)
+penguins_train <- training(penguin_split)
+penguins_test <- testing(penguin_split)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+### Challenge 2: Trying out New Values
+
+Try performing the following experiments. What do you notice about the
+coefficients?
+
+1.  Try a much smaller value for the penalty, such as 1, or 0.1. How do
+    the coefficients look?
+
+```{r challenge_2_1}
+penguins_recipe <- 
+  recipe(bill_length_mm ~ bill_depth_mm + flipper_length_mm + body_mass_g,
+         data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+ridge_model <- linear_reg(
+  mixture = 0, # This specifies only ridge regression
+  penalty = 0.1, # Apply a large penalty
+  engine = "glmnet") # We're using a different engine
+ridge_wflow <- workflow() %>%
+  add_recipe(penguins_recipe) %>%
+  add_model(ridge_model)
+# Run fit
+penguins_ridge_fit <- fit(ridge_wflow, penguins_train)
+# View model
+penguins_ridge_fit %>% tidy()
+```
+
+2.  Replace mixture with the value 1, and try a very large value. This
+    is known as the lasso, which is a different way to regularize
+    coefficients in a linear model. What do you notice?
+
+```{r challenge_2_2}
+penguins_recipe <- 
+  recipe(bill_length_mm ~ bill_depth_mm + flipper_length_mm + body_mass_g,
+         data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+lasso_model <- linear_reg(
+  mixture = 1, # This specifies only lasso regression
+  penalty = 1000, # Apply a large penalty
+  engine = "glmnet") # We're using a different engine
+lasso_wflow <- workflow() %>%
+  add_recipe(penguins_recipe) %>%
+  add_model(lasso_model)
+# Run fit
+penguins_lasso_fit <- fit(lasso_wflow, penguins_train)
+# View model
+penguins_lasso_fit %>% tidy()
+```
+
+------------------------------------------------------------------------
