@@ -14,6 +14,8 @@ output:
 Be sure to have the following packages installed for this workshop:
 
 ```{r install, include=FALSE}
+# Run this command separately on DataHub
+# install.packages("stringi", configure.args='--disable-pkg-config')
 install.packages(c("tidymodels",
                    "ggplot2",
                    "palmerpenguins",
