@@ -1,0 +1,107 @@
+---
+title: "R Machine Learning: Preprocessing and Workflows, Solutions" 
+theme: readable
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    fig_width: 12
+    fig_height: 7
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+suppressMessages(suppressWarnings({ 
+  library(tidymodels)
+  library(palmerpenguins)
+  library(ggplot2)
+}))
+# prefer tidymodels functions in any case of name conflict
+tidymodels::tidymodels_prefer() 
+```
+
+```{r data_preparation}
+# Import data
+penguins <- palmerpenguins::penguins
+# Set seed
+set.seed(12345)
+# Perform split
+penguin_split <- penguins %>% initial_split(prop = 0.80)
+penguins_train <- training(penguin_split)
+penguins_test <- testing(penguin_split)
+```
+
+------------------------------------------------------------------------
+
+### Challenge 1: Creating a New Recipe
+
+Sometimes features on different scales can lead to strange predictions
+and poor test fit. Therefore, one step that analysts may take is to
+center and normalize their data. Using the
+[reference](https://recipes.tidymodels.org/reference/index.html),
+identify the function that normalizes data and add it to the recipe to
+apply it to all numeric predictors in the data. Call your new recipe
+`challenge1_recipe`.
+
+```{r challenge_1}
+challenge1_recipe <- 
+  recipe(bill_length_mm ~ ., data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+### Challenge 2: Workflow from Scratch
+
+Let's tackle a new problem: predicting bill depth from the other
+features. Do the following:
+
+1.  Step 1: Create a linear regression model.
+2.  Step 2: Create a recipe predicting bill depth from all other
+    features. Be sure to pass in the training data. Include the
+    following steps in your recipe:
+    -   Impute all numeric predictors with the median.
+
+    -   Impute all nominal predictors with the mode.
+
+    -   Normalize all numeric predictors.
+
+    -   Create dummy variables for all nominal predictors.
+3.  Step 3: Create a workflow using the model and recipe you created
+    above.
+4.  Step 4: Run the fit on the training data.
+5.  Step 5: Obtain predictions, and augment them to the original test
+    set.
+6.  Step 6: Calculate an $R^2$ using those predictions. How does the
+    model perform?
+
+```{r challenge_2}
+# Step 1: Create model
+linear_model <- linear_reg()
+# Step 2: Create recipe
+penguins_recipe <- 
+  recipe(bill_depth_mm ~ ., data = penguins_train) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+# Step 3: Create workflow
+penguins_linear_wflow <- workflow() %>% 
+  add_recipe(penguins_recipe) %>%
+  add_model(linear_model)
+# Step 4: Run fit
+penguins_lm_fit <- fit(penguins_linear_wflow, penguins_train)
+# Step 5: Predictions
+results <- augment(penguins_lm_fit, penguins_test)
+# Step 6: Analyze metrics
+rsq_trad(results, truth = bill_depth_mm, estimate = .pred)
+```
+
+------------------------------------------------------------------------
