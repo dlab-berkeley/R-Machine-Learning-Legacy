@@ -82,6 +82,10 @@ performing a train test split. We've providing the importing code for
 you. Go ahead and split the data into train/test sets using an 80/20
 split, and a random state of 23.
 
+Note: the variable penguins\$bill_length_mm has missing values. So we
+don't run into errors later, before performing the 80/20 split drop any
+rows that are missing for this variable.
+
 ```{r setup, include=FALSE}
 suppressMessages(suppressWarnings({ 
   library(tidymodels)
@@ -308,10 +312,10 @@ training set, by breaking it up into folds. Here's the process:
     and validated on Fold 2. This process continues for all 5 splits.
 4.  Each hyperparameter's performance is summarized by the average
     predictive performance on all 5 held-out folds. We then choose the
-    hyperparameter that had the best average performance.
+    hyperparameter value that had the best average performance.
 5.  We can then refit a new model to the entire training set, using our
-    chosen hyperparameter. That's our final model - evaluate it on the
-    test set!
+    chosen hyperparameter(s). That's our final model - evaluate it on
+    the test set!
 
 ![cross-validation](https://scikit-learn.org/stable/_images/grid_search_cross_validation.png)
 
@@ -319,7 +323,7 @@ training set, by breaking it up into folds. Here's the process:
 
 So, we need to do two things:
 
-1.  Perform hyperparameter tuning on the mixture value, and
+1.  Decide to perform hyperparameter tuning on the penalty value, and
 2.  Do so using cross-validation.
 
 The `tidymodels` suite has two packages to help us with these steps:
@@ -431,9 +435,17 @@ And lastly, we'll examine the performance on the test set:
 
 ```{r}
 augment(ridge_final, new_data = penguins_test) %>%
-  rsq_trad(truth = bill_length_mm, estimate = .pred)
+  rsq_trad(truth = bill_length_mm, estimate = .pred) 
+
 ```
 
-Our comparison reveals that we can fit better models via
-cross-validation than with just a single training set. This is reflected
-by the lower RMSE and higher $R^2$ averages.
+If we compare this to the model we fit earlier where we made a guess at
+the best value for the penalty hyperparameter, it reveals that we that
+we can fit better models via cross-validation than with just a single
+training set. This is reflected by the higher $R^2$ averages.
+
+```{r}
+# compare to the model we fit in challenge 2 where penalty was chosen at random
+augment(penguins_ridge_fit, new_data = penguins_test) %>%
+  rsq_trad(truth = bill_length_mm, estimate = .pred)
+```
