@@ -1,6 +1,9 @@
 # D-Lab R Machine Learning with tidymodels 
 
 [![DataHub](https://img.shields.io/badge/launch-datahub-blue)](https://dlab.datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Machine-Learning&urlpath=rstudio%2F&branch=main)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dlab-berkeley/R-Machine-Learning/HEAD?urlpath=rstudio)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 
 This repository contains the materials for D-Lab's R Machine Learning with
 tidymodels. Prior experience with the concepts in [R
@@ -37,54 +40,56 @@ We will use RStudio to go through the workshop materials, which requires the ins
 
 4. Optional: if you're familiar with `git`, you can instead clone this repository by opening a terminal and entering `git clone git@github.com:dlab-berkeley/R-Machine-Learning.git`.
 
-5. Make sure the following packages are installed on your computer 
+5. Be sure to run the `install.R` script in the repository so that all necessary
+packages are installed.
 
-```
-install.packages(c("tidyverse",
-                   "tidymodels",
-                   "here",
-                   "pROC",
-                   "glmnet",
-                   "ranger",
-                   "rpart",
-                   "xgboost",
-                   "rpart.plot",
-                   "doParallel",
-                   "palmerpenguins",
-                   "ISLR2",
-                   "klaR",
-                   "stacks"))
-```
+## Is R Not Working on Your Laptop?
 
-In addition you'll need to install the following package from GitHub:
+This workshop makes use of many packages within the R ecosystem. For that
+reason, we recommend using R on your local machine. 
 
-```
-remotes::install_github("tidymodels/discrim")
-```
+If you do not have R installed and the materials loaded on your workshop by the time it starts, we *strongly* recommend using the UC Berkeley DataHub to run the materials for these lessons. You can access the DataHub by clicking the following button:
+
+[![DataHub](https://img.shields.io/badge/launch-datahub-blue)](https://dlab.datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Machine-Learning&urlpath=rstudio%2F&branch=main)
+
+Some users may have to click the link twice if the materials do not load initially.
+
+The DataHub downloads this repository, along with any necessary packages, and
+allows you to run the materials in an RStudio instance on UC Berkeley's servers.
+No installation is needed from your end - you only need an internet browser and
+a CalNet ID to log in. By using the DataHub, you can save your work and come
+back to it at any time. When you want to return to your saved work, go straight
+to [DataHub](https://dlab.datahub.berkeley.edu), sign in, and click on the
+`R-Machine-Learning` folder.
+
+If you don't have a Berkeley CalNet ID, you can still run these lessons in the
+cloud, by clicking this button:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dlab-berkeley/R-Machine-Learning/HEAD?urlpath=rstudio)
+
+If you are loading Binder with this repository for the first time, it may take a
+few minutes to set up. Binder operates similarly to the D-Lab DataHub, but on a
+different set of servers. By using Binder, however, you cannot save your work.
 
 ## Run the Code
 
-Now that you have all the required software and materials, you need to run the code:
+Now that you have all the required software and materials, you need to run the
+code:
 
 1. Launch the RStudio software.
 
-2. Use the file navigator to find the `R-Machine-Learning` folder you downloaded from Github.
+2. Use the file navigator to find the `R-Machine-Learning` folder you downloaded
+   from Github.
 
 3. Open up the file corresponding to the part of the workshop you're attending.
 
-4. If necessary run the initial line of code `renv::init()`. You may see an error and a message "The project library is out of sync with the lockfile." If so, run renv::restore(). 
+4. If necessary, run `install.R` to make sure the requisite packages are
+installed. This should not be necessary on Binder.
 
-4. Place your cursor on a given line and press "Command + Enter" (Mac) or "Control + Enter" (PC) to run an individual line of code. 
+4. Place your cursor on a given line and press "Command + Enter" (Mac) or
+   "Control + Enter" (PC) to run an individual line of code. 
 
 5. The `solutions` folder contains the solutions to the challenge problems.
-
-## Is R not working on your laptop?
-
-This workshop makes use of many packages within the R ecosystem. For that reason, we have found it to be easier to use R on your local machine. 
-
-If you do not have R installed and the materials loaded on your workshop by the time it starts, we *strongly* recommend using the UC Berkeley Datahub to run the materials for these lessons. You can access the DataHub by clicking [this link](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FMachine-Learning-with-tidymodels&urlpath=rstudio%2F&branch=main). Some users may find that they have to click the link twice if the materials do not load initially. 
-
-The DataHub downloads this repository, along with any necessary packages, and allows you to run the materials in an RStudio instance on UC Berkeley's servers. No installation is needed from your end - you only need an internet browser and a CalNet ID to log in. By using the DataHub, you can save your work and come back to it at any time. When you want to return to your saved work, go straight to [DataHub](https://datahub.berkeley.edu), sign in, and click on the `Machine-Learning-with-tidymodels` folder.
 
 ## Additional Resources 
 
@@ -124,6 +129,7 @@ This workshop draws heavily on the following resources:
 
 * [Alex Stephenson](https://github.com/asteves/)
 * Pratik Sachdeva
+* Hero Ashman
 
 Previous iterations of D-Lab's Machine Learning with R were created by: 
 
