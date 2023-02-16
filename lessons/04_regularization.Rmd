@@ -244,7 +244,16 @@ penguins_ridge_fit <- fit(ridge_wflow, penguins_train)
 penguins_ridge_fit %>% tidy()
 ```
 
-What do you notice about the new coefficients?
+What do you notice about the new coefficients? The takeaway here is that
+larger penalties will result in smaller coefficients. As the penalty
+increases, the impacts on coefficients will look different. Consider the
+following example, taken from "Statistical Learning with Sparsity" by
+Hastie et al. The setting here is a regression using several variables,
+indicated on the right. As the penalty decreases (right to left), the
+coefficient values decrease as well. However, there are some interesting
+patterns: consider the `not-hs` variable, for example.
+
+![](../images/reg_path.png){width="442"}
 
 ------------------------------------------------------------------------
 
