@@ -1,0 +1,7 @@
+install.packages("tidymodels")
+install.packages("ggplot2")
+install.packages("palmerpenguins")
+install.packages("naivebayes")
+install.packages("discrim")
+install.packages("ranger")
+install.packages("ISLR2")
