@@ -20,6 +20,7 @@ suppressMessages(suppressWarnings({
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
+options(scipen = 999)
 ```
 
 ```{r data_preparation}
@@ -140,7 +141,7 @@ center and normalize their data. Using the
 [reference](https://recipes.tidymodels.org/reference/index.html),
 identify the function that normalizes data and add it to the recipe to
 apply it to all numeric predictors in the data. Call your new recipe
-`challenge`_recipe`.
+`challenge_recipe`.
 
 ------------------------------------------------------------------------
 

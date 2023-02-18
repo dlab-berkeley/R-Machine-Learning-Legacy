@@ -94,6 +94,7 @@ suppressMessages(suppressWarnings({
 }))
 # Prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer()
+options(scipen = 999)
 ```
 
 ------------------------------------------------------------------------
