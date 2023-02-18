@@ -20,6 +20,7 @@ suppressMessages(suppressWarnings({
 }))
 # prefer tidymodels functions in any case of name conflict
 tidymodels::tidymodels_prefer() 
+options(scipen = 999)
 ```
 
 ## Machine Learning Analysis: A Template
@@ -28,7 +29,7 @@ Most machine learning analyses follow a similar set of steps. We will
 build our discussion of `tidymodels` around this structure. In any
 analysis, we expect to do the following, often over multiple iterations.
 
-![\"The Modeling Process. Taken from Kuhn and Silge
+!["The Modeling Process. Taken from Kuhn and Silge
 2021](https://www.tmwr.org/premade/modeling-process.svg) The figure
 shows the primary modeling steps. Common steps include:
 
