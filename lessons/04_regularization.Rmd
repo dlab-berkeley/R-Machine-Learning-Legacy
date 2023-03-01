@@ -250,7 +250,7 @@ larger penalties will result in smaller coefficients. As the penalty
 increases, the impacts on coefficients will look different. Consider the
 following example, taken from "Statistical Learning with Sparsity" by
 Hastie et al. The setting here is a regression using several variables,
-indicated on the right. As the penalty decreases (right to left), the
+indicated on the right. As the penalty increases (right to left), the
 coefficient values decrease as well. However, there are some interesting
 patterns: consider the `not-hs` variable, for example.
 
@@ -316,14 +316,19 @@ training set, by breaking it up into folds. Here's the process:
 1.  Perform a train/test split, as you normally would.
 2.  Choose a number of folds - the most common is $K=5$ - and split up
     your training data into those equally sized "folds".
-3.  For *each* hyperparameter, we're going to fit $K$ models. Let's
-    assume $K=5$. The first model will be fit on Folds 2-5, and
-    validated on Fold 1. The second model will be fit on Folds 1, 3-5,
-    and validated on Fold 2. This process continues for all 5 splits.
-4.  Each hyperparameter's performance is summarized by the average
-    predictive performance on all 5 held-out folds. We then choose the
-    hyperparameter value that had the best average performance.
-5.  We can then refit a new model to the entire training set, using our
+3.  For each hyperparameter you want to tune, specify the possible
+    values it could take. Then, for each hyperparameter:
+    1.  For *each* *value* of that hyperparameter, we're going to fit
+        $K$ models. Let's assume $K=5$. The first model will be fit on
+        Folds 2-5, and validated on Fold 1. The second model will be fit
+        on Folds 1, 3-5, and validated on Fold 2. This process continues
+        for all 5 splits.
+
+    2.  The performance of each value of that hyperparameter is
+        summarized by the average predictive performance on all 5
+        held-out folds. We then choose the hyperparameter value that had
+        the best average performance.
+4.  We can then refit a new model to the entire training set, using our
     chosen hyperparameter(s). That's our final model - evaluate it on
     the test set!
 
